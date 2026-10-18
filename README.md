@@ -27,11 +27,13 @@ You score on customer interruptions (CI) and customer minutes lost (CML).
 
 There is a guided training shift, four story shifts, a free play mode where you pick the incident and the size of your team, and a network editor for building your own.
 
+**Mobile generators:** two are kept at the generator depot west of Port Ampere. Hire one for a substation that's cut off (up to 500 customers, £2,000 plus £250 an hour). It drives there by road, connects in 20 minutes, and heads home on its own once mains supply returns.
+
 Press enquiries pause the clock and pop up on screen, so you can promise a restoration time or give a holding statement.
 
 ## Career
 
-Run the island week by week through the seasons, Monday to Friday.
+Run the island week by week through the seasons, Monday to Friday. Each shift starts at 07:00 (or 19:00 for a night shift) with the network healthy, and trouble develops as the day goes on.
 
 - **Budget.** Every shift has a budget. Crew time, overtime, contractors, welfare visits, materials and the regulator's fines for customer minutes lost all come out of it.
 - **Rewards.** Stars earn a bonus and experience. Experience promotes you from Trainee engineer up to Control engineer, and the shifts get harder as you rise.
@@ -56,6 +58,10 @@ Run the island week by week through the seasons, Monday to Friday.
 - **Undo** your last order, and a **debrief** after each shift with a timeline, an expert comparison and a tip.
 - **Difficulty levels:** Trainee, Engineer and Control engineer.
 - **Zoom and pan**, substation search, keyboard shortcuts, sound, large text and colour-blind-friendly colours.
+
+## Copyright
+
+© 2026 James Procter. All rights reserved. You're welcome to play Open Point, but its code, graphics, text and design may not be copied, modified, republished or reused without written permission. See [LICENSE](LICENSE).
 
 ## Files
 

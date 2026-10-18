@@ -1,4 +1,9 @@
 <title>Open Point</title>
+<!--
+  Open Point: a fault management game by James Procter.
+  Copyright (c) 2026 James Procter. All rights reserved.
+  This code may not be copied, modified, republished or reused without written permission. See LICENSE.
+-->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -549,6 +554,17 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
 .msgtext{font-size:16px;line-height:1.5;margin:14px 0 0}
 .avatar{flex:none;border-radius:50%}
 .btn.danger{color:var(--fault)}
+.genbadge rect{fill:#f2c230;stroke:#6a5208;stroke-width:1}
+.genbadge text{font:700 9px var(--mono);fill:#2a2205;text-anchor:middle}
+.genbadge.enroute rect{stroke-dasharray:3 2;fill-opacity:.6}
+.route.gen{stroke:#d9a514}
+.badge.gn{background:#f2c230;color:#2a2205}
+.btn.gen{background:#f2c230;color:#2a2205;border-color:#c99a12}
+.genbox{border:1px solid #d8b13a;background:color-mix(in srgb,#f2c230 14%,var(--panel));border-radius:6px;padding:10px 12px;margin:12px 0 0;font-size:14px}
+.genbox>b{display:block;font:600 11px var(--body);text-transform:uppercase;letter-spacing:.09em;color:#8a6a0a;margin-bottom:3px}
+.genbox .btn{margin-top:8px}
+.genunit .fan{animation:alarm 1s ease-in-out infinite}
+.copyright{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted)}
 .mbox.press{max-width:520px;border-top:5px solid var(--warn)}
 .press-h{display:flex;gap:12px;align-items:center;margin-top:4px}
 .press-h h2{margin:0}
@@ -653,6 +669,8 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
 <div id="tip" class="tip" role="tooltip" hidden></div>
 
 <script>
+/* Open Point. Copyright (c) 2026 James Procter. All rights reserved.
+   Not for copying, modification, redistribution or reuse without written permission. See LICENSE. */
 // ======================= Network definitions =======================
 const MEGAWATT = {
   name:'Megawatt Island', w:1600, h:900, depot:[860,628], dwg:'MWI 11-001 rev F', mlDefault:[0,26,'middle'],
@@ -720,13 +738,14 @@ const MEGAWATT = {
   ],
   decor:{
     floodNodes:['D3','V5','D2','C3','K3'],
+    genDepot:[562,664],   // the mobile generator yard
     coast:'M150,320 C160,190 320,105 500,95 C620,88 690,60 820,75 C960,90 1060,60 1200,85 C1330,105 1420,170 1450,270 C1480,370 1450,450 1430,540 C1410,640 1310,710 1170,750 C1040,790 920,830 780,815 C640,800 540,840 420,805 C290,770 170,710 130,610 C100,530 140,430 150,320 Z',
     river:'M590,430 C540,500 470,560 462,640 S470,760 470,860',
     hills:[[600,400,120,72]],
     parks:[[400,190,100,58,'Fell Wood'],[1010,330,120,64,'Joule Forest']],
     labels:[[690,118,'Ohmsford','town'],[1330,332,'Joulebury','town'],[250,388,'Voltcombe','town'],[860,792,'Port Ampere','town'],[1240,64,'Faraday Head','town'],
       [1088,412,'Megawatt Airport'],[673,868,'Port Ampere Docks'],[300,272,'Volt Castle'],
-      [600,343,'Megawatt Fell'],[505,606,'River Current']],
+      [600,343,'Megawatt Fell'],[505,606,'River Current'],[562,700,'Generator depot']],
     // boats sailing round the coast, on loops out at sea (seconds per lap)
     boats:[
       {kind:'sail',dur:60,d:'M260,42 C480,6 900,8 1160,30 C900,58 480,62 260,42Z'},
@@ -747,6 +766,7 @@ const MEGAWATT = {
       [[300,430],[370,485],[470,600],[705,672]],                      // Voltcombe – Port Ampere
       [[300,430],[264,510],[250,590],[296,655],[390,700],[545,772],[705,742]], // the coast road via Sandy Cove and Pebble Bay
       [[1190,605],[1120,545],[1098,532]],                             // Airport Road up to the terminal
+      [[1106,628],[1110,670]],                                        // into the stadium car park
     ],
     // town plans: a street grid for the city and Voltcombe, a high street with side lanes for villages, one lane for hamlets
     towns:[
@@ -764,7 +784,7 @@ const MEGAWATT = {
     lakes:[[958,425,44,22,'Ohm Water']],
     // the railway skirts round the south and east of the airfield
     rail:{pts:[[870,598],[1000,600],[1100,592],[1172,576],[1236,532],[1262,470],[1240,402]],stations:[[872,590,'Port Ampere'],[1060,600,'Airport'],[1240,398,'Joulebury']]},
-    landmarks:[[1325,140,'lighthouse'],[628,376,'mast'],[905,300,'solar'],[1080,700,'stadium'],[860,410,'golf'],[445,545,'quarry'],[126,500,'pier'],[132,566,'huts'],
+    landmarks:[[1325,140,'lighthouse'],[628,376,'mast'],[905,300,'solar'],[1112,708,'stadium'],[860,410,'golf'],[378,612,'quarry'],[562,664,'gendepot'],[126,500,'pier'],[132,566,'huts'],
       [1440,95,'offshore'],[1478,122,'offshore'],[1516,150,'offshore'],[1500,92,'offshore'],[760,260,'cows'],[1150,280,'cows'],[980,250,'tractor'],[1380,178,'lifeboat'],[978,535,'hospital'],
       [736,146,'church'],[1272,346,'church'],[334,458,'church'],[905,712,'cathedral'],[284,296,'castle'],[330,738,'tents'],[505,812,'boat'],[530,822,'boat'],
       [1010,214,'turbine'],[1045,203,'turbine'],[1080,214,'turbine']],
@@ -996,6 +1016,9 @@ function updateOn(){
       if(fed) S.bkStart[n]=null;
       else { if(S.bkStart[n]==null){ S.bkStart[n]=S.t; log(`${N[n].site?N[n].site.name:N[n].hospital||N[n].name}: backup generator running (about ${fmtH(N[n].backup)}).`); } fed=S.t-S.bkStart[n]<N[n].backup; }
     }
+    // a hired mobile generator carries the substation while it is cut off from the network
+    const gen=genAt(n);
+    if(gen&&gen.stage==='on'){ if(sol.island[n]!=null) genHome(gen,`Mains supply is back at ${N[n].name}, so generator ${gen.id} has been disconnected and is heading back to the depot.`); else fed=true; }
     const on=fed&&!S.lvOut[n];
     if(S.on[n]&&!on){ S.offSince[n]=S.t; S.counted[n]=false; S.affected+=N[n].cust; if(S.everOff&&S.everOff[n]==null) S.everOff[n]=S.t; }
     if(!S.on[n]&&on&&S.backAt) S.backAt[n]=S.t;
@@ -1028,6 +1051,7 @@ function accrue(dt){
       if(cr.restUntil&&S.t<cr.restUntil) return;
       if(cr.job||cr.queue.length){ cr.worked=(cr.worked||0)+dt; if(ot) S.cost.overtime+=dt; else S.cost.crew+=dt; }
     });
+    (S.gens||[]).forEach(g=>{ if(g.stage==='on') S.cost.generators=(S.cost.generators||0)+GEN.hourly*dt/60; });
   }
 }
 function callsRecent(){
@@ -1040,7 +1064,7 @@ const INCIDENT_KINDS=new Set(['fault','digin','theft','floodhit','floodclear','v
 const incidentPending = ()=>S.pending.some(e=>INCIDENT_KINDS.has(e.kind))||!!(S.pole&&!S.pole.done);
 function allClear(){
   return !incidentPending()&&S.faults.every(f=>!f.active)&&!RMUS.some(n=>S.theft[n]||(S.flooded&&S.flooded[n])||(S.lvFault&&S.lvFault[n]))
-    &&(!S.planned||S.planned.state==='done')&&offCount()===0&&isNormal();
+    &&(!S.planned||S.planned.state==='done')&&offCount()===0&&isNormal()&&!(S.gens||[]).some(g=>g.stage==='on'||g.stage==='setup');
 }
 // switchgear nobody may touch: after a theft, or while a substation is under flood water
 const locked = n=>!!((S.theft&&S.theft[n])||(S.flooded&&S.flooded[n]));
@@ -1160,7 +1184,13 @@ function nextEvent(){
   const consider=(t,fn)=>{ if(!best||t<best.t) best={t,fn}; };
   if(S.control.length) consider(S.control[0].tDone,doControl);
   S.crews.forEach((cr,i)=>{ const j=cr.job; if(j) consider(j.stage==='travel'?j.tArrive:j.tDone,()=>crewEvent(i)); else if(cr.restUntil&&cr.queue.length) consider(cr.restUntil,()=>{ cr.restUntil=null; log(`${cr.id} is back from rest.`); startNext(i); }); });
-  if(S.pending.length) consider(S.pending[0].t,()=>handleEvent(false));
+  if(S.pending.length) consider(S.pending[0].t,()=>{
+    const p=S.pending[0], r=handleEvent(false);
+    // after a quiet start, the first real trouble becomes the shift's headline
+    if(S.quiet&&(INCIDENT_KINDS.has(p.kind)||p.kind==='floodwarn'||p.kind==='flicker')){ afterChange(); S.quiet=false; S.headline=eventHeadline(p,r||{tripped:[]},S.t)+headlineExtras(); S.firstAt=S.t; dirty=true; }
+    return r;
+  });
+  (S.gens||[]).forEach(g=>{ const t=g.stage==='travel'||g.stage==='return'?g.tArrive:g.stage==='setup'?g.tOn:null; if(t!=null) consider(t,()=>genEvent(g)); });
   return best;
 }
 function advance(dt){
@@ -1501,6 +1531,72 @@ function orderVisit(n){ if(!canOrder()) return; pushUndo('send a crew to '+N[n].
 const safeBusy = n=>S.crews.some(cr=>(cr.job&&cr.job.type==='makesafe'&&cr.job.node===n)||cr.queue.some(j=>j.type==='makesafe'&&j.node===n));
 const nodeJobBusy = (n,type)=>S.crews.some(cr=>(cr.job&&cr.job.type===type&&cr.job.node===n)||cr.queue.some(j=>j.type===type&&j.node===n));
 function orderNodeJob(n,type){ if(!canOrder()||nodeJobBusy(n,type)) return; pushUndo(`${type==='lvfix'?'fix the street fault at':'rebuild'} ${N[n].name}`); dispatch({type,node:n}); afterChange(); render(); }
+// ---------- Mobile generators ----------
+// A small fleet kept at the generator depot. One can carry a substation's customers while it is cut off from the network.
+const GEN={fleet:2,cap:500,hire:2000,hourly:250,setup:20};
+const genDepot = ()=>(NET.decor&&NET.decor.genDepot)||NET.depot;
+const genAt = n=>(S.gens||[]).find(g=>g.node===n&&g.stage!=='return');
+const gensFree = ()=>GEN.fleet-(S.gens||[]).filter(g=>g.stage!=='home').length;
+// why a generator can't help here, or null if it can
+function genBlock(n){
+  if(S.on[n]) return 'customers here are on supply';
+  if(genAt(n)) return 'a generator is already assigned';
+  if(S.theft[n]) return 'the low-voltage cables have been stolen';
+  if(S.flooded[n]) return 'the substation is flooded';
+  if(S.lvFault[n]) return 'the fault is in the street cables, past where a generator connects';
+  if(N[n].cust>GEN.cap) return `too many customers (${fmtN(N[n].cust)}; a mobile generator can carry about ${GEN.cap})`;
+  if(gensFree()<=0) return 'both generators are already out';
+  return null;
+}
+const genEta = n=>Math.round(tt(genDepot(),N[n].m)*(nightWork(S.t)?1.15:1));
+function hireGenerator(n){
+  if(!canOrder()||genBlock(n)) return;
+  pushUndo(`hire a generator for ${N[n].name}`);
+  S.gens=S.gens||[];
+  const home=S.gens.find(g=>g.stage==='home'), id=home?home.id:'G'+(S.gens.length+1), from=genDepot().slice(), d=genEta(n);
+  const g=home||{id}; S.gens=S.gens.filter(x=>x!==home).concat(g);
+  Object.assign(g,{node:n,stage:'travel',from,to:N[n].m.slice(),t1:S.t,tArrive:S.t+d,path:routePath(from,N[n].m).map(p=>[+p[0].toFixed(1),+p[1].toFixed(1)])});
+  S.cost.generators=(S.cost.generators||0)+GEN.hire;
+  log(`Mobile generator ${g.id} hired for ${N[n].name} (£${fmtN(GEN.hire)} plus £${GEN.hourly} an hour). It arrives about ${fmtT(g.tArrive)} and takes ${GEN.setup} minutes to connect.`);
+  afterChange(); render();
+}
+// send a generator back to the depot
+function genHome(g,msg){
+  const from=genPos(g).slice(), to=genDepot().slice(), d=Math.round(tt(from,to));
+  if(msg) log(msg,g.stage==='on'?'good':'');
+  Object.assign(g,{stage:'return',from,to,t1:S.t,tArrive:S.t+d,path:d>0?routePath(from,to).map(p=>[+p[0].toFixed(1),+p[1].toFixed(1)]):null});
+  dirty=true;
+}
+function genEvent(g){
+  if(g.stage==='travel'){
+    if(S.on[g.node]){ genHome(g,`Generator ${g.id} reached ${N[g.node].name}, but the customers are already back on. Sending it home.`); return; }
+    g.stage='setup'; g.tOn=S.t+GEN.setup; log(`Generator ${g.id} on site at ${N[g.node].name}. Connecting (about ${GEN.setup} minutes).`);
+  } else if(g.stage==='setup'){
+    const why=genBlock(g.node);
+    if(why&&!/already assigned|both generators/.test(why)){ genHome(g,`Generator ${g.id} can't connect at ${N[g.node].name}: ${why}. Sending it home.`); return; }
+    g.stage='on'; g.since=S.t; afterChange();
+    log(`Generator ${g.id} running at ${N[g.node].name}. ${fmtN(N[g.node].cust)} customers back on.`,'good'); sfx('chime');
+  } else if(g.stage==='return'){
+    g.stage='home'; g.node=null; g.path=null; log(`Generator ${g.id} is back at the depot.`);
+  }
+  dirty=true;
+}
+function genPos(g){
+  if((g.stage==='travel'||g.stage==='return')&&g.tArrive>g.t1){
+    const k=Math.max(0,Math.min(1,(S.t-g.t1)/(g.tArrive-g.t1)));
+    return g.path&&g.path.length>1?pointAlong(g.path,k):[g.from[0]+(g.to[0]-g.from[0])*k,g.from[1]+(g.to[1]-g.from[1])*k];
+  }
+  if(g.stage==='return') return g.to;
+  if(g.stage==='home') return genDepot();
+  return N[g.node].m;
+}
+function genStatus(g){
+  if(g.stage==='home') return 'At the generator depot';
+  if(g.stage==='travel') return `Driving to ${N[g.node].name} · arrives ${fmtT(g.tArrive)}`;
+  if(g.stage==='setup') return `Connecting at ${N[g.node].name} · on at ${fmtT(g.tOn)}`;
+  if(g.stage==='on') return `Running at ${N[g.node].name} since ${fmtT(g.since)}`;
+  return `Returning to the depot · back ${fmtT(g.tArrive)}`;
+}
 function orderMakeSafe(n){ if(!canOrder()||safeBusy(n)) return; pushUndo('make '+N[n].name+' safe'); dispatch({type:'makesafe',node:n}); afterChange(); render(); }
 function nearEnd(cid,i){
   const c=CBL[cid], ends=[c.a,c.b].filter(x=>N[x].kind!=='primary');
@@ -1596,7 +1692,9 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
   if(ctx&&ctx.type==='career') applyUpgrades(def,upg);
   useNetwork(def);
   const start={s0:10*60,planned:8*60+30,heatwave:12*60+rint(0,150),festival:12*60+rint(30,90)}[shift&&shift.id==='s0'?'s0':scen];
-  const t=start!=null?start:shift&&shift.id==='s2'?22*60+Math.floor(rand()*90):(ctx&&ctx.night?21*60+rint(0,120):7*60+Math.floor(rand()*12*60));
+  const career=ctx&&ctx.type==='career'&&scen!=='planned';
+  // career shifts run like real ones: a day shift from 07:00 or a night shift from 19:00
+  const t=career?(ctx.night?19*60:7*60):start!=null?start:shift&&shift.id==='s2'?22*60+Math.floor(rand()*90):(ctx&&ctx.night?21*60+rint(0,120):7*60+Math.floor(rand()*12*60));
   const storm=scen==='storm'||scen==='bigstorm';
   const depots=[NET.depot,...(NET.depot2?[NET.depot2]:[])];
   const unit=(role,i)=>{ const d=depots[i%depots.length]; return {id:(role==='crew'?'Crew ':'Assessor ')+(i+1),tag:(role==='crew'?'CR':'AS')+(i+1),role,pos:d.slice(),at:'depot',job:null,queue:[],worked:0}; };
@@ -1610,7 +1708,7 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
      control:[],log:[],tested:{},sel:null,phase:scen==='planned'?'planned':'restore',modal:null,dispatch:'auto',headline:'',stormUntil:null,restored:null,closedAt:null,
      diff:ctx&&ctx.diff||UI.settings.difficulty, everOff:{}, backAt:{}, maxOff:{}, hist:[], frames:[], hintsL3:0, undos:0,
      flooded:{}, lvFault:{}, rtuDown:{}, rtuFail:null, bkStart:{}, welfare:{}, heat:scen==='heatwave', festival:null, planned:null, pole:null, dev:null, flood:null,
-     cost:{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0}, upg, ctx:ctx?{type:ctx.type,label:ctx.label,date:ctx.date,week:ctx.week,day:ctx.day}:null,
+     cost:{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0,generators:0}, gens:[], upg, ctx:ctx?{type:ctx.type,label:ctx.label,date:ctx.date,week:ctx.week,day:ctx.day}:null,
      season:ctx&&ctx.season||null,
      objectives:(shift&&shift.objectives)||SCEN_OBJ[scen]||(storm?['allBack240','hosp60','psr','press']:['allBack120','noFaultTrips','noOverload','press'])};
   UI.undo=[]; UI.why=null; UI.hint=null; UI.pulse=null; UI.vb={}; UI.replay=null;
@@ -1621,6 +1719,15 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
   if(scen==='festival'){ const nodeF=N.C1?'C1':RMUS.slice().sort((a,b)=>N[b].cust-N[a].cust)[0]; S.festival={node:nodeF,from:t+30,to:t+11*60,amps:70}; }
   if(scen==='planned') S.planned=pickPlannedJob(t);
   S.pending=planEvents(scen,t,shift);
+  if(career){
+    // nothing is broken when the shift starts: trouble develops through the day
+    const lead=storm?rint(40,100):rint(30,150), later=['t','at','until','failAt'];
+    S.pending.forEach(e=>{ if(e.kind==='media') return; later.forEach(k=>{ if(e[k]!=null) e[k]+=lead; }); });
+    // and a little more can go wrong later in the shift
+    if(rand()<0.55&&FAULTABLE.length){ const c=FAULTABLE[Math.floor(rand()*FAULTABLE.length)]; if(!S.pending.some(e=>e.cable===c)) S.pending.push({kind:'fault',t:t+lead+rint(150,480),cable:c,transient:rand()<0.45}); }
+    if(rand()<0.3) S.pending.push({kind:'lv',t:t+rint(60,600),node:RMUS[Math.floor(rand()*RMUS.length)]});
+    S.pending.sort((a,b)=>a.t-b.t);
+  }
   const inc=S.pending.filter(e=>e.kind==='fault'||e.kind==='theft');
   if(storm&&inc.length>1) S.stormUntil=inc[inc.length-1].t+15;
   if(storm){ const w=S.weather; news('Met Office',`${warnLevel(w.peak)} warning: Storm ${w.name} to bring gusts of up to ${w.peak} mph to ${NET.name}`); }
@@ -1629,22 +1736,38 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
   const cb=r.tripped[0], off=fmtN(offCount());
   // the opening line of the incident, matched to what happened first
   if(scen==='planned'){ const c=CBL[S.planned.cable]; S.headline=`Planned work: a crew needs the ${cableName(c)} cable switched off for maintenance between ${fmtT(S.planned.from)} and ${fmtT(S.planned.to)}. Do it without anyone losing power, then put the network back to normal.`; }
-  else if(!first) S.headline=`${fmtT(t)}: a quiet start. Keep an eye on the network.`;
-  else if(first.kind==='floodwarn') S.headline=`At ${fmtT(t)} a flood warning was issued for ${N[first.node].name}. The water is expected at about ${fmtT(first.at)}.`;
-  else if(first.kind==='vehicle') S.headline=`At ${fmtT(t)} a car hit a pole on the ${cableName(CBL[first.cable])} line. The police want it switched off within 25 minutes.`;
-  else if(first.kind==='flicker') S.headline=`At ${fmtT(t)} customers near ${N[first.node].name} started reporting flickering lights. Something nearby is about to fail.`;
-  else if(first.kind==='theft') S.headline=`At ${fmtT(t)} the intruder alarm went off at ${N[first.node].name} substation. Thieves have cut out the copper and ${off} customers are off supply.`;
-  else if(first.kind==='digin') S.headline=`At ${fmtT(t)} a digger struck the ${cableName(CBL[first.cable])} cable${cb?` and breaker ${CB[cb].name} (${CB[cb].feeder}) tripped`:''}. ${off} customers are off supply.`;
-  else S.headline=cb?`At ${fmtT(t)} breaker ${CB[cb].name} (${CB[cb].feeder}) at ${N[CB[cb].prim].name} tripped. ${off} customers are off supply.`
-                     :r.reclosed?`At ${fmtT(t)} an auto-recloser cleared a passing fault on its own.`:`At ${fmtT(t)} a cable failed on a section that is not in use.`;
-  if(storm) S.headline+=` Storm ${S.weather.name} is passing over ${NET.name}, so expect more faults.`;
-  if(S.heat) S.headline+=' A heatwave means higher demand and cables that can carry less.';
-  if(S.festival) S.headline+=` The Port Ampere Festival at ${N[S.festival.node].name} runs from ${fmtT(S.festival.from)} to ${fmtT(S.festival.to)} and must not lose power.`;
+  else if(!first){
+    // career shifts open quietly; the headline is rewritten when the first thing goes wrong
+    S.quiet=true;
+    S.headline=S.ctx&&S.ctx.type==='career'?`${fmtT(t)}: your ${hourOf(t)>=19||hourOf(t)<7?'night':'day'} shift begins and the whole network is in normal running. Start the clock and keep watch: something will go wrong before long.`
+      :`${fmtT(t)}: a quiet start. Keep an eye on the network.`;
+  }
+  else S.headline=eventHeadline(first,r,t);
+  S.headline+=headlineExtras();
   const offNames=RMUS.filter(n=>!S.on[n]).map(n=>N[n].name);
   if(offNames.length) log(`${off} customers off. Calls coming in from ${offNames.slice(0,3).join(', ')}${offNames.length>3?' and more':''}.`);
   log(`${plural(crews,'crew')}${assessors?` and ${plural(assessors,'damage assessor')}`:''} at the depot, ready to go. The clock is paused until you start it.`);
   SEED=null;   // only the setup is seeded
   recordFrame(); dirty=true;
+}
+// the opening line of an incident, matched to what happened first
+function eventHeadline(first,r,t){
+  const cb=r.tripped&&r.tripped[0], off=fmtN(offCount());
+  if(first.kind==='floodwarn') return `At ${fmtT(t)} a flood warning was issued for ${N[first.node].name}. The water is expected at about ${fmtT(first.at)}.`;
+  if(first.kind==='vehicle') return `At ${fmtT(t)} a car hit a pole on the ${cableName(CBL[first.cable])} line. The police want it switched off within 25 minutes.`;
+  if(first.kind==='flicker') return `At ${fmtT(t)} customers near ${N[first.node].name} started reporting flickering lights. Something nearby is about to fail.`;
+  if(first.kind==='theft') return `At ${fmtT(t)} the intruder alarm went off at ${N[first.node].name} substation. Thieves have cut out the copper and ${off} customers are off supply.`;
+  if(first.kind==='lv') return `At ${fmtT(t)} calls started coming in from ${N[first.node].name}: no power, but the 11 kV network is fine there.`;
+  if(first.kind==='digin') return `At ${fmtT(t)} a digger struck the ${cableName(CBL[first.cable])} cable${cb?` and breaker ${CB[cb].name} (${CB[cb].feeder}) tripped`:''}. ${off} customers are off supply.`;
+  return cb?`At ${fmtT(t)} breaker ${CB[cb].name} (${CB[cb].feeder}) at ${N[CB[cb].prim].name} tripped. ${off} customers are off supply.`
+    :r.reclosed?`At ${fmtT(t)} an auto-recloser cleared a passing fault on its own.`:`At ${fmtT(t)} a cable failed on a section that is not in use.`;
+}
+function headlineExtras(){
+  let h='';
+  if(S.weather&&S.weather.storm) h+=` Storm ${S.weather.name} is passing over ${NET.name}, so expect more faults.`;
+  if(S.heat) h+=' A heatwave means higher demand and cables that can carry less.';
+  if(S.festival) h+=` The Port Ampere Festival at ${N[S.festival.node].name} runs from ${fmtT(S.festival.from)} to ${fmtT(S.festival.to)} and must not lose power.`;
+  return h;
 }
 // planned work: pick a cable in the middle of a circuit that can be taken out without anyone losing power
 function pickPlannedJob(t){
@@ -1812,7 +1935,7 @@ function roadNet(){
   const n0=lines.length;
   for(let li=0;li<n0;li++){ const l=lines[li]; [l.pts[0],l.pts[l.pts.length-1]].forEach(e=>{ const nb=nearestOnLines(lines.slice(0,n0),e,li); if(nb&&nb.d>0.5&&nb.d<30) lines.push({pts:[e,nb.pt],kind:'street'}); }); }
   // an access lane from every substation and the depot to the nearest road
-  [...Object.keys(N).map(k=>N[k].m),NET.depot].forEach(p=>{ const nb=nearestOnLines(lines,p); if(nb&&nb.d>4) lines.push({pts:[p,nb.pt],kind:'spur'}); });
+  [...Object.keys(N).map(k=>N[k].m),NET.depot,...(d.genDepot?[d.genDepot]:[])].forEach(p=>{ const nb=nearestOnLines(lines,p); if(nb&&nb.d>4) lines.push({pts:[p,nb.pt],kind:'spur'}); });
   let graph=buildGraph(lines);
   // make sure every piece of road connects to the rest: tie stray pieces to the nearest other piece
   for(let pass=0;pass<12;pass++){
@@ -1943,7 +2066,7 @@ const LANDMARK = {
   // offshore turbine on a yellow foundation, with a wave ring at the waterline
   offshore:`<ellipse cx="0" cy="12" rx="6" ry="2" fill="none" stroke="#dff1ff" stroke-width="1"/><rect class="lm-y" x="-2" y="7" width="4" height="5"/><path class="lm-line" d="M0,7 L0,-12"/><path class="lm-w" d="M0,-12 L-2,-27 L1,-12Z M0,-12 L13,-4 L1,-11Z M0,-12 L-12,-4 L-1,-12Z" style="stroke:#38403f;stroke-width:.6"><animateTransform attributeName="transform" type="rotate" from="0 0 -12" to="360 0 -12" dur="5s" repeatCount="indefinite"/></path><circle class="lm-d" cx="0" cy="-12" r="1.6"/>`,
   solar:[0,1,2].map(r=>[0,1,2,3].map(c=>`<rect x="${-26+c*13}" y="${-14+r*10}" width="11" height="7" fill="#2c4a7a" stroke="#9fb6d6" stroke-width=".7"/><line x1="${-26+c*13}" y1="${-10.5+r*10}" x2="${-15+c*13}" y2="${-10.5+r*10}" stroke="#6f8fbf" stroke-width=".5"/>`).join('')).join('')+`<rect x="-28" y="-16" width="54" height="34" rx="2" fill="none" stroke="#7a8a6a" stroke-width=".8" stroke-dasharray="2 2"/>`,
-  stadium:`<ellipse cx="0" cy="0" rx="30" ry="20" fill="#d9d4c7" stroke="#8b867a" stroke-width="1"/><ellipse cx="0" cy="0" rx="22" ry="13" fill="#5aa65a"/><rect x="-14" y="-8" width="28" height="16" fill="none" stroke="#fff" stroke-width=".8"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#fff" stroke-width=".8"/><circle cx="0" cy="0" r="3" fill="none" stroke="#fff" stroke-width=".8"/>`+[[-30,-18],[30,-18],[-30,18],[30,18]].map(([x,y])=>`<path class="lm-line" d="M${x},${y} L${x},${y-10}"/><rect class="lm-y" x="${x-2.5}" y="${y-13}" width="5" height="3"/>`).join(''),
+  stadium:`<rect x="-30" y="-40" width="60" height="16" rx="2" fill="#b9b7b0" stroke="#8b867a" stroke-width=".8"/>`+[-24,-16,-8,0,8,16,24].map(x=>`<line x1="${x}" y1="-40" x2="${x}" y2="-35" stroke="#fff" stroke-width=".7"/><line x1="${x}" y1="-29" x2="${x}" y2="-24" stroke="#fff" stroke-width=".7"/>`).join('')+`<rect x="-4" y="-38" width="8" height="12" fill="#b9b7b0"/><ellipse cx="0" cy="0" rx="30" ry="20" fill="#d9d4c7" stroke="#8b867a" stroke-width="1"/><ellipse cx="0" cy="0" rx="22" ry="13" fill="#5aa65a"/><rect x="-14" y="-8" width="28" height="16" fill="none" stroke="#fff" stroke-width=".8"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#fff" stroke-width=".8"/><circle cx="0" cy="0" r="3" fill="none" stroke="#fff" stroke-width=".8"/>`+[[-30,-18],[30,-18],[-30,18],[30,18]].map(([x,y])=>`<path class="lm-line" d="M${x},${y} L${x},${y-10}"/><rect class="lm-y" x="${x-2.5}" y="${y-13}" width="5" height="3"/>`).join(''),
   golf:`<path d="M-30,6 C-24,-12 -4,-16 10,-10 C26,-4 34,8 22,14 C8,20 -22,20 -30,6Z" fill="#8fd17c" stroke="#6bb05a" stroke-width="1"/><ellipse cx="14" cy="2" rx="7" ry="5" fill="#a9e295"/><ellipse cx="-12" cy="8" rx="6" ry="3" fill="#f1dfa6"/><path class="lm-line" d="M15,2 L15,-10"/><path class="lm-r" d="M15,-10 L22,-7.5 L15,-5Z"/><circle cx="-20" cy="2" r="1" fill="#fff"/>`,
   quarry:`<path d="M-26,8 C-26,-10 -6,-16 10,-14 C26,-12 30,2 22,12 C10,20 -20,20 -26,8Z" fill="#cbbfa8" stroke="#9c8f76" stroke-width="1"/><path d="M-16,6 C-14,-4 0,-8 10,-6 C18,-4 18,6 10,10 C0,13 -14,12 -16,6Z" fill="#b3a68c"/><path d="M-10,4 C-8,-1 2,-3 7,-1" fill="none" stroke="#9c8f76" stroke-width="1"/><rect class="lm-y" x="8" y="-16" width="9" height="5" rx="1"/><circle class="lm-d" cx="10" cy="-10" r="1.6"/><circle class="lm-d" cx="15.5" cy="-10" r="1.6"/>`,
   pier:`<rect x="-46" y="-2.5" width="46" height="5" fill="#b08c5a" stroke="#7a5f3a" stroke-width=".7"/>`+[-42,-34,-26,-18,-10].map(x=>`<line x1="${x}" y1="2.5" x2="${x}" y2="6" stroke="#7a5f3a" stroke-width="1"/>`).join('')+`<rect x="-54" y="-6" width="10" height="12" rx="1.5" fill="#fdfbf6" stroke="#7a5f3a" stroke-width=".7"/><path class="lm-r" d="M-55,-6 L-49,-11 L-43,-6Z"/>`,
@@ -1951,6 +2074,8 @@ const LANDMARK = {
   cows:[[-8,0],[3,-4],[9,4]].map(([x,y])=>`<g transform="translate(${x},${y})"><ellipse rx="3.4" ry="2" fill="#fdfbf6" stroke="#38403f" stroke-width=".5"/><circle cx="-1" cy="-.4" r=".9" fill="#38403f"/><circle cx="3.6" cy="-1" r="1.3" fill="#38403f"/></g>`).join(''),
   tractor:`<rect x="-6" y="-5" width="9" height="6" rx="1" fill="#d8453a"/><rect x="-2" y="-9" width="5" height="5" fill="#9fc6dc" stroke="#38403f" stroke-width=".5"/><circle cx="-4" cy="2" r="3" fill="#38403f"/><circle cx="4" cy="2.5" r="2" fill="#38403f"/>`,
   school:`<rect class="lm-w" x="-11" y="-5" width="22" height="11" style="stroke:#6b6f6c;stroke-width:.7"/><path style="fill:#b5522b" d="M-12,-5 L0,-11 L12,-5Z"/>`+[-8,-3,4,8].map(x=>`<rect x="${x-1.5}" y="-2" width="3" height="3" fill="#9fc6dc"/>`).join('')+`<rect class="lm-d" x="-1.5" y="1" width="3" height="5"/><path class="lm-line" d="M14,6 L14,-8"/><path class="lm-r" d="M14,-8 L20,-6 L14,-4Z"/>`,
+  // the mobile generator yard: fenced compound, workshop, and generators waiting on trailers
+  gendepot:`<rect x="-30" y="-20" width="60" height="38" rx="2" fill="#d9d6cc" stroke="#7d7a70" stroke-width="1" stroke-dasharray="3 1.5"/><rect x="-26" y="-17" width="22" height="14" fill="#8a9aa6" stroke="#55606a" stroke-width=".8"/><path d="M-27,-17 L-15,-23 L-3,-17Z" fill="#55606a"/><rect x="-19" y="-10" width="8" height="7" fill="#3a444c"/>`+[[2,-15],[2,-2],[16,-15],[16,-2]].map(([x,y])=>`<rect x="${x}" y="${y}" width="11" height="8" rx="1" fill="#f2c230" stroke="#6a5208" stroke-width=".8"/><path d="M${x+6},${y+1.5} L${x+4},${y+4} L${x+6.5},${y+4} L${x+4.5},${y+6.5}" fill="none" stroke="#2a2205" stroke-width=".9"/>`).join('')+`<rect x="-26" y="5" width="22" height="9" rx="1.5" fill="#fdfbf6" stroke="#55606a" stroke-width=".6"/><text x="-15" y="12" text-anchor="middle" style="font:700 6.5px var(--mono);fill:#2a2205">GEN</text>`,
   lifeboat:`<rect class="lm-w" x="-9" y="-6" width="18" height="12" style="stroke:#6b6f6c;stroke-width:.7"/><path style="fill:#2f6fb3" d="M-10,-6 L0,-11 L10,-6Z"/><path style="fill:#e07b28" d="M-6,1 L6,1 L4,5 L-4,5Z"/><path d="M0,6 L0,16" stroke="#9c8f76" stroke-width="3"/>`,
 };
 // A river is a ribbon that widens downstream and stops at the shore, so it can't be mistaken for a road.
@@ -2021,8 +2146,12 @@ function mapZones(onLand){
   if(d.airport){ const [x,y]=d.airport.c; z.push([x-118,y-64,236,128]); }
   if(d.harbour){ const yt=Math.min(...[d.harbour.x0,d.harbour.x1,(d.harbour.x0+d.harbour.x1)/2].map(x=>coastY(x,onLand))); z.push([d.harbour.x0-6,yt-38,d.harbour.x1-d.harbour.x0+12,44]); }
   (d.lakes||[]).forEach(l=>z.push([l[0]-l[2]-8,l[1]-l[3]-8,l[2]*2+16,l[3]*2+16]));
+  // the big landmarks get their own clear ground instead of sitting on top of a field
+  (d.landmarks||[]).forEach(l=>{ const s=LM_SIZE[l[2]]; if(s) z.push([l[0]-s[0]/2,l[1]-s[1][0],s[0],s[1][0]+s[1][1]]); });
   return z;
 }
+// width, and [height above, height below] the landmark's anchor point
+const LM_SIZE={stadium:[80,[46,26]],golf:[72,[22,24]],solar:[62,[20,22]],quarry:[64,[22,24]],gendepot:[68,[26,22]]};
 const inZone=(z,x,y,m=0)=>z.some(r=>x>r[0]-m&&x<r[0]+r[2]+m&&y>r[1]-m&&y<r[1]+r[3]+m);
 const planeSvg=(x,y,r)=>`<g transform="translate(${x},${y}) rotate(${r})"><path class="plane" d="M0,-9 C1.6,-9 1.6,-6 1.6,-3 L9,2 L9,4 L1.6,1.5 L1.2,6 L3.5,8 L3.5,9 L0,8.2 L-3.5,9 L-3.5,8 L-1.2,6 L-1.6,1.5 L-9,4 L-9,2 L-1.6,-3 C-1.6,-6 -1.6,-9 0,-9Z"/></g>`;
 function airportSvg(a){
@@ -2186,6 +2315,18 @@ function mapStatic(){
   // edges first, then fills, so junctions join up cleanly; town streets and lanes are narrower than main roads
   const pl=l=>l.pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' '), wide=l=>l.kind==='main';
   let roads=RN.lines.map(l=>`<polyline points="${pl(l)}" class="${wide(l)?'road-e':'street-e'}"/>`).join('')+RN.lines.map(l=>`<polyline points="${pl(l)}" class="${wide(l)?'road':'street'}"/>`).join('');
+  // a level crossing wherever a road meets the railway: rails across the road, barriers and warning signs either side
+  if(d.rail){
+    const rp=railPts(d), seen=[];
+    RN.lines.forEach(l=>{ if(l.kind==='spur') return; for(let i=0;i<l.pts.length-1;i++) for(let k=0;k<rp.length-1;k++){
+      const a=l.pts[i], b=l.pts[i+1], c=rp[k], e=rp[k+1], r=[b[0]-a[0],b[1]-a[1]], s=[e[0]-c[0],e[1]-c[1]], den=r[0]*s[1]-r[1]*s[0]; if(Math.abs(den)<1e-9) continue;
+      const q=[c[0]-a[0],c[1]-a[1]], t=(q[0]*s[1]-q[1]*s[0])/den, u=(q[0]*r[1]-q[1]*r[0])/den; if(t<0||t>1||u<0||u>1) continue;
+      const x=[a[0]+t*r[0],a[1]+t*r[1]]; if(seen.some(p=>dist(p,x)<16)) continue; seen.push(x);
+      const ra=Math.atan2(s[1],s[0])*180/Math.PI, la=Math.atan2(r[1],r[0])*180/Math.PI, w=wide(l)?9:6;
+      roads+=`<g transform="translate(${x[0].toFixed(1)},${x[1].toFixed(1)})" pointer-events="none">
+        <g transform="rotate(${ra.toFixed(1)})"><rect x="-${w/2+5}" y="-4.5" width="${w+10}" height="9" fill="#e9e2d0" opacity=".9"/><line x1="-${w/2+6}" y1="-2.2" x2="${w/2+6}" y2="-2.2" stroke="#3a3a3a" stroke-width="1.3"/><line x1="-${w/2+6}" y1="2.2" x2="${w/2+6}" y2="2.2" stroke="#3a3a3a" stroke-width="1.3"/></g>
+        <g transform="rotate(${la.toFixed(1)})">${[-1,1].map(sd=>`<g transform="translate(${sd*9},${sd*(w/2+4)})"><circle r="1.6" fill="#3a3a3a"/><line x1="0" y1="0" x2="${-sd*10}" y2="0" stroke="#fff" stroke-width="1.6"/><line x1="0" y1="0" x2="${-sd*10}" y2="0" stroke="#d8453a" stroke-width="1.6" stroke-dasharray="2.5 2.5"/></g>`).join('')}</g></g>`; } });
+  }
   // a stone bridge wherever a road crosses the river
   if(d.river){
     const rv=samplePath(d.river,4), hit=(a,b,c,e)=>{ const r=[b[0]-a[0],b[1]-a[1]], s=[e[0]-c[0],e[1]-c[1]], den=r[0]*s[1]-r[1]*s[0]; if(Math.abs(den)<1e-9) return null;
@@ -2271,8 +2412,11 @@ function mapBg(edit){
   });
   Object.keys(st.siteLights||{}).forEach(n=>{ if(edit||!S||!N[n]||S.on[n]!==false) lit+=st.siteLights[n]; });
   // things that move: boats on the sea, cars and the train above the roads, a plane over everything
-  const mv=movers(), layer=k=>mv.map((m,i)=>m.layer!==k?'':`<path id="mvp-${i}" d="${m.d}" fill="none" stroke="none"/><g id="mv-${i}" class="mover" pointer-events="none"><g>${m.svg}</g></g>`).join('');
-  return st.base+layer('sea')+houses+st.roads+layer('road')+st.shade+`<g class="litg">${lit}</g>`+layer('air')+st.top;
+  return st.base+moverLayer('sea')+houses+st.roads+moverLayer('road')+st.shade+`<g class="litg">${lit}</g>`+st.top;
+}
+// the moving things for one layer; the 'air' layer (the plane) is drawn last of all, over the network
+function moverLayer(k){
+  return movers().map((m,i)=>m.layer!==k?'':`<path id="mvp-${i}" d="${m.d}" fill="none" stroke="none"/><g id="mv-${i}" class="mover" pointer-events="none"><g>${m.svg}</g></g>`).join('');
 }
 const CAR_COLS=['#d64545','#2f6fb3','#f0c419','#fafafa','#3a9a5b','#e07b28','#7a4b8c'];
 const carSvg = c=>`<rect x="-5" y="-2.6" width="10" height="5.2" rx="1.6" fill="${c}" stroke="#2a2a2a" stroke-width=".5"/><rect x="0.6" y="-2" width="2.4" height="4" rx=".6" fill="#9fc6dc"/><rect x="-3.8" y="-2" width="1.6" height="4" rx=".5" fill="#9fc6dc"/>`;
@@ -2414,6 +2558,8 @@ function renderSvg(edit){
         const on=cr.at===id, en=!on&&cr.job&&cr.job.node===id&&cr.job.stage==='travel';
         if(on||en){ crewBadges+=`<g class="crew${en?' enroute':''}${cr.role==='assessor'?' as':''}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${cr.tag}</text></g>`; bi++; }
       });
+      const gg=!edit&&genAt(id);
+      if(gg){ crewBadges+=`<g class="genbadge${gg.stage==='travel'?' enroute':''}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${gg.stage==='on'?'⚡':''}${gg.id}</text></g>`; bi++; }
       h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.s[0]},${n.s[1]})" tabindex="0" role="button" aria-label="${n.name}">
         ${isSel||pend?`<rect x="-30" y="-22" width="60" height="44" rx="6" class="${pend?'pendring':'selring'}"/>`:''}
         ${off||cut?'<rect class="alarm" x="-28" y="-20" width="56" height="40" rx="7"/>':''}
@@ -2468,8 +2614,15 @@ function renderSvg(edit){
     S.crews.forEach(cr=>{ const j=cr.job; if(j&&j.stage==='travel'&&j.path&&j.path.length>1) h+=`<polyline class="route${cr.role==='assessor'?' as':''}" points="${j.path.map(p=>p.join(',')).join(' ')}"/>`; });
     S.crews.forEach((cr,i)=>{ const j=cr.job, eta=j&&j.stage==='travel'?`<text class="eta" y="-12">${fmtT(j.tArrive)}</text>`:'';
       h+=`<g id="crew-${i}" class="van${cr.role==='assessor'?' as':''}" transform="translate(${offs[i][0]},${offs[i][1]})" pointer-events="none"><path class="body" d="M-17,-8 h21 v14 h-21z M5,-4 h6 l5,5 v5 h-11z"/><circle class="wheel" cx="-10" cy="7" r="3"/><circle class="wheel" cx="9" cy="7" r="3"/><text x="-6.5" y="2">${cr.tag}</text>${eta}${workIcon(cr)}</g>`; });
+    // mobile generators: the unit parked by its substation, and the lorry on the road
+    (S.gens||[]).forEach((g,i)=>{
+      if(g.stage==='home') return;
+      if(g.stage==='travel'&&g.path&&g.path.length>1) h+=`<polyline class="route gen" points="${g.path.map(p=>p.join(',')).join(' ')}"/>`;
+      if(g.stage==='on'||g.stage==='setup'){ const [x,y]=N[g.node].m; h+=`<g class="genunit" transform="translate(${x-34},${y-14})" pointer-events="none"><path d="M13,2 Q24,8 31,13" fill="none" stroke="#2a2a2a" stroke-width="1.4" stroke-dasharray="${g.stage==='on'?'':'2 2'}"/><rect x="-13" y="-8" width="26" height="15" rx="2" fill="#f2c230" stroke="#6a5208" stroke-width="1"/><rect x="-10" y="-5" width="7" height="9" fill="#6a5208" opacity=".35"/><path d="M4,-5 L1,0 L4,0 L1,5" fill="none" stroke="#2a2205" stroke-width="1.4"/>${g.stage==='on'?'<circle class="fan" cx="9" cy="-11" r="2.5" fill="#cfcfcf" opacity=".8"/>':''}</g>`; }
+      else { const p=genPos(g); h+=`<g id="gen-${i}" class="genlorry" transform="translate(${p[0].toFixed(1)},${p[1].toFixed(1)})" pointer-events="none"><path d="M-19,-7 h23 v13 h-23z M4,-4 h6 l5,5 v5 h-11z" fill="#f2c230" stroke="#6a5208" stroke-width="1"/><circle cx="-11" cy="7" r="3" fill="#2a2a2a"/><circle cx="9" cy="7" r="3" fill="#2a2a2a"/><text x="-7.5" y="2" text-anchor="middle" style="font:700 8px var(--mono);fill:#2a2205">${g.id}</text>${g.stage==='travel'?`<text class="eta" y="-12">${fmtT(g.tArrive)}</text>`:''}</g>`; }
+    });
     RMUS.forEach(n=>{ if(S.flooded[n]&&!(S.flooded[n]==='damaged'&&S.flood&&S.flood.state==='receded')) { const [x,y]=N[n].m; h+=`<g class="flooded-water" pointer-events="none"><ellipse cx="${x}" cy="${y+4}" rx="52" ry="26"/><path d="M${x-34} ${y+8}q6-5 12 0t12 0t12 0M${x-8} ${y+20}q6-5 12 0t12 0t12 0M${x-30} ${y-8}q6-5 12 0t12 0" fill="none" stroke="#dff1ff" stroke-width="2" stroke-linecap="round"/></g>`; } });
-    h+=weatherFx();
+    h+=moverLayer('air')+weatherFx();
   }
   svg.innerHTML=h;
   if(!isS) try{ moveMovers(); }catch(e){}
@@ -2607,6 +2760,15 @@ function nodeExtras(n){
     h+=`<div class="alertbox"><b>${S.flooded[n]==='damaged'?'Flood damage.':'Under water.'}</b> ${S.flooded[n]==='damaged'?'The switchgear was live when the water came in and is wrecked.':'It was switched off in time and will dry out once the water goes down.'} It is locked out until then.</div>`;
     if(S.flooded[n]==='damaged') h+=`<button class="btn wide" data-act="rebuild" data-n="${n}" ${!canOrder()||!ready||nodeJobBusy(n,'rebuild')?'disabled':''}>Rebuild the switchgear<small>${!ready?'wait for the water to go down':nodeJobBusy(n,'rebuild')?'crew already assigned':est('rebuild')}</small></button>`;
   }
+  // mobile generator: status if one is assigned, otherwise the hire button (or why it can't help)
+  const g=genAt(n);
+  if(g) h+=`<div class="genbox"><b>Generator ${g.id}</b>${genStatus(g)}${g.stage==='on'?`<br><span class="muted">Disconnects automatically when mains supply returns.</span>`:''}
+    <button class="btn alt" data-act="gen-home" data-id="${g.id}" ${canOrder()?'':'disabled'}>Send it back to the depot</button></div>`;
+  else if(!S.on[n]){
+    const why=genBlock(n);
+    if(!why) h+=`<button class="btn wide gen" data-act="gen" data-n="${n}" ${canOrder()?'':'disabled'}>Hire a mobile generator<small>£${fmtN(GEN.hire)} + £${GEN.hourly}/h · on supply about ${fmtT(S.t+genEta(n)+GEN.setup)}</small></button>`;
+    else h+=`<p class="note">Mobile generator: not possible here, ${why}.</p>`;
+  }
   if(!S.on[n]&&!S.welfare[n]) h+=`<button class="btn wide alt" data-act="welfare" data-n="${n}" ${canOrder()?'':'disabled'}>Arrange welfare visits<small>${psrCount(n)} vulnerable customers · £800</small></button>`;
   return h;
 }
@@ -2693,6 +2855,8 @@ function renderSide(){
     <div class="fatigue" title="Hours worked this shift: crews must rest after 12"><i style="width:${Math.min(100,(cr.worked||0)/720*100)}%;background:var(${(cr.worked||0)>600?'--fault':(cr.worked||0)>420?'--warn':'--ok'})"></i></div>
     ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`).join('')}</ul>
     ${S.control.length?`<p class="muted" style="margin:10px 0 0">Control room: ${plural(S.control.length,'remote operation')} queued.</p>`:''}
+    <h3 style="margin-top:14px">Mobile generators</h3><ul class="crews">${Array.from({length:GEN.fleet},(_,k)=>{ const g=(S.gens||[]).find(x=>x.id==='G'+(k+1)); return `<li><div class="cr-h"><span class="badge gn">G${k+1}</span><span>${g?genStatus(g):'At the generator depot'}</span></div></li>`; }).join('')}</ul>
+    <p class="muted" style="margin:6px 0 0">Select a substation that is off to hire one (£${fmtN(GEN.hire)} + £${GEN.hourly}/h, up to ${GEN.cap} customers).</p>
     ${S.phase!=='closed'&&!UI.replay?`<button class="btn wide alt" data-act="contractor" style="margin-top:10px" ${canOrder()?'':'disabled'}>Call in a contractor crew<small>£1,500 · starts at the depot</small></button>`:''}`;
   $('#log').innerHTML=S.log.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('');
   renderWeather(); renderNews();
@@ -2751,7 +2915,8 @@ function lightUpdate(){
   $('#calls').textContent=fmtN(callsRecent());
   showPhase();
   if(UI.view==='m') setSky(false);
-  if(UI.view==='m'){ const offs=crewOffsets(); offs.forEach((p,i)=>{ const g=document.getElementById('crew-'+i); if(g) g.setAttribute('transform',`translate(${p[0]},${p[1]})`); }); }
+  if(UI.view==='m'){ const offs=crewOffsets(); offs.forEach((p,i)=>{ const g=document.getElementById('crew-'+i); if(g) g.setAttribute('transform',`translate(${p[0]},${p[1]})`); });
+    (S.gens||[]).forEach((g,i)=>{ const el=document.getElementById('gen-'+i); if(el){ const p=genPos(g); el.setAttribute('transform',`translate(${p[0].toFixed(1)},${p[1].toFixed(1)})`); } }); }
 }
 
 // ---------- Overlays ----------
@@ -2833,7 +2998,8 @@ function renderOverlay(){
         `<button class="shift" data-act="setup"><div><b>Free play</b><span>Choose the network, the kind of incident and how many crews you have.</span></div><span>→</span></button></div>
         <div class="mbtns"><button class="btn alt" data-act="daily">Daily challenge</button><button class="btn alt" data-act="show-ach">Achievements</button><button class="btn alt" data-act="show-board">Best scores</button><button class="btn alt" data-act="show-save">Save code</button></div>
         <div class="mbtns" style="margin-top:8px"><button class="btn alt" data-act="letter">Read Mags's note again</button><button class="btn alt" data-act="settings">Settings and difficulty</button>${S&&S.phase!=='closed'&&S.ops?'<button class="btn alt" data-act="ov-close">Back to the current shift</button>':''}</div>
-        <p class="muted" style="margin:10px 0 0">Difficulty: <b>${{trainee:'Trainee',engineer:'Engineer',control:'Control engineer'}[UI.settings.difficulty]}</b>. New to this? Start with the training shift.</p>`;
+        <p class="muted" style="margin:10px 0 0">Difficulty: <b>${{trainee:'Trainee',engineer:'Engineer',control:'Control engineer'}[UI.settings.difficulty]}</b>. New to this? Start with the training shift.</p>
+        <p class="copyright">© 2026 James Procter. All rights reserved.</p>`;
     }
     h+='</div>';
   } else if(UI.overlay==='setup'){
@@ -2857,7 +3023,7 @@ function renderOverlay(){
     if(S.modal==='restored'){
       const st=S.restored, r=stars(st);
       h=`<div class="mbox wide" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Supply restored</h2>
-        <p class="sub">Everyone back on at ${fmtT(st.t)}, ${Math.round(st.t-S.t0)} minutes after the first trip.</p>
+        <p class="sub">Everyone back on at ${fmtT(st.t)}, ${Math.round(st.t-(S.firstAt||S.t0))} minutes after the first trip.</p>
         <div class="stars" aria-label="${r.s} of 3 stars">${'★'.repeat(r.s)}<i>${'★'.repeat(3-r.s)}</i></div>
         ${statGrid(st)}
         <p class="muted" style="margin:0">Three stars: average under ${r.lim[0]} minutes off, no overloads, no safety incidents, public confidence of at least 50%${S.diff==='trainee'?'':', and no exact-move hints or undos'}.</p>
@@ -2868,7 +3034,7 @@ function renderOverlay(){
       const st=S.restored||snapshotStats(), r=stars(st), fin=snapshotStats();
       const what=S.faults.map(f=>`<li>${cableName(CBL[f.cable])}: ${f.repaired?'repaired':f.transient?'transient, cleared':'cleared'}</li>`).join('');
       h=`<div class="mbox wide" role="dialog" aria-labelledby="ovt"><h2 id="ovt">${S.handedOver?'Shift handed over':S.scen==='planned'?'Planned work complete':'Incident closed'}</h2>
-        <p class="sub">${S.handedOver?`Handed over at ${fmtT(S.closedAt)} with work still to do.`:`Normal running restored at ${fmtT(S.closedAt)}, ${Math.round(S.closedAt-S.t0)} minutes after the ${S.scen==='planned'?'shift began':'first trip'}.`}</p>
+        <p class="sub">${S.handedOver?`Handed over at ${fmtT(S.closedAt)} with work still to do.`:`Normal running restored at ${fmtT(S.closedAt)}, ${Math.round(S.closedAt-(S.firstAt||S.t0))} minutes after the ${S.scen==='planned'?'shift began':'first trip'}.`}</p>
         <div class="stars" aria-label="${r.s} of 3 stars">${'★'.repeat(r.s)}<i>${'★'.repeat(3-r.s)}</i></div>
         ${what?`<ul class="todo" style="margin-bottom:6px">${what}</ul>`:''}
         ${endReportHtml()}
@@ -2897,7 +3063,8 @@ function renderOverlay(){
         <span><span class="kbd">+</span> <span class="kbd">−</span> <span class="kbd">0</span></span><span>Zoom in, out, show everything (or scroll, drag and pinch)</span>
         <span><span class="kbd">/</span></span><span>Find a substation</span>
         <span><span class="kbd">Esc</span></span><span>Close a window, deselect, or dismiss a hint</span></div></div>
-      <div class="mbtns"><button class="btn" data-act="ov-close">Done</button><button class="btn alt" data-act="tut-start">Replay the training shift</button></div></div>`;
+      <div class="mbtns"><button class="btn" data-act="ov-close">Done</button><button class="btn alt" data-act="tut-start">Replay the training shift</button></div>
+      <p class="copyright">Open Point, a fault management game by James Procter. © 2026 James Procter. All rights reserved. The game's code, graphics and design may not be copied or reused without permission.</p></div>`;
   } else if(UI.overlay==='export'){
     h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Export network</h2>
       <p class="sub">Copy this text and keep it somewhere safe. Paste it into Import to load the network again, on any device.</p>
@@ -3481,6 +3648,9 @@ function hintPlan(){
     // between two different primaries a short break can't be avoided: open the temporary link first
     const sid=ab.find(s=>sw[s])||ab[0]; if(sid) return {nudge:'Some switches are still out of their normal position. A short break may be unavoidable between different main substations.',focus:{nodes:[nodeOfSw(sid)],cables:[]},move:{text:`${sw[sid]?'Open':'Close'} the ${switchLabel(sid)}.`,sw:sid,close:!sw[sid]}};
   }
+  // 7. customers who will be off for a long time: a mobile generator can carry them until the repair is done
+  const gn=RMUS.filter(n=>!S.on[n]&&S.t-S.offSince[n]>=20&&!genBlock(n)).sort((a,b)=>N[b].cust-N[a].cust)[0];
+  if(gn) return {nudge:`${N[gn].name} has been off a while and nothing more can be switched. A mobile generator could get those customers back on until the repair is finished.`,focus:{nodes:[gn],cables:[]},move:{text:`Hire a mobile generator for ${N[gn].name} (£${fmtN(GEN.hire)} + £${GEN.hourly} an hour).`,kind:'gen',id:gn}};
   return {nudge:'Nothing to switch right now. Let the clock run while the crews work, or speed it up.',focus:{nodes:[],cables:[]},move:null};
 }
 function nextHint(){
@@ -3495,6 +3665,7 @@ function doHintMove(){
   if(m.sw) orderOp(m.sw,m.close);
   else if(m.kind==='makesafe') orderMakeSafe(m.id);
   else if(m.kind==='lvfix'||m.kind==='rebuild') orderNodeJob(m.id,m.kind);
+  else if(m.kind==='gen') hireGenerator(m.id);
   else orderCable(m.id,m.kind);
 }
 
@@ -3693,7 +3864,7 @@ function careerShift(){
   SEED=seedFrom('career'+c.week+'-'+c.day+'-'+c.history.length);
   const list=SEASON_SCEN[season]; let scen=list[Math.floor(rand()*list.length)];
   if(c.day===4) scen=season==='Summer'?'festival':(rand()<0.5?'bigstorm':'storm');   // Fridays are the big ones
-  const night=rand()<0.2&&!['planned','heatwave','festival'].includes(scen);
+  const night=rand()<0.2&&!['planned','heatwave','festival','digin'].includes(scen);   // diggers work in daylight
   SEED=null;
   return {season,scen,night,label:`Week ${c.week} · ${DAYNAMES[c.day]} · ${season}`};
 }
@@ -3726,7 +3897,7 @@ function startDaily(){
 function shiftMoney(){
   const c=S.cost||{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0};
   const items=[['Crew time',Math.round(c.crew/60*120)],['Overtime (before 07:00 and after 17:00)',Math.round(c.overtime/60*210)],['Contractors',c.contractors],
-    ['Welfare visits and generators',c.welfare],['Materials',c.materials],['Flood damage',c.damage],
+    ['Welfare visits',c.welfare],['Mobile generator hire',Math.round(c.generators||0)],['Materials',c.materials],['Flood damage',c.damage],
     ['Regulator penalty: customer minutes lost',Math.round(S.cml*0.04)],['Regulator penalty: interruptions',Math.round(S.ci)]];
   const spent=items.reduce((a,i)=>a+i[1],0), budget=SHIFT_BUDGET[S.scen]||15000;
   return {items,spent,budget,result:budget-spent};
@@ -3918,7 +4089,7 @@ function endReportHtml(){
   }
   if(r.promoted) h+=`<div class="promo">Promoted to <b>${r.promoted}</b>!</div>`;
   if(r.ach.length) h+=`<div class="gotach"><b>Achievements unlocked:</b> ${r.ach.map(id=>(ACH.find(a=>a[0]===id)||[0,id])[1]).join(', ')}</div>`;
-  if(r.board) h+=`<p class="muted" style="margin:8px 0 0">${r.board.rank===1?'A new best score for this shift!':`Number ${r.board.rank} in your best scores for this shift.`}</p>`;
+  if(r.board&&r.board.rank>0) h+=`<p class="muted" style="margin:8px 0 0">${r.board.rank===1?'A new best score for this shift!':`Number ${r.board.rank} in your best scores for this shift.`}</p>`;
   if(S.ctx&&S.ctx.type==='daily'){
     const st=S.restored||snapshotStats(), sc=stars(st).s;
     const share=`Open Point daily ${S.ctx.date}: ${'★'.repeat(sc)}${'☆'.repeat(3-sc)} · ${fmtN(Math.round(st.cml))} customer minutes lost · ${fmtN(st.ci)} interrupted`;
@@ -4140,6 +4311,8 @@ document.addEventListener('click',e=>{
       catch(err){ UI.msg=err instanceof SyntaxError?'That text isn\'t valid JSON. Paste the whole export, including the first { and last }.':err.message; renderOverlay(); }
       break;
     }
+    case 'gen': hireGenerator(b.dataset.n); break;
+    case 'gen-home': { const g=(S.gens||[]).find(x=>x.id===b.dataset.id); if(g&&canOrder()){ pushUndo('send generator '+g.id+' home'); genHome(g,`Generator ${g.id} sent back to the depot.`); afterChange(); render(); } break; }
     case 'press-later': S.pressPopup=null; UI.overlay=null; render(); break;
     case 'maint': orderCable(b.dataset.c,'maint'); break;
     case 'lvfix': orderNodeJob(b.dataset.n,'lvfix'); break;
@@ -4233,7 +4406,7 @@ function tick(){
 }
 
 // ======================= Boot =======================
-const SAVE_VERSION=8;
+const SAVE_VERSION=9;
 function start(data){
   // only resume a game saved by this version; older saves have a different shape
   if(data&&data.v===SAVE_VERSION&&data.S&&data.S.def){ S=data.S; Object.assign(UI,data.UI||{}); E=data.E||null; if(E) E.drag=null;
