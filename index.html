@@ -1324,6 +1324,13 @@ function handleEvent(initial){
     sfx('phone'); return {tripped:[]};
   }
   if(p.kind==='workreq'){ makeWorkRequest(); return {tripped:[]}; }
+  if(p.kind==='strike'){
+    // lightning hits an overhead line: show the strike on the map, the line's breaker trips a moment later
+    const c=CBL[p.cable], pts=c.mp||[N[c.a].m,N[c.b].m], mid=pts[Math.floor(pts.length/2)], p0=pts.length%2?mid:[(pts[pts.length/2-1][0]+mid[0])/2,(pts[pts.length/2-1][1]+mid[1])/2];
+    UI.strike={p:p0,at:performance.now()};
+    log(`Lightning strike reported on the ${cableName(c)} line.`,'warn'); sfx('trip');
+    return {tripped:[]};
+  }
   if(p.kind==='lv'){
     S.lvFault[p.node]=true; S.lvOut[p.node]=true;
     log(`Calls from ${N[p.node].name}: no power, but the 11 kV network there is fine. Probably a low-voltage cable or fuse fault in the street. Send a crew to fix it.`,'warn');
@@ -1767,8 +1774,21 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
     const lead=storm?rint(40,100):rint(30,150), later=['t','at','until','failAt'];
     S.pending.forEach(e=>{ if(e.kind==='media') return; later.forEach(k=>{ if(e[k]!=null) e[k]+=lead; }); });
     // and a little more can go wrong later in the shift
-    if(rand()<0.55&&FAULTABLE.length){ const c=FAULTABLE[Math.floor(rand()*FAULTABLE.length)]; if(!S.pending.some(e=>e.cable===c)) S.pending.push({kind:'fault',t:t+lead+rint(150,480),cable:c,transient:rand()<0.45}); }
-    if(rand()<0.3) S.pending.push({kind:'lv',t:t+rint(60,600),node:RMUS[Math.floor(rand()*RMUS.length)]});
+    // and more goes wrong as the shift goes on: a random mix of trips, faults, thefts, digger strikes and street faults
+    const night=!!ctx.night, used=new Set(S.pending.map(e=>e.cable).filter(Boolean)), usedN=new Set(S.pending.map(e=>e.node).filter(Boolean));
+    const pickCable=f=>{ const c=FAULTABLE.filter(x=>!used.has(x)&&(!f||f(CBL[x]))); if(!c.length) return null; const x=c[Math.floor(rand()*c.length)]; used.add(x); return x; };
+    const pickNode=()=>{ const c=RMUS.filter(n=>!usedN.has(n)); if(!c.length) return null; const n=c[Math.floor(rand()*c.length)]; usedN.add(n); return n; };
+    const pool=[['trip',35],['fault',22],['theft',night?28:10],['digin',night?0:15],['lv',12]];
+    const extras=1+(rand()<0.5?1:0)+(rand()<0.2?1:0);
+    for(let k=0;k<extras;k++){
+      let r=rand()*pool.reduce((a,p)=>a+p[1],0), kind=pool[0][0]; for(const [p,wgt] of pool){ if(r<wgt){ kind=p; break; } r-=wgt; }
+      const te=t+lead+rint(60,560);
+      if(kind==='trip'){ const c=pickCable(); if(c) S.pending.push({kind:'fault',t:te,cable:c,transient:true}); }   // a passing fault: the breaker recloses
+      else if(kind==='fault'){ const c=pickCable(); if(c) S.pending.push({kind:'fault',t:te,cable:c,transient:false}); }
+      else if(kind==='theft'){ const n=pickNode(); if(n) S.pending.push({kind:'theft',t:te,node:n}); }
+      else if(kind==='digin'){ const c=pickCable(x=>!x.oh); if(c) S.pending.push({kind:'digin',t:te,cable:c}); }
+      else { const n=pickNode(); if(n) S.pending.push({kind:'lv',t:te,node:n}); }
+    }
     // other teams ask for cables to be switched out so they can work: tree cutting, joint repairs
     const nreq=rand()<0.55?(rand()<0.25?2:1):0;
     { let tw=t+rint(45,300); for(let k=0;k<nreq;k++){ S.pending.push({kind:'workreq',t:tw}); tw+=rint(100,200); } }
@@ -1776,6 +1796,14 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
     const wx=ctx.wx;
     if(wx==='heat'){ S.heat=true; }
     if(wx==='snow'){ S.snow=true; }
+    if(wx==='thunder'){
+      // a thunderstorm builds through the afternoon; lightning hits overhead lines, mostly causing passing faults
+      const tp=t+rint(180,420);
+      S.weather={storm:true,minor:true,thunder:true,name:null,base:10,peak:rint(32,44),tp,width:rint(50,80)};
+      const oh=FAULTABLE.filter(c=>CBL[c].oh&&!used.has(c));
+      for(let k=0;k<rint(2,4)&&oh.length;k++){ const c=oh.splice(Math.floor(rand()*oh.length),1)[0], ts=tp+rint(-Math.round(S.weather.width*0.7),Math.round(S.weather.width*0.7)); used.add(c);
+        S.pending.push({kind:'strike',t:ts,cable:c},{kind:'fault',t:ts+0.2,cable:c,transient:rand()<0.6}); }
+    }
     if(wx==='wind'){
       const tp=t+rint(150,330);
       S.weather={storm:true,minor:true,name:null,base:16,peak:rint(50,62),tp,width:rint(70,110)};
@@ -1790,7 +1818,8 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
   if(storm){ const w=S.weather; news('Met Office',`${warnLevel(w.peak)} warning: Storm ${w.name} to bring gusts of up to ${w.peak} mph to ${NET.name}`); }
   if(S.heat) news('Met Office','Heatwave: temperatures of 31°C expected across the island');
   if(S.snow) news('Met Office','Snow warning: heavy snow and icy roads across the island today');
-  if(S.weather.minor) news('Met Office',`Yellow warning for wind: gusts of up to ${S.weather.peak} mph expected around ${fmtT(S.weather.tp)}`);
+  if(S.weather.thunder) news('Met Office',`Thunderstorm warning: lightning likely around ${fmtT(S.weather.tp)}`);
+  else if(S.weather.minor) news('Met Office',`Yellow warning for wind: gusts of up to ${S.weather.peak} mph expected around ${fmtT(S.weather.tp)}`);
   const first=S.pending[0]&&S.pending[0].t<=t+0.01?S.pending[0]:null, r=first?handleEvent(true):{tripped:[]}; afterChange();
   const cb=r.tripped[0], off=fmtN(offCount());
   // the opening line of the incident, matched to what happened first
@@ -1824,7 +1853,8 @@ function eventHeadline(first,r,t){
 function headlineExtras(){
   let h='';
   if(S.weather&&S.weather.storm&&!S.weather.minor) h+=` Storm ${S.weather.name} is passing over ${NET.name}, so expect more faults.`;
-  if(S.weather&&S.weather.minor) h+=` A windy day: gusts of up to ${S.weather.peak} mph around ${fmtT(S.weather.tp)} could bring down overhead lines.`;
+  if(S.weather&&S.weather.thunder) h+=` Thunderstorms are forecast around ${fmtT(S.weather.tp)}: lightning could trip overhead lines.`;
+  else if(S.weather&&S.weather.minor) h+=` A windy day: gusts of up to ${S.weather.peak} mph around ${fmtT(S.weather.tp)} could bring down overhead lines.`;
   if(S.snow) h+=' Snow is falling: crews will take longer to reach jobs and to repair them.';
   if(S.heat) h+=' A heatwave means higher demand and cables that can carry less.';
   if(S.festival) h+=` The Port Ampere Festival at ${N[S.festival.node].name} runs from ${fmtT(S.festival.from)} to ${fmtT(S.festival.to)} and must not lose power.`;
@@ -2467,7 +2497,7 @@ function updateWxChip(){
   if(!S||UI.mode!=='play'){ el.hidden=true; return; }
   const w=S.weather, g=windAt(S.t), bits=[];
   if(w&&w.storm&&!w.minor) bits.push(['storm',`🌧 Storm ${w.name} · gusts ${g} mph`]);
-  else if(w&&w.thunder) bits.push(['thunder',`⛈ Thunderstorms${Math.abs(S.t-w.tp)<w.width?' overhead':' later'}`]);
+  else if(w&&w.thunder){ if(S.t<w.tp+w.width) bits.push(['thunder',`⛈ Thunderstorms${Math.abs(S.t-w.tp)<w.width?' overhead':' later'}`]); }
   else if(w&&w.minor) bits.push(['wind',`💨 Windy · gusts ${g} mph`]);
   if(S.snow) bits.push(['snow','❄ Snow · icy roads']);
   if(S.heat) bits.push(['heat','☀ Heat · 31°C']);
@@ -3043,7 +3073,7 @@ function renderWeather(){
   a+=`L${W},${H} Z`;
   const nx=Math.max(0,Math.min(W,x(S.t)));
   el.hidden=false;
-  el.innerHTML=`<h3>Weather</h3><div class="wx-head"><span class="wx-name">${w.minor?'Windy day':'Storm '+w.name}</span>${lvl?`<span class="wlevel ${lvl}">${lvl} warning</span>`:''}</div>
+  el.innerHTML=`<h3>Weather</h3><div class="wx-head"><span class="wx-name">${w.thunder?'Thunderstorms':w.minor?'Windy day':'Storm '+w.name}</span>${lvl?`<span class="wlevel ${lvl}">${lvl} warning</span>`:''}</div>
     <div class="gust">${g} mph<small>gusts, ${trend>1?'rising':trend<-1?'easing':'steady'} · peak about ${w.peak} mph at ${fmtT(w.tp)}</small></div>
     <svg class="wxspark" viewBox="0 0 ${W} ${H}" aria-label="Gust forecast"><path class="ar" d="${a}"/><path class="ln" d="${d}"/>
       <line class="lim" x1="0" x2="${W}" y1="${y(WIND_LIMIT)}" y2="${y(WIND_LIMIT)}"/><text x="${W-2}" y="${y(WIND_LIMIT)-3}" text-anchor="end">${WIND_LIMIT} mph climbing limit</text>
@@ -4036,8 +4066,9 @@ const money = v=>(v<0?'−':'')+'£'+fmtN(Math.abs(v));
 // the next shift in the career calendar
 const WX_BRIEF={heat:'It is going to be a scorcher too: demand runs high and cables carry less, so leave headroom.',
   wind:'The Met Office has a wind warning out. Lines may come down later, and nobody climbs in gusts over 50 mph.',
+  thunder:'Thunderstorms are forecast later. Lightning loves overhead lines: expect some trips, most of which will clear on reclose.',
   snow:'And it is snowing. Roads are slow, so crews take longer to get anywhere, and repairs take longer in the cold.'};
-const WX_LABEL={heat:'hot weather',wind:'wind warning',snow:'snow forecast'};
+const WX_LABEL={heat:'hot weather',wind:'wind warning',snow:'snow forecast',thunder:'thunderstorms forecast'};
 function careerShift(){
   const c=CAREER, season=seasonOf(c.week);
   SEED=seedFrom('career'+c.week+'-'+c.day+'-'+c.history.length);
@@ -4047,10 +4078,10 @@ function careerShift(){
   // now and then the season throws in some weather: heat in summer, wind in autumn and winter, snow in winter
   let wx=null; const roll=rand();
   if(!['planned','storm','bigstorm','heatwave','flood'].includes(scen)){
-    if(season==='Summer'&&roll<0.15) wx='heat';
+    if(season==='Summer') wx=roll<0.15?'heat':roll<0.25?'thunder':null;
     else if(season==='Winter') wx=roll<0.12?'snow':roll<0.24?'wind':null;
     else if(season==='Autumn'&&roll<0.12) wx='wind';
-    else if(season==='Spring'&&roll<0.05) wx='wind';
+    else if(season==='Spring') wx=roll<0.05?'wind':roll<0.13?'thunder':null;
   }
   SEED=null;
   return {season,scen,night,wx,label:`Week ${c.week} · ${DAYNAMES[c.day]} · ${season}`};

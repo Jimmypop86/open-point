@@ -36,7 +36,10 @@ Press enquiries pause the clock and pop up on screen, so you can promise a resto
 Run the island week by week through the seasons, Monday to Friday. Each shift starts at 07:00 (or 19:00 for a night shift) with the network healthy, and trouble develops as the day goes on.
 
 - **Work requests.** Tree cutters, jointers and maintenance crews ask for cables to be switched out during the shift. Switch them out without anyone losing power and hand them over to earn a credit; ignore them and the team stands down at a cost.
-- **Seasonal weather.** Now and then: hot days in summer, wind warnings in autumn and winter, and snow in winter, which slows every journey and repair.
+- **Seasonal weather.** Now and then: hot days and thunderstorms in summer, wind warnings in autumn and winter, thunderstorms in spring, and snow in winter, which slows every journey and repair. Weather shows on the map, with a badge in the corner.
+- **Random events.** Every shift brings a mix of surprises: breaker trips that clear on reclose, cable faults, copper theft (more likely at night), digger strikes in the daytime, street faults and lightning strikes.
+
+Drag the map with the mouse or one finger to move around it, and pinch or scroll to zoom.
 
 - **Budget.** Every shift has a budget. Crew time, overtime, contractors, welfare visits, materials and the regulator's fines for customer minutes lost all come out of it.
 - **Rewards.** Stars earn a bonus and experience. Experience promotes you from Trainee engineer up to Control engineer, and the shifts get harder as you rise.
