@@ -1,6 +1,6 @@
 # Open Point
 
-*A fault management game by James Procter.*
+*An electricity fault management game by James Procter. © 2026 James Procter.*
 
 A browser game about running an electricity distribution network. You've just taken over the control desk on **Megawatt Island** from Mags Whitley, who is retiring after 38 years. Your job is to keep the lights on in Port Ampere and the towns of Ohmsford, Joulebury, Voltcombe and Faraday Head.
 
@@ -34,6 +34,9 @@ Press enquiries pause the clock and pop up on screen, so you can promise a resto
 ## Career
 
 Run the island week by week through the seasons, Monday to Friday. Each shift starts at 07:00 (or 19:00 for a night shift) with the network healthy, and trouble develops as the day goes on.
+
+- **Work requests.** Tree cutters, jointers and maintenance crews ask for cables to be switched out during the shift. Switch them out without anyone losing power and hand them over to earn a credit; ignore them and the team stands down at a cost.
+- **Seasonal weather.** Now and then: hot days in summer, wind warnings in autumn and winter, and snow in winter, which slows every journey and repair.
 
 - **Budget.** Every shift has a budget. Crew time, overtime, contractors, welfare visits, materials and the regulator's fines for customer minutes lost all come out of it.
 - **Rewards.** Stars earn a bonus and experience. Experience promotes you from Trainee engineer up to Control engineer, and the shifts get harder as you rise.
