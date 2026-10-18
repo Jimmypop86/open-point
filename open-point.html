@@ -1,0 +1,1838 @@
+<title>Open Point</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Saira+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: control-room desk. Status strip on top, network board left, operator panel right; stacks on phones. */
+:root{
+  --bg:#e7ecea; --panel:#f8faf9; --ink:#14201d; --muted:#5a6a66; --rule:#cdd6d2; --grid:#e2e8e5;
+  --accent:#0c6a62; --accent-ink:#ffffff;
+  --f1:#cc650a; --f2:#1b62c2; --f3:#8236bf; --f4:#0f8a6e; --f5:#b8327a; --f6:#6b7d12; --f7:#0e8aa8; --f8:#8a5a2b;
+  --dead:#98a7a3; --fault:#cc2424; --ok:#14804a; --warn:#b3741a;
+  --ground:#e2e8df; --road:#fbfcfa; --road-edge:#c8d0c6; --water:#b3d0e2; --park:#cbe0c0; --block:#d0d7ce;
+  --water-edge:#9cc0d6; --tree:#a7cb98; --block-shadow:#bcc5bb; --grid-major:#d2dbd7;
+  --sea:#c9dde8; --coast:#9fbccb; --contour:#c3cfbf; --paper:#fbf7ec; --paper-ink:#2b2a26;
+  --desk:#15242a; --desk-ink:#e6efec; --desk-muted:#91a7a2; --desk-rule:#2c4046; --desk-alarm:#ff6a5c; --desk-ok:#4fd18b;
+  --display:'Saira Condensed','Arial Narrow',sans-serif;
+  --body:'Atkinson Hyperlegible',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1416; --panel:#132024; --ink:#e2ebe8; --muted:#8ea19c; --rule:#243538; --grid:#182a2e;
+  --accent:#3dbfb2; --accent-ink:#06211e;
+  --f1:#f39a3e; --f2:#5aa2f5; --f3:#b884f2; --f4:#3fcf9f; --f5:#f06aae; --f6:#b5c73a; --f7:#4cc9e6; --f8:#c9935c;
+  --dead:#4b5d5a; --fault:#ff5a52; --ok:#43cf83; --warn:#e3a33f;
+  --ground:#101b1d; --road:#22343a; --road-edge:#1a292d; --water:#123349; --park:#14291d; --block:#1a282b;
+  --water-edge:#0c2536; --tree:#1d3d29; --block-shadow:#0b1416; --grid-major:#21373b;
+  --sea:#08161f; --coast:#1c3a48; --contour:#21382b; --paper:#e9e3d2; --paper-ink:#24221d;
+  --desk:#071012; --desk-ink:#e6efec; --desk-muted:#8197a0; --desk-rule:#22363b; --desk-alarm:#ff6a5c; --desk-ok:#4fd18b;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1416; --panel:#132024; --ink:#e2ebe8; --muted:#8ea19c; --rule:#243538; --grid:#182a2e;
+  --accent:#3dbfb2; --accent-ink:#06211e;
+  --f1:#f39a3e; --f2:#5aa2f5; --f3:#b884f2; --f4:#3fcf9f; --f5:#f06aae; --f6:#b5c73a; --f7:#4cc9e6; --f8:#c9935c;
+  --dead:#4b5d5a; --fault:#ff5a52; --ok:#43cf83; --warn:#e3a33f;
+  --ground:#101b1d; --road:#22343a; --road-edge:#1a292d; --water:#123349; --park:#14291d; --block:#1a282b;
+  --water-edge:#0c2536; --tree:#1d3d29; --block-shadow:#0b1416; --grid-major:#21373b;
+  --sea:#08161f; --coast:#1c3a48; --contour:#21382b; --paper:#e9e3d2; --paper-ink:#24221d;
+  --desk:#071012; --desk-ink:#e6efec; --desk-muted:#8197a0; --desk-rule:#22363b; --desk-alarm:#ff6a5c; --desk-ok:#4fd18b;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
+body.mode-edit .play-only,body.mode-play .edit-only{display:none!important}
+.app{max-width:1500px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* status strip */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;background:var(--desk);color:var(--desk-ink);border-radius:8px;padding:14px 18px;
+  box-shadow:inset 0 -3px 0 color-mix(in srgb,var(--accent) 55%,var(--desk))}
+.bar .brand p,.bar .stat label{color:var(--desk-muted)}
+.bar .stat b{text-shadow:0 0 12px color-mix(in srgb,currentColor 35%,transparent)}
+.bar .stat.off b{color:var(--desk-alarm)}
+.bar .stat.off.zero b{color:var(--desk-ok)}
+.bar .seg{background:transparent;border-color:var(--desk-rule)}
+.bar .seg button{color:var(--desk-muted)}
+.bar .seg button[aria-pressed="true"]{background:var(--desk-ink);color:var(--desk)}
+.bar .ghost{background:transparent;border-color:var(--desk-rule);color:var(--desk-ink)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand svg{width:34px;height:34px;flex:none}
+.brand h1{font:700 30px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;margin:0}
+.brand p{margin:2px 0 0;font:12px var(--mono);color:var(--muted);letter-spacing:.04em}
+.stats{display:flex;flex-wrap:wrap;gap:6px 24px}
+.stat label{display:block;font:600 11px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.stat b{font:600 22px/1.15 var(--mono);font-variant-numeric:tabular-nums}
+.stat.off b{color:var(--fault)}
+.stat.off.zero b{color:var(--ok)}
+#pz{font:700 10px var(--mono);letter-spacing:.08em;color:var(--warn);border:1px solid var(--warn);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:4px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:6px;padding:2px;background:var(--panel)}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.ghost{border:1px solid var(--rule);background:var(--panel);border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:14px}
+.ghost:hover{border-color:var(--accent)}
+
+/* main */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+.board{min-width:0;display:flex;flex-direction:column;gap:8px}
+.stage-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+.stage{position:relative;min-width:720px}
+#svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+#svg.is-edit{touch-action:none}
+#toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);max-width:min(560px,90%);background:var(--ink);color:var(--panel);
+  padding:9px 14px;border-radius:6px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:2}
+#toast[hidden]{display:none}
+#pausedPill{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18);font:700 12px var(--mono);letter-spacing:.06em;background:var(--warn);color:#1d1405;border:0;border-radius:4px;padding:5px 10px;cursor:pointer}
+#pausedPill[hidden]{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{width:26px;height:14px;flex:none}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.toolbar .tb{border:1px solid var(--rule);background:var(--panel);border-radius:5px;padding:6px 10px;font-weight:700;font-size:13px;cursor:pointer}
+.toolbar .tb[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.toolhint{flex-basis:100%;font-size:13px;color:var(--muted)}
+
+/* overlay */
+#overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;overflow-y:auto;
+  background:color-mix(in srgb,var(--bg) 72%,transparent);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#overlay[hidden]{display:none}
+.mbox{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:22px 24px;max-width:480px;width:100%;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.mbox h2{font:700 30px/1.05 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0 0 4px;text-wrap:balance}
+.stars{font-size:26px;letter-spacing:4px;color:var(--warn);margin:6px 0 10px}
+.stars i{font-style:normal;color:var(--rule)}
+.mgrid{display:grid;grid-template-columns:1fr auto;gap:5px 16px;margin:12px 0;font-size:14px}
+.mgrid b{font:600 14px var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.mbtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+textarea{width:100%;min-height:220px;font:12px/1.4 var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:8px;resize:vertical}
+
+/* side panel */
+.side{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--rule);border-radius:6px;min-width:0}
+.side section{padding:14px 16px;border-top:1px solid var(--rule)}
+.side section:first-child{border-top:0}
+.side h2{font:700 22px/1.1 var(--display);letter-spacing:.03em;text-transform:uppercase;margin:0;text-wrap:balance}
+.side h3,.h3{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
+.sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+.ph{display:flex;gap:10px;align-items:flex-start}
+.ph .code{font:600 13px var(--mono);border:2px solid var(--ink);border-radius:4px;padding:2px 6px;margin-top:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;margin:10px 0 4px;
+  background:color-mix(in srgb,var(--c) 15%,var(--panel));color:var(--ink);border:1px solid color-mix(in srgb,var(--c) 50%,var(--panel))}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0 0;font-size:14px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-variant-numeric:tabular-nums}
+.trip{color:var(--fault);font-weight:700}
+.note{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--rule)}
+.swrow:first-of-type{border-top:0}
+.swrow.hl{background:color-mix(in srgb,var(--accent) 10%,transparent);margin:0 -8px;padding:8px;border-radius:4px}
+.swname{font-size:14px;font-weight:700}
+.swstate{font:12px var(--mono);color:var(--muted)}
+.swstate.c::before{content:"■ "}
+.swstate.o::before{content:"□ "}
+.swstate .abn{color:var(--warn)}
+.tag{font:600 10px var(--mono);border:1px solid var(--muted);border-radius:3px;padding:0 4px;color:var(--muted);margin-left:4px;vertical-align:2px}
+.btn{border:0;border-radius:5px;padding:7px 11px;cursor:pointer;font-weight:700;font-size:13px;background:var(--accent);color:var(--accent-ink);white-space:nowrap;text-align:right;line-height:1.2}
+.btn small{display:block;font-weight:400;font-size:11px;opacity:.85}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.danger{background:transparent;color:var(--fault);border:1.5px solid var(--fault)}
+.btn.wide{width:100%;text-align:center;margin-top:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btnrow .btn{text-align:center}
+.steps{margin:10px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:6px}
+.muted{color:var(--muted);font-size:13px}
+.lead{margin:8px 0 0}
+.phases{list-style:none;display:flex;gap:4px;padding:0;margin:12px 0 4px;font-size:12px}
+.phases li{flex:1;padding:6px 8px;border-radius:4px;background:var(--grid);color:var(--muted);font-weight:700;line-height:1.2}
+.phases li.now{background:var(--ink);color:var(--panel)}
+.phases li.done{background:color-mix(in srgb,var(--ok) 22%,var(--panel));color:var(--ink)}
+.todo{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;cursor:pointer;text-align:left;font-size:14px}
+.load{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.load:last-child{margin-bottom:0}
+.lh{display:flex;align-items:baseline;gap:8px;font-size:14px}
+.lh .sw{width:10px;height:10px;border-radius:2px;flex:none;align-self:center}
+.lh .nm{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lh .num{margin-left:auto;font:600 13px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lh .num.bad{color:var(--fault)}
+.barl{height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+.barl i{display:block;height:100%}
+.crews{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.cr-h{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.badge{font:700 11px var(--mono);background:var(--warn);color:#1d1405;border-radius:3px;padding:2px 5px;flex:none;margin-top:1px}
+.q{margin:4px 0 0 34px;padding:0;list-style:none;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.q li{display:flex;gap:4px}
+.x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:0 4px;margin-left:auto}
+.x:hover{color:var(--fault)}
+.seg.small button{font-size:12px;padding:4px 9px}
+#log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;font-size:13px}
+#log li{display:grid;grid-template-columns:42px 1fr;gap:8px}
+#log time{font:12px var(--mono);color:var(--muted);padding-top:1px}
+#log li.bad span{color:var(--fault);font-weight:700}
+#log li.good span{color:var(--ok);font-weight:700}
+#log li.warn span{color:var(--warn);font-weight:700}
+.fld{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.fld>span{color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.fld input,.fld select{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:7px 9px;width:100%;min-width:0}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checks,.tips{margin:0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:5px}
+.checks .e{color:var(--fault)}
+.checks .w{color:var(--warn)}
+.checks .ok{color:var(--ok);font-weight:700}
+
+/* svg */
+svg text{font-family:var(--body)}
+.cable{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.cable.dead{stroke-dasharray:7 6}
+.is-map .cable{stroke-width:3.5}
+.hit{fill:none;stroke:transparent;stroke-width:22;cursor:pointer;stroke-linecap:round}
+.halo{fill:none;stroke:var(--accent);stroke-opacity:.3;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
+.swm{cursor:pointer}
+.swm .hb{fill:transparent}
+.swm .m{fill:var(--panel);stroke:var(--ink);stroke-width:2}
+.swm.closed .m{fill:var(--ink)}
+.swm:hover .m,.swm.sel .m{stroke:var(--accent);stroke-width:3}
+.swm.sel.closed .m{fill:var(--accent)}
+.swm .ab{fill:none;stroke:var(--warn);stroke-width:1.8;stroke-dasharray:3 2}
+.swm .pr{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:3 3}
+.swl{font:600 10px var(--mono);fill:var(--muted)}
+.node{cursor:pointer;outline:none}
+.node .box{stroke-width:2.5}
+.node:hover .box,.node:focus-visible .box{stroke:var(--accent)!important}
+.selring{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:4 3}
+.pendring{fill:none;stroke:var(--accent);stroke-width:3}
+.code{font:600 12px var(--mono);text-anchor:middle;fill:var(--ink)}
+.lbl{font-weight:700;font-size:13px;fill:var(--ink)}
+.lbl2{font:11px var(--mono);fill:var(--muted)}
+.is-map .lbl,.is-map .lbl2{paint-order:stroke;stroke:var(--ground);stroke-width:4px;stroke-linejoin:round}
+.fpi line{stroke:var(--ink);stroke-width:1.5}
+.fpi.trip path{fill:var(--fault)}
+.fpi.clear path{fill:var(--panel);stroke:var(--muted);stroke-width:1.2}
+.fpi.unk text{font:700 12px var(--mono);fill:var(--muted)}
+.rdot{fill:var(--accent);stroke:var(--panel);stroke-width:2}
+.bus{fill:var(--ink)}
+.plbl{font:700 15px var(--display);letter-spacing:.05em;text-transform:uppercase;fill:var(--ink)}
+.fmark circle{fill:var(--fault)}
+.fmark path{fill:#fff}
+.okmark circle{fill:var(--ok)}
+.okmark path{fill:none;stroke:#fff;stroke-width:2}
+.wrench circle{fill:var(--ok)}
+.wrench text{font:700 9px var(--mono);fill:#fff;text-anchor:middle}
+.crew rect{fill:var(--warn);stroke:var(--panel);stroke-width:2}
+.crew.enroute rect{fill:var(--panel);stroke:var(--warn);stroke-dasharray:3 2}
+.crew text{font:700 10px var(--mono);fill:#1d1405;text-anchor:middle}
+.crew.enroute text{fill:var(--warn)}
+.tblock rect{fill:var(--panel);stroke:var(--ink);stroke-width:1}
+.tblock line{stroke:var(--ink);stroke-width:1}
+.tblock text{font:10px var(--mono);fill:var(--ink)}
+.tblock .tb{font:700 12px var(--display);letter-spacing:.06em}
+.road-e{fill:none;stroke:var(--road-edge);stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
+.road{fill:none;stroke:var(--road);stroke-width:11;stroke-linecap:round;stroke-linejoin:round}
+.river{fill:none;stroke:var(--water);stroke-width:20;stroke-linecap:round}
+.park{fill:var(--park)}
+.blk{fill:var(--block)}
+.mapt{font-style:italic;font-size:13px;fill:var(--muted)}
+.depot{fill:var(--muted)}
+.pmap{fill:var(--ink)}
+.pmap-t{font:700 7.5px var(--mono);fill:var(--panel);text-anchor:middle}
+.ecable{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+/* living diagram: power flow, alarms, map detail */
+.flow{fill:none;stroke:var(--panel);stroke-opacity:.9;stroke-width:1.6;stroke-dasharray:2 12;stroke-linecap:round;animation:flow 1.1s linear infinite;pointer-events:none}
+.is-map .flow{stroke-width:1.3}
+@keyframes flow{to{stroke-dashoffset:-14}}
+.node .box{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.2))}
+.alarm{fill:none;stroke:var(--fault);stroke-width:2;animation:alarm 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes alarm{0%,100%{opacity:.12}50%{opacity:.75}}
+.lbl2.offc{fill:var(--fault);font-weight:600}
+.swm.cbtrip .ab{stroke:var(--fault);stroke-dasharray:none;stroke-width:2.2;animation:blink 1s steps(2,start) infinite}
+@keyframes blink{50%{opacity:0}}
+.fmark .ring{fill:none;stroke:var(--fault);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ping 1.6s ease-out infinite}
+@keyframes ping{from{transform:scale(1);opacity:.8}to{transform:scale(2.3);opacity:0}}
+.van .body{fill:var(--warn);stroke:var(--panel);stroke-width:1.5;stroke-linejoin:round}
+.van .wheel{fill:var(--ink);stroke:var(--panel);stroke-width:1}
+.van text{font:700 8px var(--mono);fill:#1d1405;text-anchor:middle}
+.river-e{fill:none;stroke:var(--water-edge);stroke-width:27;stroke-linecap:round}
+.tree{fill:var(--tree)}
+.blk-s{fill:var(--block-shadow)}
+.sea{fill:var(--sea)}
+.coast{fill:var(--ground);stroke:var(--coast);stroke-width:4;stroke-linejoin:round}
+.contour{fill:none;stroke:var(--contour);stroke-width:1.4}
+.townt{font:700 24px var(--display);letter-spacing:.2em;fill:var(--muted);opacity:.6}
+.seat{font-style:italic;font-size:17px;letter-spacing:.18em;fill:var(--coast)}
+.warnmark polygon{fill:var(--warn);stroke:var(--panel);stroke-width:1.5;stroke-linejoin:round}
+.warnmark text{font:800 10px var(--mono);fill:#1d1405;text-anchor:middle}
+.warnmark .ring{fill:none;stroke:var(--warn);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ping 1.6s ease-out infinite}
+/* control room home */
+.mbox.wide{max-width:660px}
+.fld .seg{flex-wrap:wrap}
+.eyebrow{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:0 0 4px}
+.letter{background:var(--paper);color:var(--paper-ink);font:17px/1.5 'Kalam',cursive;padding:18px 22px;border-radius:4px;margin:14px 0;
+  box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.12);transform:rotate(-.4deg)}
+.letter p{margin:0 0 10px}
+.letter ul{margin:0 0 10px;padding-left:20px}
+.letter li{margin-bottom:4px}
+.letter .sig{font-weight:700;font-size:19px;margin:0}
+.shifts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.shift{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--rule);border-radius:6px;padding:11px 14px;background:var(--bg);cursor:pointer;text-align:left;width:100%}
+.shift:hover{border-color:var(--accent)}
+.shift b{display:block;font-size:15px}
+.shift span{font-size:13px;color:var(--muted)}
+.shift .st{color:var(--warn);letter-spacing:2px;font-size:16px;white-space:nowrap}
+.shift .st i{font-style:normal;color:var(--rule)}
+.brief{border:1px solid color-mix(in srgb,var(--warn) 45%,var(--rule));background:color-mix(in srgb,var(--warn) 9%,var(--panel));border-radius:6px;padding:10px 12px;margin:12px 0 0;font-size:14px}
+.brief b{display:block;font:600 11px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--warn);margin-bottom:2px}
+.alertbox{border:1px solid color-mix(in srgb,var(--fault) 45%,var(--rule));background:color-mix(in srgb,var(--fault) 8%,var(--panel));border-radius:6px;padding:10px 12px;margin:12px 0 0;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand">
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" style="fill:var(--desk-ink)"/><path d="M6 22h7l9-9m0 9h6" style="stroke:var(--desk)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="13" cy="22" r="2.6" style="fill:var(--f1)"/></svg>
+      <div><h1>Open Point</h1><p id="netName">11 kV fault restoration</p></div>
+    </div>
+    <div class="stats play-only">
+      <div class="stat"><label>Clock</label><b id="clock">--:--</b><span id="pz" hidden>PAUSED</span></div>
+      <div class="stat off" id="offStat"><label>Customers off</label><b id="off">0</b></div>
+      <div class="stat"><label>Interruptions (CI)</label><b id="ci">0</b></div>
+      <div class="stat"><label>Minutes lost (CML)</label><b id="cml">0</b></div>
+    </div>
+    <div class="controls">
+      <div class="seg play-only" role="group" aria-label="Clock speed" id="speedSeg">
+        <button data-speed="0" title="Pause (space)">❚❚</button>
+        <button data-speed="1" title="1 game minute per second">1×</button>
+        <button data-speed="2" title="4 game minutes per second">4×</button>
+        <button data-speed="3" title="15 game minutes per second">15×</button>
+      </div>
+      <div class="seg" role="group" aria-label="View">
+        <button id="vS" data-view="s" aria-pressed="true">Schematic</button>
+        <button id="vM" data-view="m" aria-pressed="false">Map</button>
+      </div>
+      <div class="seg" role="group" aria-label="Mode">
+        <button id="mP" data-mode="play" aria-pressed="true">Play</button>
+        <button id="mE" data-mode="edit" aria-pressed="false">Editor</button>
+      </div>
+      <button id="newBtn" class="ghost play-only" data-act="home">Control room</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="board">
+      <div class="toolbar edit-only" id="tools"></div>
+      <div class="stage-wrap"><div class="stage" id="stage">
+        <svg id="svg" viewBox="0 0 1000 560" role="img" aria-label="11 kV network"></svg>
+        <button id="pausedPill" class="play-only" data-speed="1" hidden>▶ CLOCK PAUSED · PRESS TO RUN</button>
+        <div id="toast" hidden></div>
+      </div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <aside class="side play-only">
+      <section id="panel"></section>
+      <section><h3>Feeder loading</h3><div id="loads"></div></section>
+      <section id="crewSec"></section>
+      <section><h3>Control log</h3><ol id="log"></ol></section>
+    </aside>
+    <aside class="side edit-only" id="editSide"></aside>
+  </main>
+</div>
+<div id="overlay" hidden></div>
+
+<script>
+// ======================= Network definitions =======================
+const ASHCOMBE = {
+  name:'Ashcombe', w:1000, h:560, depot:[120,505], dwg:'DWG 11-204 rev C',
+  nodes:{
+    P1:{name:'Ashcombe Primary',kind:'primary',s:[70,350],m:[110,330]},
+    P2:{name:'Brookfield Primary',kind:'primary',s:[930,90],m:[880,88]},
+    S1:{code:'S1',name:'Mill Lane',cust:420,s:[220,250],m:[250,262],ml:[0,30,'middle']},
+    S2:{code:'S2',name:'Market Street',cust:610,s:[370,250],m:[390,220],ml:[0,-20,'middle']},
+    S3:{code:'S3',name:'Church Square',cust:380,remote:true,s:[520,250],m:[520,250],ml:[0,32,'middle']},
+    S4:{code:'S4',name:'Elm Road',cust:540,s:[670,250],m:[650,300],ml:[18,-4,'start']},
+    S5:{code:'S5',name:'Orchard Close',cust:300,remote:true,s:[820,250],m:[760,360],sl:'r',ml:[18,4,'start']},
+    T1:{code:'T1',name:'Station Road',cust:500,s:[220,450],m:[230,420],ml:[0,30,'middle']},
+    T2:{code:'T2',name:'Riverside',cust:450,s:[420,450],m:[380,470],ml:[0,-20,'middle']},
+    T3:{code:'T3',name:'Kingsway',cust:380,remote:true,s:[620,450],m:[540,480],ml:[0,30,'middle']},
+    T4:{code:'T4',name:'Hospital Road',cust:520,s:[820,450],m:[720,460],ml:[16,22,'start'],
+        note:'Includes Ashcombe Community Hospital, running on standby generation.'},
+    U1:{code:'U1',name:'Brookfield Estate',cust:350,s:[770,90],m:[760,120],ml:[0,30,'middle']},
+    U2:{code:'U2',name:'School Lane',cust:400,remote:true,s:[650,90],m:[640,140],ml:[0,-20,'middle']},
+    U3:{code:'U3',name:'Hill Top',cust:300,s:[520,90],m:[540,160],sl:'l',ml:[-18,4,'end']},
+  },
+  cables:[
+    {id:'C1',a:'P1',b:'S1',feeder:'Town',rating:450,mp:[[110,330],[180,330],[250,262]]},
+    {id:'C6',a:'P1',b:'T1',feeder:'Riverside',rating:350,mp:[[110,330],[140,420],[230,420]]},
+    {id:'C10',a:'P2',b:'U1',feeder:'Brookfield',rating:250,mp:[[880,88],[820,120],[760,120]]},
+    {id:'C2',a:'S1',b:'S2',mp:[[250,262],[320,222],[390,220]]},
+    {id:'C3',a:'S2',b:'S3',mp:[[390,220],[460,220],[520,250]]},
+    {id:'C4',a:'S3',b:'S4',mp:[[520,250],[600,252],[650,300]]},
+    {id:'C5',a:'S4',b:'S5',mp:[[650,300],[700,360],[760,360]]},
+    {id:'N1',a:'S5',b:'T4',nop:'a',mp:[[760,360],[762,425],[720,460]]},
+    {id:'C7',a:'T1',b:'T2',mp:[[230,420],[300,470],[380,470]]},
+    {id:'C8',a:'T2',b:'T3',mp:[[380,470],[460,500],[540,480]]},
+    {id:'C9',a:'T3',b:'T4',mp:[[540,480],[630,482],[720,460]]},
+    {id:'C11',a:'U1',b:'U2',mp:[[760,120],[700,150],[640,140]]},
+    {id:'C12',a:'U2',b:'U3',mp:[[640,140],[590,170],[540,160]]},
+    {id:'N2',a:'U3',b:'S3',nop:'a',mp:[[540,160],[545,205],[520,250]]},
+  ],
+  decor:{
+    river:'M-10,390 C150,368 260,402 360,398 S560,390 680,410 S880,430 1010,418',
+    parks:[[418,290,134,62,'Ashcombe Park']],
+    labels:[[905,452,'River Ash']],
+    roads:[[[0,300],[110,330]],[[390,220],[400,100],[540,160]],[[650,300],[720,230],[760,120]],
+      [[540,480],[560,560]],[[760,360],[900,330],[1000,340]],[[110,330],[120,505]],[[880,88],[910,0]],
+      [[0,505],[120,505]],[[230,420],[250,262]]],
+  },
+};
+
+const DISTRICT = {
+  name:'Ashcombe & District', w:1500, h:800, depot:[170,650], dwg:'DWG 11-300 rev A', mlDefault:[0,26,'middle'],
+  nodes:{
+    P1:{name:'Ashcombe Primary',kind:'primary',s:[70,250],m:[140,400]},
+    P2:{name:'Brookfield Primary',kind:'primary',s:[1420,170],m:[1350,145]},
+    P3:{name:'Southgate Primary',kind:'primary',s:[1420,560],m:[1345,640]},
+    Y1:{code:'Y1',name:'Westbury Green',cust:380,s:[220,90],m:[260,250]},
+    Y2:{code:'Y2',name:'Northgate',cust:420,remote:true,s:[380,90],m:[410,175],sl:'bl'},
+    Y3:{code:'Y3',name:'Quarry Lane',cust:300,s:[540,90],m:[580,140]},
+    V3:{code:'V3',name:'Northfield',cust:310,s:[700,90],m:[760,110]},
+    V2:{code:'V2',name:'Windmill Hill',cust:460,remote:true,s:[860,90],m:[940,90]},
+    V1:{code:'V1',name:'Brook Farm',cust:340,s:[1020,90],m:[1120,120]},
+    S1:{code:'S1',name:'Mill Lane',cust:420,s:[220,250],m:[290,370]},
+    S2:{code:'S2',name:'Market Street',cust:610,s:[380,250],m:[430,320]},
+    S3:{code:'S3',name:'Church Square',cust:380,remote:true,s:[540,250],m:[580,345]},
+    S4:{code:'S4',name:'Elm Road',cust:540,s:[700,250],m:[720,395],sl:'bl'},
+    S5:{code:'S5',name:'Orchard Close',cust:300,remote:true,s:[860,250],m:[860,355]},
+    U3:{code:'U3',name:'Hill Top',cust:300,s:[1020,250],m:[1000,300]},
+    U2:{code:'U2',name:'School Lane',cust:400,remote:true,s:[1170,250],m:[1130,255]},
+    U1:{code:'U1',name:'Brookfield Estate',cust:350,s:[1300,250],m:[1240,215]},
+    T1:{code:'T1',name:'Station Road',cust:500,s:[220,430],m:[270,530]},
+    T2:{code:'T2',name:'Riverside',cust:450,s:[380,430],m:[420,565],sl:'bl'},
+    T3:{code:'T3',name:'Kingsway',cust:380,remote:true,s:[540,430],m:[580,565]},
+    T4:{code:'T4',name:'Hospital Road',cust:520,s:[700,430],m:[740,525],note:'Includes Ashcombe Community Hospital, running on standby generation.'},
+    T5:{code:'T5',name:'Mill Pond',cust:260,s:[380,580],m:[430,700]},
+    X3:{code:'X3',name:'Canal Street',cust:450,s:[950,430],m:[905,525],sl:'bl'},
+    X2:{code:'X2',name:'Wharf Lane',cust:600,remote:true,s:[1110,430],m:[1060,565]},
+    X1:{code:'X1',name:'Docks Road',cust:520,s:[1270,430],m:[1200,600]},
+    W4:{code:'W4',name:'Southgate Farm',cust:280,s:[790,680],m:[770,705]},
+    W3:{code:'W3',name:'Bridge End',cust:410,remote:true,s:[950,680],m:[925,690]},
+    W2:{code:'W2',name:'Southgate Park',cust:520,s:[1110,680],m:[1080,730]},
+    W1:{code:'W1',name:'Tannery Row',cust:480,s:[1270,680],m:[1220,730]},
+  },
+  cables:[
+    {id:'D1',a:'P1',b:'S1',feeder:'Town',rating:450},
+    {id:'D2',a:'P1',b:'T1',feeder:'Riverside',rating:400},
+    {id:'D3',a:'P2',b:'U1',feeder:'Brookfield',rating:250},
+    {id:'D4',a:'P2',b:'V1',feeder:'Northfield',rating:250},
+    {id:'D5',a:'P3',b:'W1',feeder:'Southgate',rating:300},
+    {id:'D6',a:'P3',b:'X1',feeder:'Docks',rating:350},
+    {id:'D7',a:'P1',b:'Y1',feeder:'Westbury',rating:250},
+    {id:'D8',a:'S1',b:'S2'},{id:'D9',a:'S2',b:'S3'},{id:'D10',a:'S3',b:'S4'},{id:'D11',a:'S4',b:'S5'},
+    {id:'D12',a:'T1',b:'T2'},{id:'D13',a:'T2',b:'T3'},{id:'D14',a:'T3',b:'T4'},{id:'D15',a:'T2',b:'T5'},
+    {id:'D16',a:'U1',b:'U2'},{id:'D17',a:'U2',b:'U3'},
+    {id:'D18',a:'V1',b:'V2'},{id:'D19',a:'V2',b:'V3'},
+    {id:'D20',a:'W1',b:'W2'},{id:'D21',a:'W2',b:'W3'},{id:'D22',a:'W3',b:'W4'},
+    {id:'D23',a:'X1',b:'X2'},{id:'D24',a:'X2',b:'X3'},
+    {id:'D25',a:'Y1',b:'Y2'},{id:'D26',a:'Y2',b:'Y3'},
+    {id:'M1',a:'T4',b:'S4',nop:'a'},
+    {id:'M2',a:'S5',b:'U3',nop:'a'},
+    {id:'M3',a:'X3',b:'T4',nop:'a'},
+    {id:'M4',a:'W3',b:'X3',nop:'a'},
+    {id:'M5',a:'Y3',b:'V3',nop:'a'},
+    {id:'M6',a:'Y2',b:'S2',nop:'a'},
+  ],
+  decor:{
+    river:'M-10,470 C200,440 380,490 560,470 S860,450 1040,480 S1300,470 1510,455',
+    parks:[[470,405,130,44,'Riverside Park']],
+    labels:[[1400,500,'River Ash']],
+    roads:[[[0,400],[140,400]],[[140,400],[170,650]],[[1350,145],[1500,100]],[[1345,640],[1500,660]],
+      [[580,565],[600,800]],[[940,90],[960,0]],[[0,650],[170,650]]],
+  },
+};
+// Megawatt Island: the city of Port Ampere and the towns of Ohmsford, Joulebury, Voltcombe and Faraday Head.
+const MEGAWATT = {
+  name:'Megawatt Island', w:1600, h:900, depot:[860,628], dwg:'MWI 11-001 rev F', mlDefault:[0,26,'middle'],
+  nodes:{
+    PA:{name:'Port Ampere Primary',kind:'primary',s:[440,550],m:[770,610]},
+    OH:{name:'Ohmsford Primary',kind:'primary',s:[70,195],m:[560,205],ml:[-20,4,'end']},
+    JB:{name:'Joulebury Primary',kind:'primary',s:[1530,265],m:[1305,415],ml:[20,4,'start']},
+    VC:{name:'Voltcombe Primary',kind:'primary',s:[70,550],m:[225,470],ml:[-20,4,'end']},
+    U1:{code:'U1',name:'Uptown Parade',cust:560,s:[620,430],m:[725,545],ml:[-16,4,'end']},
+    U2:{code:'U2',name:'University',cust:450,remote:true,s:[820,430],m:[830,515],ml:[0,-18,'middle']},
+    U3:{code:'U3',name:'Megawatt General',cust:400,s:[1020,430],m:[945,560],sl:'r',ml:[16,4,'start'],
+        note:'Megawatt General Hospital. Its standby generators cover about four hours.'},
+    C1:{code:'C1',name:'Market Square',cust:620,s:[620,550],m:[785,672],sl:'bl'},
+    C2:{code:'C2',name:'Cathedral Close',cust:540,remote:true,s:[820,550],m:[875,702]},
+    C3:{code:'C3',name:'Harbour Lights',cust:480,s:[1020,550],m:[955,735],ml:[16,4,'start']},
+    D1:{code:'D1',name:'Dock Gate',cust:520,remote:true,s:[620,670],m:[690,690],ml:[-16,4,'end']},
+    D2:{code:'D2',name:'Ferry Terminal',cust:380,s:[820,670],m:[620,745],ml:[-16,4,'end']},
+    D3:{code:'D3',name:'Fish Quay',cust:300,s:[1020,670],m:[545,772],sl:'r'},
+    O1:{code:'O1',name:'Ohmsford Green',cust:420,s:[220,70],m:[640,165]},
+    O2:{code:'O2',name:'Mill Street',cust:380,remote:true,s:[370,70],m:[720,190]},
+    O3:{code:'O3',name:'Church Lane',cust:300,s:[520,70],m:[800,155]},
+    O4:{code:'O4',name:'Faraday Head',cust:260,remote:true,s:[870,70],m:[1170,145],sl:'bl'},
+    O5:{code:'O5',name:'Lighthouse',cust:40,s:[1020,70],m:[1270,165],note:'Faraday Head lighthouse and the coastguard station.'},
+    R1:{code:'R1',name:'Fell Farm',cust:120,s:[220,320],m:[520,315],sl:'br'},
+    R2:{code:'R2',name:'Megawatt Fell',cust:80,s:[420,320],m:[600,410],note:'Includes the island\'s telecoms mast on the summit.'},
+    R3:{code:'R3',name:'Northgate',cust:350,remote:true,s:[620,320],m:[680,500],sl:'bl',ml:[-16,4,'end']},
+    J1:{code:'J1',name:'Joulebury Cross',cust:480,s:[1380,210],m:[1250,370],ml:[-16,4,'end']},
+    J2:{code:'J2',name:'Station Road',cust:400,remote:true,s:[1130,210],m:[1230,290],ml:[-16,4,'end']},
+    J3:{code:'J3',name:'Northfield',cust:250,s:[870,210],m:[1200,215],ml:[-16,4,'end']},
+    K1:{code:'K1',name:'Saltmarsh',cust:150,s:[1380,320],m:[1310,525]},
+    K2:{code:'K2',name:'Brine Farm',cust:120,s:[1200,320],m:[1190,605]},
+    K3:{code:'K3',name:'Eastcliff',cust:300,remote:true,s:[1020,320],m:[1050,645],sl:'bl'},
+    V1:{code:'V1',name:'Voltcombe Square',cust:520,s:[220,550],m:[300,430],sl:'bl'},
+    V2:{code:'V2',name:'Copper Lane',cust:300,remote:true,s:[340,550],m:[370,485],note:'Metal thieves have broken in here three times this year.'},
+    V3:{code:'V3',name:'Westbrook',cust:260,s:[220,430],m:[340,330],sl:'r'},
+    V4:{code:'V4',name:'Sandy Cove',cust:180,s:[220,670],m:[250,590],sl:'r'},
+    V5:{code:'V5',name:'Pebble Bay',cust:160,s:[220,790],m:[390,700]},
+  },
+  cables:[
+    {id:'PA1',a:'PA',b:'U1',feeder:'Uptown',rating:300},
+    {id:'PA2',a:'PA',b:'C1',feeder:'City Centre',rating:300},
+    {id:'PA3',a:'PA',b:'D1',feeder:'Docks',rating:250},
+    {id:'OH1',a:'OH',b:'O1',feeder:'Ohmsford',rating:300},
+    {id:'OH2',a:'OH',b:'R1',feeder:'Fell Road',rating:200},
+    {id:'JB1',a:'JB',b:'J1',feeder:'Joulebury',rating:300},
+    {id:'JB2',a:'JB',b:'K1',feeder:'Coast Road',rating:200},
+    {id:'VC1',a:'VC',b:'V1',feeder:'Voltcombe',rating:300},
+    {id:'L1',a:'U1',b:'U2'},{id:'L2',a:'U2',b:'U3'},
+    {id:'L3',a:'C1',b:'C2'},{id:'L4',a:'C2',b:'C3'},
+    {id:'L5',a:'D1',b:'D2'},{id:'L6',a:'D2',b:'D3'},
+    {id:'L7',a:'O1',b:'O2'},{id:'L8',a:'O2',b:'O3'},{id:'L9',a:'O3',b:'O4',mp:[[800,155],[960,118],[1170,145]]},{id:'L10',a:'O4',b:'O5'},
+    {id:'L11',a:'R1',b:'R2'},{id:'L12',a:'R2',b:'R3'},
+    {id:'L13',a:'J1',b:'J2'},{id:'L14',a:'J2',b:'J3'},
+    {id:'L15',a:'K1',b:'K2'},{id:'L16',a:'K2',b:'K3'},
+    {id:'L17',a:'V1',b:'V2'},{id:'L18',a:'V1',b:'V3'},{id:'L19',a:'V1',b:'V4'},{id:'L20',a:'V4',b:'V5'},
+    {id:'N1',a:'R3',b:'U1',nop:'a'},
+    {id:'N2',a:'K3',b:'U3',nop:'a'},
+    {id:'N3',a:'U3',b:'C3',nop:'a'},
+    {id:'N4',a:'D1',b:'C1',nop:'a'},
+    {id:'N5',a:'J3',b:'O4',nop:'a'},
+    {id:'N6',a:'V3',b:'R1',nop:'a'},
+    {id:'N7',a:'V5',b:'D3',nop:'a',sp:[[220,790],[1020,790],[1020,670]]},
+  ],
+  decor:{
+    coast:'M150,320 C160,190 320,105 500,95 C620,88 690,60 820,75 C960,90 1060,60 1200,85 C1330,105 1420,170 1450,270 C1480,370 1450,450 1430,540 C1410,640 1310,710 1170,750 C1040,790 920,830 780,815 C640,800 540,840 420,805 C290,770 170,710 130,610 C100,530 140,430 150,320 Z',
+    river:'M590,430 C540,500 470,560 462,640 S470,760 470,860',
+    hills:[[600,400,120,72]],
+    parks:[[400,190,100,58,'Fell Wood'],[1010,330,120,64,'Joule Forest']],
+    labels:[[690,118,'Ohmsford','town'],[1330,332,'Joulebury','town'],[250,388,'Voltcombe','town'],[860,792,'Port Ampere','town'],[1240,64,'Faraday Head','town'],
+      [600,343,'Megawatt Fell'],[800,34,'The Wattless Sea','sea'],[220,866,'Ampere Sound','sea'],[1490,800,'Joule Strait','sea'],[505,606,'River Current']],
+    roads:[[[560,205],[340,330],[225,470]],[[225,470],[450,610],[690,690]],[[945,560],[1190,605],[1305,415]],[[800,155],[1200,215]],[[770,610],[860,628]]],
+  },
+};
+const BUILTIN = {megawatt:MEGAWATT, ashcombe:ASHCOMBE, district:DISTRICT};
+const SCEN_LABEL = {single:'Cable fault',digin:'Digger strike',theft:'Copper theft',storm:'Storm',bigstorm:'Atlantic storm',mixed:'Busy shift'};
+const SHIFTS = [
+  {id:'s1',title:'Shift 1 · Handover day',desc:'A cable fault in Port Ampere. Mags is still here for a cup of tea.',scen:'single',crews:2,area:['PA','U','C','D'],
+   brief:'Your first fault. Read the flags, put the healthy end back on from a neighbouring feeder, then send a crew to find the faulty cable.'},
+  {id:'s2',title:'Shift 2 · Night shift',desc:'The intruder alarm goes off at Copper Lane. Then the phone rings again.',scen:'theft',crews:2,theftNode:'V2',
+   brief:'Copper Lane has been hit again. Nobody touches that switchgear until a crew has made it safe. Keep an eye on the rest of the island while they work.'},
+  {id:'s3',title:'Shift 3 · Roadworks',desc:'Island Civils are digging up the city centre.',scen:'digin',crews:2,area:['PA','U','C','D'],
+   brief:'Island Civils have been digging in town all week. When they hit a cable you know exactly where the damage is, but a digger strike takes about four hours to repair.'},
+  {id:'s4',title:'Shift 4 · Atlantic storm',desc:'Gales across the whole island. Several faults, and the thieves are out.',scen:'bigstorm',crews:3,
+   brief:'This is the big one. Faults will pop up all over the island while the storm passes, and thieves will use the dark. Look after the hospital and the biggest towns first.'},
+];
+
+// ======================= Constants & helpers =======================
+const AMPS = 0.1;                 // amps per customer at 11 kV (about 2 kW each)
+const WORK = {op:5, visit:2, test:30, repair:150, makesafe:90};
+const SPEEDS = [0,1,4,15];        // game minutes per real second
+const STORE = 'openpoint.networks.v1';
+const $ = s=>document.querySelector(s);
+const other = e=>e==='a'?'b':'a';
+const fmtT = m=>{m=((Math.floor(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');};
+const fmtN = n=>Math.round(n).toLocaleString('en-GB');
+const dist = (p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);
+const tt = (p,q)=>dist(p,q)<1?0:Math.round(3+dist(p,q)/28);   // drive time in minutes
+const clean = (s,max)=>String(s==null?'':s).replace(/[<>&"'`]/g,'').slice(0,max);
+const clone = o=>JSON.parse(JSON.stringify(o));
+const plural = (n,w)=>`${n} ${w}${n===1?'':'s'}`;
+
+// ======================= Active network =======================
+let NET, N, CABLES, CBL, INC, RMUS, PRIMS, CB, CBIDS, NOPS, FAULTABLE, BLOCKS;
+function useNetwork(def){
+  NET=def; N=def.nodes; CABLES=def.cables; CBL={}; INC={}; BLOCKS=null;
+  CABLES.forEach(c=>CBL[c.id]=c);
+  Object.keys(N).forEach(k=>INC[k]=[]);
+  CABLES.forEach(c=>{ if(INC[c.a]&&INC[c.b]){ INC[c.a].push({c,end:'a'}); INC[c.b].push({c,end:'b'}); } });
+  RMUS=Object.keys(N).filter(k=>N[k].kind!=='primary');
+  PRIMS=Object.keys(N).filter(k=>N[k].kind==='primary');
+  CB={}; CBIDS=[]; let k=0;
+  CABLES.forEach(c=>['a','b'].forEach(e=>{
+    const p=N[c[e]], o=N[c[other(e)]];
+    if(p&&o&&p.kind==='primary'&&o.kind!=='primary'){
+      k++; const id=c.id+':'+e;
+      CB[id]={name:'F'+k,feeder:c.feeder||o.name,prim:c[e],rating:c.rating||400,color:'--f'+(((k-1)%8)+1),end:e};
+      CBIDS.push(id);
+    }
+  }));
+  NOPS=new Set(CABLES.filter(c=>c.nop).map(c=>c.id+':'+c.nop));
+  FAULTABLE=CABLES.filter(c=>!c.nop&&!(N[c.a].kind==='primary'&&N[c.b].kind==='primary')).map(c=>c.id);
+}
+function normalSw(){ const sw={}; CABLES.forEach(c=>{sw[c.id+':a']=true;sw[c.id+':b']=true;}); NOPS.forEach(k=>sw[k]=false); return sw; }
+const cableName = c=>`${N[c.a].name} – ${N[c.b].name}`;
+const nodeOfSw = sid=>{const [cid,e]=sid.split(':'); return CBL[cid][e];};
+function switchLabel(sid){
+  if(CB[sid]) return `CB ${CB[sid].name}`;
+  const [cid,e]=sid.split(':'), c=CBL[cid];
+  return `${N[c[e]].name} switch towards ${N[c[other(e)]].name}`;
+}
+const remoteFor = sid=>!!CB[sid]||!!N[nodeOfSw(sid)].remote;
+
+// ======================= Simulation =======================
+let S=null, E=null, dirty=false;
+const UI={view:'s',mode:'play',overlay:null,setup:{net:'b:megawatt',scen:'single',crews:2},msg:'',letter:false};
+
+// Flood-fill from each closed breaker through cables closed at both ends. Islands fed by
+// several breakers (a loop on one primary) share their load equally.
+function solve(sw=S.sw){
+  const feed={}, cab={}, parent={}, island={}, islands=[];
+  for(const id of CBIDS){
+    if(!sw[id]) continue;
+    const c=CBL[id.split(':')[0]], fe=other(CB[id].end), start=c[fe];
+    if(!cab[c.id]) cab[c.id]=id;
+    if(!sw[c.id+':'+fe]) continue;
+    if(island[start]!=null){ islands[island[start]].cbs.push(id); continue; }
+    const k=islands.length, isl={cbs:[id],nodes:[start]}; islands.push(isl);
+    island[start]=k; feed[start]=id; parent[start]={from:null,cable:c.id};
+    const q=[start];
+    while(q.length){
+      const n=q.shift();
+      for(const {c:cc,end} of INC[n]){
+        if(!sw[cc.id+':'+end]) continue;
+        if(!cab[cc.id]) cab[cc.id]=id;
+        const oe=other(end), on=cc[oe];
+        if(N[on].kind==='primary'||!sw[cc.id+':'+oe]||island[on]!=null) continue;
+        island[on]=k; feed[on]=id; parent[on]={from:n,cable:cc.id}; isl.nodes.push(on); q.push(on);
+      }
+    }
+  }
+  return {feed,cab,parent,island,islands};
+}
+const islandOfCB = (sol,id)=>{ for(let k=0;k<sol.islands.length;k++) if(sol.islands[k].cbs.includes(id)) return k; return null; };
+function cbLoad(sol,id){
+  const k=islandOfCB(sol,id); if(k==null) return 0;
+  const isl=sol.islands[k];
+  return isl.nodes.reduce((a,n)=>a+N[n].cust,0)*AMPS/isl.cbs.length;
+}
+function sidePrim(sol,n){ if(N[n].kind==='primary') return n; const k=sol.island[n]; return k==null?null:CB[sol.islands[k].cbs[0]].prim; }
+function feedersOf(sol,cid){
+  const c=CBL[cid], out=new Set();
+  ['a','b'].forEach(e=>{
+    const sid=cid+':'+e; if(!S.sw[sid]) return;
+    if(CB[sid]){ out.add(sid); return; }
+    const k=sol.island[c[e]]; if(k!=null) sol.islands[k].cbs.forEach(x=>out.add(x));
+  });
+  return [...out];
+}
+const offCount = ()=>RMUS.reduce((s,n)=>s+(S.on[n]?0:N[n].cust),0);
+const crewOnSite = n=>S.crews.some(cr=>cr.at===n);
+const faultOn = cid=>S.faults.find(f=>f.cable===cid&&f.active);
+function log(text,kind=''){ S.log.unshift({t:S.t,text,kind}); if(S.log.length>120) S.log.pop(); }
+
+// Protection: trip every breaker feeding an energised fault, then any breaker over its rating.
+function protect(natural){
+  const res={tripped:[],fault:false};
+  for(let g=0;g<24;g++){
+    const sol=solve(); let acted=false;
+    for(const f of S.faults){
+      if(!f.active) continue;
+      const fe=feedersOf(sol,f.cable); if(!fe.length) continue;
+      if(f.transient&&f.trips>0){
+        f.active=false; acted=true;
+        log(`No fault current on reclose. The fault on ${cableName(CBL[f.cable])} was transient and has cleared.`,'good');
+        break;
+      }
+      const c=CBL[f.cable], path=new Set(), reset=new Set();
+      fe.forEach(cb=>{ const k=islandOfCB(sol,cb); if(k!=null) sol.islands[k].nodes.forEach(n=>reset.add(n)); });
+      ['a','b'].forEach(e=>{
+        const n=c[e];
+        // fault current flows out of the node feeding the cable, not the one downstream of it
+        if(N[n].kind==='primary'||!S.sw[c.id+':'+e]||sol.island[n]==null||sol.parent[n].cable===c.id) return;
+        let x=n; while(x){ path.add(x); x=sol.parent[x].from; }
+      });
+      reset.forEach(n=>{ S.fpi[n]={trip:path.has(n),known:!!N[n].remote||crewOnSite(n),t:S.t}; });
+      fe.forEach(cb=>S.sw[cb]=false);
+      f.trips++; res.tripped.push(...fe); res.fault=true; acted=true;
+      if(!natural) S.faultTrips++;
+      const names=fe.map(cb=>`CB ${CB[cb].name}`).join(' and ');
+      log(natural?`${names} at ${N[CB[fe[0]].prim].name} tripped on earth fault protection.`:`${names} tripped. That operation energised a fault.`,'bad');
+      break;
+    }
+    if(acted) continue;
+    let tripped=false;
+    for(const id of CBIDS){
+      if(!S.sw[id]) continue;
+      const a=cbLoad(sol,id);
+      if(a>CB[id].rating+0.01){
+        S.sw[id]=false; S.overloads++; tripped=true; res.tripped.push(id);
+        log(`CB ${CB[id].name} tripped on overcurrent: ${Math.round(a)} A against a ${CB[id].rating} A rating.`,'bad');
+        break;
+      }
+    }
+    if(!tripped) break;
+  }
+  return res;
+}
+function updateOn(){
+  const sol=solve();
+  RMUS.forEach(n=>{
+    // stolen low-voltage cables keep a substation's customers off even when the 11 kV side is live
+    const on=sol.island[n]!=null&&!S.lvOut[n];
+    if(S.on[n]&&!on){ S.offSince[n]=S.t; S.counted[n]=false; S.affected+=N[n].cust; }
+    S.on[n]=on;
+  });
+}
+// Time passes: CML accrues for everyone off; an interruption counts toward CI once it reaches 3 minutes.
+function accrue(dt){
+  if(dt<=0) return;
+  S.cml+=offCount()*dt; S.t+=dt;
+  RMUS.forEach(n=>{ if(!S.on[n]&&!S.counted[n]&&S.t-S.offSince[n]>=3-1e-9){ S.counted[n]=true; S.ci+=N[n].cust; } });
+}
+function isNormal(){ return Object.keys(S.sw).every(k=>S.sw[k]===!NOPS.has(k)); }
+function allClear(){ return !S.pending.length&&S.faults.every(f=>!f.active)&&!RMUS.some(n=>S.theft[n])&&offCount()===0&&isNormal(); }
+const locked = n=>!!(S.theft&&S.theft[n]);
+function snapshotStats(){ return {t:S.t,ci:S.ci,cml:S.cml,affected:S.affected,ops:S.ops,faultTrips:S.faultTrips,overloads:S.overloads,safety:S.safety}; }
+function checkPhase(){
+  if(S.phase==='closed') return;
+  if(S.phase==='restore'&&!S.pending.length&&offCount()===0){
+    S.phase='repair'; S.restored=snapshotStats(); recordStars();
+    log('All customers back on supply.','good');
+    if(!allClear()){ S.paused=true; S.modal='restored'; }
+  }
+  if(S.phase==='repair'&&allClear()){
+    S.phase='closed'; S.paused=true; S.modal='closed'; S.closedAt=S.t;
+    log('Network back in normal running. Incident closed.','good');
+  }
+}
+function afterChange(){ updateOn(); checkPhase(); dirty=true; }
+
+// ---------- Events ----------
+function crewPos(cr){
+  const j=cr.job;
+  if(j&&j.stage==='travel'&&j.tArrive>j.t1){
+    const k=Math.max(0,Math.min(1,(S.t-j.t1)/(j.tArrive-j.t1)));
+    return [j.from[0]+(j.to[0]-j.from[0])*k, j.from[1]+(j.to[1]-j.from[1])*k];
+  }
+  return cr.pos;
+}
+function nextEvent(){
+  let best=null;
+  const consider=(t,fn)=>{ if(!best||t<best.t) best={t,fn}; };
+  if(S.control.length) consider(S.control[0].tDone,doControl);
+  S.crews.forEach((cr,i)=>{ const j=cr.job; if(j) consider(j.stage==='travel'?j.tArrive:j.tDone,()=>crewEvent(i)); });
+  if(S.pending.length) consider(S.pending[0].t,()=>handleEvent(false));
+  return best;
+}
+function advance(dt){
+  const target=S.t+dt;
+  for(let g=0;g<200;g++){
+    const ev=nextEvent();
+    if(!ev||ev.t>target){ accrue(target-S.t); break; }
+    accrue(ev.t-S.t); ev.fn(); afterChange();
+    if(S.paused) break;
+  }
+}
+function handleEvent(initial){
+  const p=S.pending.shift();
+  if(p.kind==='theft'){
+    S.theft[p.node]=true; S.lvOut[p.node]=true;
+    log(`Intruder alarm at ${N[p.node].name} substation. Police report the door forced and copper earth bonds and low-voltage cables stolen. The site is unsafe and its switchgear is locked out.`,'bad');
+    if(!initial){ S.paused=true; toast(`Intruder alarm at ${N[p.node].name}. Clock paused.`); }
+    return {tripped:[]};
+  }
+  const c=CBL[p.cable], f={cable:p.cable,active:true,transient:!!p.transient,trips:0,t:S.t};
+  if(p.kind==='digin'){
+    f.digin=true; f.found=true; f.transient=false; S.tested[p.cable]='fault';
+    log(`Call from Island Civils: a mini-digger has hit the 11 kV cable between ${N[c.a].name} and ${N[c.b].name}. Their crew are clear and unhurt.`,'bad');
+  }
+  S.faults.push(f);
+  const r=protect(true);
+  if(!initial&&(r.tripped.length||f.digin)){
+    S.paused=true;
+    const what=f.digin?'Digger strike reported':`${r.tripped.map(cb=>'CB '+CB[cb].name).join(' and ')} tripped`;
+    toast(`${S.scen==='storm'||S.scen==='bigstorm'?'Storm: ':''}${what}. Clock paused.`);
+  }
+  return r;
+}
+function parallelBlock(sid){
+  const [cid,e]=sid.split(':'), c=CBL[cid], oe=other(e);
+  if(!S.sw[cid+':'+oe]) return null;
+  const sol=solve(), pa=sidePrim(sol,c[e]), pb=sidePrim(sol,c[oe]);
+  if(pa&&pb&&pa!==pb) return `closing the ${switchLabel(sid)} would parallel ${N[pa].name} and ${N[pb].name}. Make one side dead first.`;
+  return null;
+}
+function applyOp(sid,close,who){
+  if(S.sw[sid]===close){ log(`${switchLabel(sid)} is already ${close?'closed':'open'}.`); return; }
+  if(locked(nodeOfSw(sid))){ log(`Refused: ${N[nodeOfSw(sid)].name} is unsafe after the theft. It must be made safe before anything there is operated.`,'warn'); return; }
+  if(close){ const why=parallelBlock(sid); if(why){ log('Refused: '+why,'warn'); toast('Refused: '+why); return; } }
+  S.sw[sid]=close; S.ops++;
+  log(`${close?'Closed':'Opened'} ${switchLabel(sid)} (${who}).`);
+  const r=protect(false);
+  if(who!=='remote'&&close&&r.fault){
+    S.safety++;
+    log(`${who} closed a switch onto a fault. In real life that is a serious safety incident: prove a section healthy before closing onto it by hand.`,'bad');
+  }
+}
+function doControl(){ const op=S.control.shift(); applyOp(op.sw,op.close,'remote'); }
+function jobText(j){
+  const c=j.cable?CBL[j.cable]:null;
+  if(j.type==='op'){ const [cid,e]=j.sw.split(':'); return `${j.close?'Close':'Open'} switch to ${N[CBL[cid][other(e)]].name}`; }
+  if(j.type==='visit') return 'Read FPI';
+  if(j.type==='makesafe') return 'Make safe after theft';
+  if(j.type==='test') return `Test cable to ${N[c.a===j.node?c.b:c.a].name}`;
+  return `Repair cable to ${N[c.a===j.node?c.b:c.a].name}`;
+}
+function startNext(i){
+  const cr=S.crews[i];
+  if(cr.job||!cr.queue.length) return;
+  const j=cr.queue.shift();
+  j.from=crewPos(cr).slice(); j.to=N[j.node].m.slice(); j.t1=S.t;
+  const d=cr.at===j.node?0:tt(j.from,j.to);
+  j.tArrive=S.t+d; j.stage='travel';
+  if(d>0) cr.at=null;
+  cr.job=j;
+}
+function crewEvent(i){
+  const cr=S.crews[i], j=cr.job;
+  if(j.stage==='travel'){
+    const was=cr.at; cr.pos=j.to.slice(); cr.at=j.node;
+    if(was!==j.node){
+      S.fpi[j.node].known=true;
+      log(`${cr.id} at ${N[j.node].name}. FPI ${S.fpi[j.node].trip?'TRIPPED':'not tripped'}.`,S.fpi[j.node].trip?'warn':'');
+    }
+    if((j.type==='test'||j.type==='repair')&&solve().cab[j.cable]){
+      log(`${cr.id} cannot ${j.type} ${cableName(CBL[j.cable])}: the cable is live.`,'warn');
+      cr.job=null; startNext(i); return;
+    }
+    const dig=j.type==='repair'&&faultOn(j.cable)&&faultOn(j.cable).digin;
+    j.stage='work'; j.tDone=S.t+(dig?240:WORK[j.type]);
+    if(j.type==='test') log(`${cr.id} testing ${cableName(CBL[j.cable])} (30 min).`);
+    if(j.type==='repair') log(dig?`${cr.id} repairing the digger damage on ${cableName(CBL[j.cable])} (about 4 hours).`:`${cr.id} excavating and jointing ${cableName(CBL[j.cable])} (about 2½ hours).`);
+    if(j.type==='makesafe') log(`${cr.id} making ${N[j.node].name} safe: new earth bonds and LV joints (about 1½ hours).`);
+    return;
+  }
+  cr.job=null;
+  if(j.type==='op') applyOp(j.sw,j.close,cr.id);
+  else if(j.type==='test'){
+    const f=faultOn(j.cable);
+    if(f&&!f.transient){ S.tested[j.cable]='fault'; f.found=true; log(`Fault confirmed on ${cableName(CBL[j.cable])}. Keep it isolated until it is repaired.`,'warn'); }
+    else { if(f) f.active=false; S.tested[j.cable]='healthy'; log(`${cableName(CBL[j.cable])} tested healthy.`,'good'); }
+  } else if(j.type==='repair'){
+    const f=faultOn(j.cable);
+    if(f){ f.active=false; f.repaired=true; }
+    S.tested[j.cable]='repaired';
+    log(`${cr.id} repaired ${cableName(CBL[j.cable])}. Cable tested and ready to return to service.`,'good');
+  } else if(j.type==='makesafe'){
+    S.theft[j.node]=false; S.lvOut[j.node]=false;
+    log(`${cr.id} made ${N[j.node].name} safe. Earth bonds replaced, LV cables jointed and the switchgear released.`,'good');
+  }
+  startNext(i);
+}
+
+// ---------- Orders from the player ----------
+function crewPlan(cr){
+  let t=S.t, pos=crewPos(cr);
+  const j=cr.job;
+  if(j){ t=j.stage==='travel'?j.tArrive+WORK[j.type]:j.tDone; pos=j.to; }
+  cr.queue.forEach(q=>{ t+=tt(pos,N[q.node].m)+WORK[q.type]; pos=N[q.node].m; });
+  return {t,pos};
+}
+function crewEta(i,node,type){ const cr=S.crews[i], p=crewPlan(cr); const d=cr.at===node&&!cr.job&&!cr.queue.length?0:tt(p.pos,N[node].m); return p.t+d+WORK[type]-S.t; }
+function chooseCrew(node,type){
+  if(S.dispatch!=='auto'&&S.crews[S.dispatch]) return S.dispatch;
+  let best=0, bt=Infinity;
+  S.crews.forEach((_,i)=>{ const e=crewEta(i,node,type); if(e<bt){bt=e;best=i;} });
+  return best;
+}
+function pendingFor(sid){
+  if(S.control.some(o=>o.sw===sid)) return 'control';
+  for(const cr of S.crews){ if((cr.job&&cr.job.sw===sid)||cr.queue.some(j=>j.sw===sid)) return cr.id; }
+  return null;
+}
+const cableBusy = cid=>S.crews.some(cr=>(cr.job&&cr.job.cable===cid)||cr.queue.some(j=>j.cable===cid));
+const canOrder = ()=>S&&S.phase!=='closed';
+function dispatch(job){
+  const i=chooseCrew(job.node,job.type), cr=S.crews[i];
+  cr.queue.push(job);
+  log(`${cr.id} given job: ${jobText(job)} at ${N[job.node].name}.`);
+  if(!cr.job) startNext(i);
+}
+function orderOp(sid,close){
+  if(!canOrder()) return;
+  if(pendingFor(sid)){ toast('That switch already has an operation queued.'); return; }
+  if(locked(nodeOfSw(sid))){ toast(`Locked out: ${N[nodeOfSw(sid)].name} is unsafe after the theft. Send a crew to make it safe first.`); return; }
+  // with nothing else queued we can refuse straight away; otherwise queued orders may change
+  // the picture first, so the check happens when the switch is actually operated
+  const idle=!S.control.length&&S.crews.every(cr=>!cr.job&&!cr.queue.length);
+  if(close&&idle){ const why=parallelBlock(sid); if(why){ toast('Blocked: '+why); return; } }
+  if(remoteFor(sid)){
+    const last=S.control.length?S.control[S.control.length-1].tDone:S.t;
+    S.control.push({sw:sid,close,tDone:Math.max(last,S.t)+2});
+  } else dispatch({type:'op',node:nodeOfSw(sid),sw:sid,close});
+  afterChange(); render();
+}
+function orderVisit(n){ if(!canOrder()) return; dispatch({type:'visit',node:n}); afterChange(); render(); }
+const safeBusy = n=>S.crews.some(cr=>(cr.job&&cr.job.type==='makesafe'&&cr.job.node===n)||cr.queue.some(j=>j.type==='makesafe'&&j.node===n));
+function orderMakeSafe(n){ if(!canOrder()||safeBusy(n)) return; dispatch({type:'makesafe',node:n}); afterChange(); render(); }
+function nearEnd(cid,i){
+  const c=CBL[cid], ends=[c.a,c.b].filter(x=>N[x].kind!=='primary');
+  if(ends.length===1) return ends[0];
+  const p=crewPlan(S.crews[i]).pos;
+  return dist(N[ends[0]].m,p)<=dist(N[ends[1]].m,p)?ends[0]:ends[1];
+}
+function orderCable(cid,type){
+  if(!canOrder()) return;
+  if(solve().cab[cid]){ toast('That cable is live. Open the switches at both ends, or make sure both ends are dead, first.'); return; }
+  const c=CBL[cid], ends=[c.a,c.b].filter(x=>N[x].kind!=='primary');
+  const i=chooseCrew(ends[0],type);
+  const job={type,node:nearEnd(cid,i),cable:cid}, cr=S.crews[i];
+  cr.queue.push(job);
+  log(`${cr.id} given job: ${jobText(job)}.`);
+  if(!cr.job) startNext(i);
+  afterChange(); render();
+}
+function cancelJob(i,q){
+  const cr=S.crews[i];
+  if(q>=0){ const j=cr.queue.splice(q,1)[0]; if(j) log(`${cr.id}: cancelled ${jobText(j)}.`); }
+  else if(cr.job){
+    const j=cr.job;
+    if(j.stage==='travel'){ cr.pos=crewPos(cr).slice(); cr.at=null; }
+    cr.job=null; log(`${cr.id}: stopped ${jobText(j)}.`);
+    startNext(i);
+  }
+  dirty=true; render();
+}
+
+// ---------- New incident ----------
+// Work out what will happen during the shift. The first event always takes customers off.
+function planEvents(scen,t,shift){
+  const R=Math.random, rint=(a,b)=>a+Math.floor(R()*(b-a));
+  const pool=FAULTABLE.slice();
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  // the first cable event must hit a live cable (and the shift's area, if it has one) so a breaker trips
+  const live=solve().cab;
+  const inArea=cid=>!shift||!shift.area||[CBL[cid].a,CBL[cid].b].every(n=>shift.area.some(p=>n===p||n.startsWith(p)));
+  let fi=pool.findIndex(c=>live[c]&&inArea(c)); if(fi<0) fi=pool.findIndex(c=>live[c]);
+  if(fi>0) [pool[0],pool[fi]]=[pool[fi],pool[0]];
+  const take=()=>pool.shift(), pickNode=()=>RMUS[Math.floor(R()*RMUS.length)];
+  const theftNode=()=>shift&&shift.theftNode&&N[shift.theftNode]?shift.theftNode:(N.V2&&R()<0.5?'V2':pickNode());
+  const ev=[];
+  if(scen==='single') ev.push({kind:'fault',t,cable:take(),transient:R()<0.2});
+  else if(scen==='digin'){ ev.push({kind:'digin',t,cable:take()}); ev.push({kind:'fault',t:t+rint(40,120),cable:take(),transient:true}); }
+  else if(scen==='theft'){ ev.push({kind:'theft',t,node:theftNode()}); ev.push({kind:'fault',t:t+rint(50,130),cable:take(),transient:R()<0.2}); }
+  else if(scen==='mixed'){ ev.push({kind:'fault',t,cable:take(),transient:R()<0.2}); ev.push({kind:'theft',t:t+rint(30,90),node:theftNode()}); ev.push({kind:'digin',t:t+rint(90,180),cable:take()}); }
+  else { // storm and bigstorm
+    ev.push({kind:'fault',t,cable:take(),transient:R()<0.3});
+    const n=scen==='bigstorm'?rint(3,6):rint(2,5);
+    for(let i=0;i<n&&pool.length;i++) ev.push({kind:'fault',t:t+rint(20,190),cable:take(),transient:R()<0.35});
+    if(scen==='bigstorm') ev.push({kind:'theft',t:t+rint(60,150),node:theftNode()});
+  }
+  return ev.filter(e=>e.kind==='theft'||e.cable).sort((a,b)=>a.t-b.t);
+}
+function newIncident(def,scen,crews,shift=null){
+  useNetwork(def);
+  const t=shift&&shift.id==='s2'?22*60+Math.floor(Math.random()*90):7*60+Math.floor(Math.random()*12*60);
+  S={def,scen,t,t0:t,paused:true,speed:1,sw:normalSw(),faults:[],pending:[],fpi:{},on:{},offSince:{},counted:{},theft:{},lvOut:{},
+     ci:0,cml:0,affected:0,ops:0,faultTrips:0,overloads:0,safety:0,shift:shift?shift.id:null,brief:shift?shift.brief:'',
+     crews:Array.from({length:crews},(_,i)=>({id:'Crew '+(i+1),tag:'CR'+(i+1),pos:NET.depot.slice(),at:'depot',job:null,queue:[]})),
+     control:[],log:[],tested:{},sel:null,phase:'restore',modal:null,dispatch:'auto',headline:'',stormUntil:null,restored:null,closedAt:null};
+  RMUS.forEach(n=>{S.fpi[n]={trip:false,known:!!N[n].remote,t:null}; S.on[n]=true;});
+  S.pending=planEvents(scen,t,shift);
+  if(S.pending.length>1&&(scen==='storm'||scen==='bigstorm')) S.stormUntil=S.pending[S.pending.length-1].t+15;
+  const first=S.pending[0], r=handleEvent(true); afterChange();
+  const cb=r.tripped[0], off=fmtN(offCount());
+  if(first.kind==='theft') S.headline=`At ${fmtT(t)} the intruder alarm went off at ${N[first.node].name} substation. Thieves have cut out the copper and ${off} customers are off supply.`;
+  else if(first.kind==='digin') S.headline=`At ${fmtT(t)} a digger struck the ${cableName(CBL[first.cable])} cable${cb?` and breaker ${CB[cb].name} (${CB[cb].feeder}) tripped`:''}. ${off} customers are off supply.`;
+  else S.headline=cb?`At ${fmtT(t)} breaker ${CB[cb].name} (${CB[cb].feeder}) at ${N[CB[cb].prim].name} tripped. ${off} customers are off supply.`
+                     :`At ${fmtT(t)} a cable failed on a section that is not in use.`;
+  if(scen==='storm'||scen==='bigstorm') S.headline+=` A storm is passing over ${NET.name}, so expect more faults.`;
+  const offNames=RMUS.filter(n=>!S.on[n]).map(n=>N[n].name);
+  log(`${off} customers off. Calls coming in from ${offNames.slice(0,3).join(', ')}${offNames.length>3?' and more':''}.`);
+  log(`${plural(crews,'crew')} at the depot, ready to go. The clock is paused until you start it.`);
+  dirty=true;
+}
+
+// ======================= Geometry =======================
+function busOf(id){
+  const n=N[id]; let y1=n.s[1], y2=n.s[1];
+  INC[id].forEach(({c,end})=>{ const o=N[c[other(end)]]; y1=Math.min(y1,o.s[1]); y2=Math.max(y2,o.s[1]); });
+  return [n.s[0],y1-20,y2+20];
+}
+function attach(c,e){
+  const n=N[c[e]]; if(n.kind!=='primary') return n.s;
+  const [x,y1,y2]=busOf(c[e]), oy=N[c[other(e)]].s[1];
+  return [x,Math.max(y1,Math.min(y2,oy))];
+}
+function pts(c){ return UI.view==='s'?(c.sp||[attach(c,'a'),attach(c,'b')]):(c.mp||[N[c.a].m,N[c.b].m]); }
+function along(p,e,d){
+  const q=e==='a'?p:p.slice().reverse();
+  const [x0,y0]=q[0],[x1,y1]=q[1], L=Math.hypot(x1-x0,y1-y0)||1, k=Math.min(d,L*0.42)/L;
+  return [x0+(x1-x0)*k,y0+(y1-y0)*k,Math.abs(x1-x0)>=Math.abs(y1-y0)];
+}
+function midOf(p){
+  const seg=[]; let L=0;
+  for(let i=0;i<p.length-1;i++){ const l=dist(p[i],p[i+1]); seg.push(l); L+=l; }
+  let d=L/2;
+  for(let i=0;i<seg.length;i++){ if(d<=seg[i]){ const k=d/(seg[i]||1); return [p[i][0]+(p[i+1][0]-p[i][0])*k,p[i][1]+(p[i+1][1]-p[i][1])*k]; } d-=seg[i]; }
+  return p[p.length-1];
+}
+function distSeg(p,a,b){
+  const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy;
+  let t=l?((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l:0; t=Math.max(0,Math.min(1,t));
+  return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);
+}
+function roadLines(){ return [...CABLES.map(c=>c.mp||[N[c.a].m,N[c.b].m]),...((NET.decor&&NET.decor.roads)||[])]; }
+function blocks(){
+  if(BLOCKS) return BLOCKS;
+  let seed=11; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const segs=[]; roadLines().forEach(r=>{ for(let i=0;i<r.length-1;i++) segs.push([r[i],r[i+1]]); });
+  const parks=(NET.decor&&NET.decor.parks)||[], out=[];
+  // keep buildings on dry land when the network has a coastline
+  let onLand=()=>true;
+  try{ if(NET.decor&&NET.decor.coast){ const p=new Path2D(NET.decor.coast), cx=document.createElement('canvas').getContext('2d'); onLand=(x,y)=>cx.isPointInPath(p,x,y); } }catch(e){}
+  RMUS.forEach(n=>{
+    const [cx,cy]=N[n].m, count=Math.round(6+(N[n].cust||0)/35);
+    for(let i=0;i<count;i++){
+      const ang=rnd()*Math.PI*2, r=24+rnd()*54, x=cx+Math.cos(ang)*r, y=cy+Math.sin(ang)*r, w=8+rnd()*12, h=7+rnd()*9;
+      if(segs.some(s=>distSeg([x,y],s[0],s[1])<15)) continue;
+      if(parks.some(p=>x>p[0]-8&&x<p[0]+p[2]+8&&y>p[1]-8&&y<p[1]+p[3]+8)) continue;
+      if(!onLand(x-w/2,y-h/2)||!onLand(x+w/2,y+h/2)) continue;
+      out.push([x-w/2,y-h/2,w,h]);
+    }
+  });
+  return BLOCKS=out;
+}
+
+// ======================= Rendering =======================
+const col = id=>id?`var(${CB[id].color})`:'var(--dead)';
+const LS = {b:[0,34,'middle'],r:[32,-2,'start'],l:[-32,-2,'end'],bl:[-6,34,'end'],br:[6,34,'start']};
+function fpiGlyph(id,x,y){
+  const f=S.fpi[id];
+  if(!f.known) return `<g class="fpi unk" transform="translate(${x},${y})"><line x1="0" y1="0" x2="0" y2="-14"/><text x="3" y="-4">?</text></g>`;
+  return `<g class="fpi ${f.trip?'trip':'clear'}" transform="translate(${x},${y})"><line x1="0" y1="0" x2="0" y2="-14"/><path d="M0,-14 l10,3.5 l-10,3.5z"/></g>`;
+}
+function schemBg(){
+  const W=NET.w,H=NET.h, nops=[...NOPS].map(nodeOfSw).map(n=>N[n].code||N[n].name).join(', ')||'none';
+  return `<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" style="stroke:var(--grid)" stroke-width="1"/></pattern>
+  <pattern id="gridM" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0H0V100" fill="none" style="stroke:var(--grid-major)" stroke-width="1.2"/></pattern></defs>
+  <rect width="${W}" height="${H}" style="fill:var(--panel)"/><rect width="${W}" height="${H}" fill="url(#grid)"/><rect width="${W}" height="${H}" fill="url(#gridM)"/>
+  <g class="tblock" transform="translate(${W-360},${H-52})" pointer-events="none"><rect width="350" height="44"/><line x1="0" y1="22" x2="350" y2="22"/><line x1="206" y1="0" x2="206" y2="44"/>
+  <text x="8" y="15" class="tb">${(NET.name||'').toUpperCase().slice(0,28)} 11 kV</text><text x="8" y="37">Operational diagram</text>
+  <text x="214" y="15">${NET.dwg||'DWG draft'}</text><text x="214" y="37">NOPs: ${nops.slice(0,18)}</text></g>`;
+}
+function mapBg(){
+  const W=NET.w,H=NET.h,d=NET.decor||{};
+  const roads=roadLines().map(r=>r.map(p=>p.join(',')).join(' '));
+  let h=d.coast?`<rect width="${W}" height="${H}" class="sea"/><path d="${d.coast}" class="coast"/>`:`<rect width="${W}" height="${H}" style="fill:var(--ground)"/>`;
+  (d.hills||[]).forEach(k=>{ [1,.68,.36].forEach(s=>{ h+=`<ellipse cx="${k[0]}" cy="${k[1]}" rx="${k[2]*s}" ry="${k[3]*s}" class="contour"/>`; }); });
+  let seed=7; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  (d.parks||[]).forEach(p=>{
+    h+=`<rect x="${p[0]}" y="${p[1]}" width="${p[2]}" height="${p[3]}" rx="16" class="park"/>`;
+    // scatter trees around the edge of the park, leaving the middle for its name
+    for(let i=0;i<Math.round(p[2]*p[3]/260);i++){
+      const x=p[0]+10+rnd()*(p[2]-20), y=p[1]+8+rnd()*(p[3]-16);
+      if(Math.abs(y-(p[1]+p[3]/2))<9&&Math.abs(x-(p[0]+p[2]/2))<p[2]*0.36) continue;
+      h+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(3+rnd()*2.5).toFixed(1)}" class="tree"/>`;
+    }
+  });
+  h+=blocks().map(b=>`<rect x="${(b[0]+1.6).toFixed(1)}" y="${(b[1]+1.6).toFixed(1)}" width="${b[2].toFixed(1)}" height="${b[3].toFixed(1)}" rx="1.5" class="blk-s"/><rect x="${b[0].toFixed(1)}" y="${b[1].toFixed(1)}" width="${b[2].toFixed(1)}" height="${b[3].toFixed(1)}" rx="1.5" class="blk"/>`).join('');
+  if(d.river) h+=`<path class="river-e" d="${d.river}"/><path class="river" d="${d.river}"/>`;
+  h+=roads.map(r=>`<polyline points="${r}" class="road-e"/>`).join('')+roads.map(r=>`<polyline points="${r}" class="road"/>`).join('');
+  (d.parks||[]).forEach(p=>{ if(p[4]) h+=`<text x="${p[0]+p[2]/2}" y="${p[1]+p[3]/2+4}" class="mapt" text-anchor="middle">${p[4]}</text>`; });
+  (d.labels||[]).forEach(l=>{ h+=`<text x="${l[0]}" y="${l[1]}" class="${l[3]==='town'?'townt':l[3]==='sea'?'seat':'mapt'}" text-anchor="middle">${l[3]==='town'?String(l[2]).toUpperCase():l[2]}</text>`; });
+  const [dx,dy]=NET.depot;
+  h+=`<g transform="translate(${dx},${dy})"><rect x="-11" y="-9" width="22" height="18" rx="2" class="depot"/><text x="0" y="24" text-anchor="middle" class="lbl2">Depot</text></g>
+  <g transform="translate(${W-40},${H-55})"><path d="M0,-22 L7,0 L0,-5 L-7,0Z" style="fill:var(--ink)"/><text y="14" text-anchor="middle" class="lbl2">N</text></g>
+  <g transform="translate(30,${H-20})"><line x1="0" y1="0" x2="62" y2="0" style="stroke:var(--ink)" stroke-width="2"/><line x1="0" y1="-4" x2="0" y2="4" style="stroke:var(--ink)" stroke-width="2"/><line x1="62" y1="-4" x2="62" y2="4" style="stroke:var(--ink)" stroke-width="2"/><text x="70" y="4" class="lbl2">500 m</text></g>`;
+  return h;
+}
+function crewOffsets(){
+  // spread crews that share a spot so every badge stays visible
+  const out=[];
+  S.crews.forEach((cr,i)=>{ const p=crewPos(cr); let k=0; for(let j=0;j<i;j++) if(dist(crewPos(S.crews[j]),p)<4) k++; out.push([p[0]+k*14,p[1]-k*6]); });
+  return out;
+}
+function renderSvg(edit){
+  const sw=edit?normalSw():S.sw, sol=solve(sw), isS=UI.view==='s', svg=$('#svg');
+  svg.setAttribute('viewBox',`0 0 ${NET.w} ${NET.h}`);
+  svg.setAttribute('class',(isS?'is-schem':'is-map')+(edit?' is-edit':''));
+  $('#stage').style.minWidth=Math.round(NET.w*0.72)+'px';
+  const sel=edit?E.sel:S.sel;
+  let h=isS?schemBg():mapBg();
+  // cables
+  CABLES.forEach(c=>{
+    const ps=pts(c).map(p=>p.join(',')).join(' '), lv=sol.cab[c.id];
+    if(sel&&sel.k==='cable'&&sel.id===c.id) h+=`<polyline points="${ps}" class="halo"/>`;
+    h+=`<polyline points="${ps}" class="cable${lv?'':' dead'}" style="stroke:${col(lv)}"/>`;
+    if(lv){
+      // animate power flowing away from the source end
+      let fwd;
+      if(CB[c.id+':a']) fwd=true; else if(CB[c.id+':b']) fwd=false;
+      else if(sol.parent[c.b]&&sol.parent[c.b].cable===c.id) fwd=true;
+      else if(sol.parent[c.a]&&sol.parent[c.a].cable===c.id) fwd=false;
+      else fwd=!!(sw[c.id+':a']&&sol.island[c.a]!=null);
+      const p=pts(c), fp=(fwd?p:p.slice().reverse()).map(q=>q.join(',')).join(' ');
+      h+=`<polyline points="${fp}" class="flow"/>`;
+    }
+    h+=`<polyline points="${ps}" class="hit" data-k="cable" data-id="${c.id}"><title>${cableName(c)}</title></polyline>`;
+  });
+  // fault, tested and repaired markers
+  if(!edit) CABLES.forEach(c=>{
+    const [x,y]=midOf(pts(c)), t=S.tested[c.id];
+    const showFault=t==='fault'&&faultOn(c.id)||(S.phase==='closed'&&S.faults.some(f=>f.cable===c.id&&!f.transient&&!f.repaired));
+    const dig=S.faults.some(f=>f.cable===c.id&&f.digin&&f.active);
+    if(dig) h+=`<g class="warnmark" transform="translate(${x},${y})" pointer-events="none"><circle class="ring" r="11"/><polygon points="0,-12 12,9 -12,9" /><text y="6" style="font-size:12px">!</text><title>Digger strike</title></g>`;
+    else if(showFault) h+=`<g class="fmark" transform="translate(${x},${y})" pointer-events="none"><circle class="ring" r="11"/><circle r="11"/><path d="M2,-7 L-4,1 L0,1 L-2,7 L4,-1 L0,-1Z"/></g>`;
+    else if(t==='repaired') h+=`<g class="wrench" transform="translate(${x},${y})" pointer-events="none"><circle r="9"/><text y="3.5">R</text></g>`;
+    else if(t==='healthy') h+=`<g class="okmark" transform="translate(${x},${y})" pointer-events="none"><circle r="8"/><path d="M-3.5,0 L-1,2.8 L3.8,-2.6"/></g>`;
+  });
+  // nodes
+  Object.keys(N).forEach(id=>{
+    const n=N[id], isSel=sel&&sel.k==='node'&&sel.id===id, pend=edit&&E.pend===id;
+    if(n.kind==='primary'){
+      if(isS){
+        const [x,y1,y2]=busOf(id), right=x>NET.w/2, ox=x-n.s[0];
+        const lbl=right?`<text x="${ox+12}" y="${y1-n.s[1]-12}" text-anchor="end" class="plbl">${n.name}</text><text x="${ox+12}" y="${y1-n.s[1]-27}" text-anchor="end" class="lbl2">33/11 kV</text>`
+                       :`<text x="${ox-6}" y="${y1-n.s[1]-12}" class="plbl">${n.name}</text><text x="${ox-6}" y="${y1-n.s[1]-27}" class="lbl2">33/11 kV</text>`;
+        h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.s[0]},${n.s[1]})" tabindex="0" role="button" aria-label="${n.name}">
+          ${isSel||pend?`<rect x="-12" y="${y1-n.s[1]-6}" width="24" height="${y2-y1+12}" class="${pend?'pendring':'selring'}"/>`:''}
+          <rect x="-6" y="${y1-n.s[1]}" width="12" height="${y2-y1}" class="bus"/>${lbl}</g>`;
+      } else {
+        h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.m[0]},${n.m[1]})" tabindex="0" role="button" aria-label="${n.name}">
+          ${isSel||pend?`<rect x="-20" y="-20" width="40" height="40" rx="4" class="${pend?'pendring':'selring'}"/>`:''}
+          <rect x="-14" y="-14" width="28" height="28" rx="3" class="pmap"/><text y="3" class="pmap-t">33/11</text>
+          <text x="${n.ml?n.ml[0]:0}" y="${n.ml?n.ml[1]:-22}" text-anchor="${n.ml?n.ml[2]:'middle'}" class="lbl">${n.name}</text></g>`;
+      }
+      return;
+    }
+    const lv=sol.feed[id], cut=!edit&&!!S.lvOut[id], off=!edit&&!lv, c=off?'var(--fault)':col(lv);
+    const theftIcon=xy=>!edit&&S.theft[id]?`<g class="warnmark" transform="translate(${xy})"><circle class="ring" r="8"/><polygon points="0,-8 8,6 -8,6"/><text y="4.5">!</text></g>`:'';
+    const fill=lv?`color-mix(in srgb, ${c} 18%, var(--panel))`:off?'color-mix(in srgb, var(--fault) 9%, var(--panel))':'var(--panel)';
+    if(isS){
+      const [lx,ly,la]=LS[n.sl]||LS.b;
+      let bi=0, crewBadges='';
+      if(!edit) S.crews.forEach(cr=>{
+        const on=cr.at===id, en=!on&&cr.job&&cr.job.node===id&&cr.job.stage==='travel';
+        if(on||en){ crewBadges+=`<g class="crew${en?' enroute':''}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${cr.tag}</text></g>`; bi++; }
+      });
+      h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.s[0]},${n.s[1]})" tabindex="0" role="button" aria-label="${n.name}">
+        ${isSel||pend?`<rect x="-30" y="-22" width="60" height="44" rx="6" class="${pend?'pendring':'selring'}"/>`:''}
+        ${off||cut?'<rect class="alarm" x="-28" y="-20" width="56" height="40" rx="7"/>':''}
+        <rect class="box" x="-24" y="-16" width="48" height="32" rx="4" style="stroke:${c};fill:${fill}"/>
+        <text class="code" y="4">${n.code||''}</text>
+        ${n.remote?'<circle cx="-24" cy="-16" r="4.5" class="rdot"/>':''}
+        ${edit?'':fpiGlyph(id,18,-16)}
+        <text x="${lx}" y="${ly}" text-anchor="${la}" class="lbl">${n.name}</text>
+        <text x="${lx}" y="${ly+15}" text-anchor="${la}" class="lbl2${off||cut?' offc':''}">${n.cust} cust${off||cut?' off':''}</text>
+        ${theftIcon('24,16')}
+        ${crewBadges}
+      </g>`;
+    } else {
+      const [lx,ly,la]=n.ml||NET.mlDefault||[16,4,'start'];
+      h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.m[0]},${n.m[1]})" tabindex="0" role="button" aria-label="${n.name}">
+        ${isSel||pend?`<circle r="17" class="${pend?'pendring':'selring'}"/>`:''}
+        ${off||cut?'<circle class="alarm" r="15"/>':''}
+        <circle class="box" r="11" style="stroke:${c};fill:${fill}"/>
+        <text class="code" y="3.5" style="font-size:9px">${n.code||''}</text>
+        ${n.remote?'<circle cx="-9" cy="-9" r="4" class="rdot"/>':''}
+        ${edit?'':fpiGlyph(id,8,-10)}
+        ${theftIcon('11,10')}
+        <text x="${lx}" y="${ly}" text-anchor="${la}" class="lbl">${n.name}</text>
+      </g>`;
+    }
+  });
+  // switches
+  CABLES.forEach(c=>['a','b'].forEach(e=>{
+    const sid=c.id+':'+e, prim=N[c[e]].kind==='primary';
+    const d=isS?(prim?30:40):(prim?24:21), sz=isS?13:10;
+    const [x,y,horiz]=along(pts(c),e,d), closed=sw[sid];
+    const isSel=!edit&&sel&&sel.sw===sid;
+    const abn=!edit&&S.sw[sid]!==!NOPS.has(sid), pend=!edit&&pendingFor(sid);
+    const tag=CB[sid]?CB[sid].name:(NOPS.has(sid)?'NOP':'');
+    const lab=tag?(horiz?`<text class="swl" y="${-sz}" text-anchor="middle">${tag}</text>`:`<text class="swl" x="${sz}" y="4">${tag}</text>`):'';
+    const cbtrip=!edit&&CB[sid]&&!S.sw[sid];
+    h+=`<g class="swm ${closed?'closed':'open'}${isSel?' sel':''}${cbtrip?' cbtrip':''}" data-k="sw" data-id="${sid}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
+      <rect class="hb" x="-13" y="-13" width="26" height="26"/>
+      ${abn?`<rect class="ab" x="${-sz/2-4}" y="${-sz/2-4}" width="${sz+8}" height="${sz+8}"/>`:''}
+      ${pend?`<circle class="pr" r="${sz}"/>`:''}
+      <rect class="m" x="${-sz/2}" y="${-sz/2}" width="${sz}" height="${sz}"/>${lab}</g>`;
+  }));
+  // crews on the map
+  if(!edit&&!isS){
+    const offs=crewOffsets();
+    S.crews.forEach((cr,i)=>{ h+=`<g id="crew-${i}" class="van" transform="translate(${offs[i][0]},${offs[i][1]})" pointer-events="none"><path class="body" d="M-17,-8 h21 v14 h-21z M5,-4 h6 l5,5 v5 h-11z"/><circle class="wheel" cx="-10" cy="7" r="3"/><circle class="wheel" cx="9" cy="7" r="3"/><text x="-6.5" y="2">${cr.tag}</text></g>`; });
+  }
+  svg.innerHTML=h;
+}
+function renderLegend(){
+  const f=CBIDS.map(id=>`<span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(${CB[id].color})" stroke-width="4"/></svg>${CB[id].name} ${CB[id].feeder}</span>`).join('');
+  $('#legend').innerHTML=f+`
+    <span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(--dead)" stroke-width="4" stroke-dasharray="5 4"/></svg>Dead</span>
+    <span><svg viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" style="fill:var(--ink)"/></svg>Closed</span>
+    <span><svg viewBox="0 0 26 14"><rect x="7" y="1" width="12" height="12" style="fill:var(--panel);stroke:var(--ink)" stroke-width="2"/></svg>Open</span>
+    <span class="play-only"><svg viewBox="0 0 26 14"><rect x="5" y="-1" width="16" height="16" style="fill:none;stroke:var(--warn)" stroke-width="1.8" stroke-dasharray="3 2"/></svg>Not in normal position</span>
+    <span><svg viewBox="0 0 26 14"><circle cx="13" cy="7" r="5" style="fill:var(--accent)"/></svg>Remote control</span>
+    <span class="play-only"><svg viewBox="0 0 26 14"><line x1="9" y1="13" x2="9" y2="1" style="stroke:var(--ink)" stroke-width="1.5"/><path d="M9 1l9 3.5-9 3.5z" style="fill:var(--fault)"/></svg>FPI tripped</span>
+    <span class="play-only"><svg viewBox="0 0 26 14"><line x1="9" y1="13" x2="9" y2="1" style="stroke:var(--ink)" stroke-width="1.5"/><path d="M9 1l9 3.5-9 3.5z" style="fill:var(--panel);stroke:var(--muted)"/></svg>FPI clear</span>`;
+}
+
+// ---------- Play side panel ----------
+function costText(sid){
+  if(remoteFor(sid)){ const last=S.control.length?S.control[S.control.length-1].tDone:S.t; return `remote · ${Math.round(Math.max(0,last-S.t)+2)} min`; }
+  const n=nodeOfSw(sid), i=chooseCrew(n,'op');
+  return `${S.crews[i].id} · ~${Math.round(crewEta(i,n,'op'))} min`;
+}
+function swRow(sid,ctxNode){
+  const [cid,e]=sid.split(':'), c=CBL[cid], node=c[e], far=c[other(e)], closed=S.sw[sid];
+  const lock=!canOrder(), pend=pendingFor(sid), abn=closed!==!NOPS.has(sid);
+  const name=CB[sid]?`CB ${CB[sid].name} to ${N[far].name}`:ctxNode?`To ${N[far].name}`:`At ${N[node].name}`;
+  const tag=NOPS.has(sid)?'<span class="tag">NOP</span>':'';
+  const btn=locked(node)?`<button class="btn alt" disabled>Locked<small>site unsafe</small></button>`
+    :pend?`<button class="btn alt" disabled>Queued<small>${pend==='control'?'control room':pend}</small></button>`
+    :`<button class="btn${closed?' alt':''}" data-act="op" data-sw="${sid}" data-close="${closed?0:1}" ${lock?'disabled':''}>${closed?'Open':'Close'}<small>${costText(sid)}</small></button>`;
+  return `<div class="swrow${S.sel&&S.sel.sw===sid?' hl':''}"><div><div class="swname">${name}${tag}</div>
+    <div class="swstate ${closed?'c':'o'}">${closed?'Closed':'Open'} · ${remoteFor(sid)?'remote':'manual'}${abn?' · <span class="abn">abnormal</span>':''}</div></div>${btn}</div>`;
+}
+function phaseBar(){
+  const order=['restore','repair','closed'], cur=order.indexOf(S.phase);
+  return `<ol class="phases">${['Restore supply','Repair','Normal running'].map((l,i)=>`<li class="${i<cur||S.phase==='closed'?'done':i===cur?'now':''}">${l}</li>`).join('')}</ol>`;
+}
+function incidentPanel(){
+  const sh=SHIFTS.find(x=>x.id===S.shift);
+  let h=`<h2>${sh?sh.title.replace(/^Shift \d+ · /,''):'Incident'}</h2><p class="lead">${S.headline}</p>${phaseBar()}`;
+  if(S.brief&&S.phase!=='closed') h+=`<div class="brief"><b>Note from Mags</b>${S.brief}</div>`;
+  const thefts=RMUS.filter(n=>S.theft[n]);
+  if(thefts.length) h+=`<div class="alertbox"><b>Unsafe after copper theft:</b> ${thefts.map(n=>`<button class="linkbtn" data-act="seln" data-n="${n}">${N[n].name}</button>`).join(', ')}. Send a crew to make ${thefts.length===1?'it':'them'} safe.</div>`;
+  if(S.stormUntil&&S.pending.length) h+=`<p class="note"><b>Storm in progress.</b> More faults are likely until about ${fmtT(S.stormUntil)}.</p>`;
+  if(S.phase==='restore'){
+    h+=`<ol class="steps"><li><b>Locate.</b> Fault passage indicators (flags) trip between the breaker and the fault. Remote sites report straight away. Manual sites need a crew to read them.</li>
+      <li><b>Isolate.</b> Open the switches at <i>both</i> ends of the faulty cable.</li>
+      <li><b>Restore.</b> Close the breaker, and close normally open points (NOPs) to back-feed from another feeder. Watch the feeder loading.</li></ol>
+      <p class="note">Interruptions of 3 minutes or more count towards CI. Pause the clock with the space bar to plan, then queue orders and let it run.</p>`;
+  } else if(S.phase==='repair'){
+    const found=S.faults.filter(f=>f.active&&S.tested[f.cable]==='fault');
+    const hidden=S.faults.filter(f=>f.active&&S.tested[f.cable]!=='fault').length;
+    const abn=Object.keys(S.sw).filter(k=>S.sw[k]!==!NOPS.has(k));
+    h+=`<p class="note">Everyone is back on. Now repair the damage and put the network back to its normal running arrangement.</p><ul class="todo">`;
+    found.forEach(f=>{ h+=`<li>Repair: <button class="linkbtn" data-act="selc" data-c="${f.cable}">${cableName(CBL[f.cable])}</button></li>`; });
+    if(hidden) h+=`<li>${plural(hidden,'faulty cable')} not yet located. Test the dead sections to find ${hidden===1?'it':'them'}.</li>`;
+    if(!found.length&&!hidden) h+='<li>All faults repaired ✓</li>';
+    h+='</ul>';
+    if(abn.length){
+      h+=`<h3 style="margin-top:14px">Switches out of normal position (${abn.length})</h3><ul class="todo">`+
+        abn.map(sid=>`<li><button class="linkbtn" data-act="selsw" data-sw="${sid}">${switchLabel(sid)}</button> <span class="muted">should be ${NOPS.has(sid)?'open':'closed'}</span></li>`).join('')+'</ul>';
+    } else h+='<p class="note">All switches are in their normal positions.</p>';
+  } else {
+    h+=`<p class="note">Incident closed at ${fmtT(S.closedAt)}.</p><button class="btn wide" data-act="home">Back to the control room</button>`;
+  }
+  return h;
+}
+function renderPanel(){
+  const sol=solve(), sel=S.sel; let h='';
+  if(!sel) h=incidentPanel();
+  else if(sel.k==='node'){
+    const n=N[sel.id];
+    h=`<button class="linkbtn" data-act="desel">← Incident overview</button>`;
+    if(n.kind==='primary'){
+      h+=`<h2 style="margin-top:8px">${n.name}</h2><p class="sub">33/11 kV primary substation</p><div style="margin-top:10px">`+
+        INC[sel.id].map(({c,end})=>swRow(c.id+':'+end,true)).join('')+`</div>`;
+    } else {
+      const lv=sol.feed[sel.id], f=S.fpi[sel.id];
+      const fpiTxt=!f.known?'Not read yet. Send a crew.':f.trip?'<span class="trip">Tripped</span>':'Not tripped';
+      h+=`<div class="ph" style="margin-top:8px"><span class="code">${n.code||'–'}</span><div><h2>${n.name}</h2><p class="sub">${n.remote?'Remote-controlled ring main unit':'Manual ring main unit (crew needed)'}</p></div></div>
+        ${lv&&!S.lvOut[sel.id]?`<span class="chip" style="--c:var(${CB[lv].color})">On supply · ${CB[lv].name}</span>`:lv?`<span class="chip" style="--c:var(--fault)">11 kV live · customers off</span>`:`<span class="chip" style="--c:var(--fault)">Off supply</span>`}
+        ${S.theft[sel.id]?`<div class="alertbox"><b>Copper theft.</b> Earth bonds and low-voltage cables have been stolen. Customers here stay off even with the network live, and the switchgear is locked out until a crew makes the site safe.</div>
+          <button class="btn wide" data-act="makesafe" data-n="${sel.id}" ${!canOrder()||safeBusy(sel.id)?'disabled':''}>Make safe and re-joint<small>${safeBusy(sel.id)?'crew already assigned':(()=>{const i=chooseCrew(sel.id,'makesafe');return `${S.crews[i].id} · ~${Math.round(crewEta(i,sel.id,'makesafe'))} min`;})()}</small></button>`:''}
+        <dl class="facts"><dt>Customers</dt><dd>${fmtN(n.cust)} (${Math.round(n.cust*AMPS)} A)</dd>
+        <dt>FPI</dt><dd>${fpiTxt}${f.known&&f.t!=null?` <span class="muted">from ${fmtT(f.t)} trip</span>`:''}</dd></dl>
+        ${n.note?`<p class="note">${n.note}</p>`:''}
+        <h3 style="margin-top:14px">Switches</h3>`+INC[sel.id].map(({c,end})=>swRow(c.id+':'+end,true)).join('');
+      if(!n.remote&&!crewOnSite(sel.id)){
+        const i=chooseCrew(sel.id,'visit');
+        h+=`<button class="btn wide alt" data-act="visit" data-n="${sel.id}" ${canOrder()?'':'disabled'}>Send a crew to read the FPI<small>${S.crews[i].id} · ~${Math.round(crewEta(i,sel.id,'visit'))} min</small></button>`;
+      }
+    }
+  } else {
+    const c=CBL[sel.id], lv=sol.cab[sel.id], t=S.tested[sel.id], busy=cableBusy(sel.id);
+    const ends=[c.a,c.b].filter(x=>N[x].kind!=='primary'), i=chooseCrew(ends[0],'test'), ne=nearEnd(sel.id,i);
+    const est=type=>`${S.crews[i].id} · ~${Math.round(crewEta(i,ne,type))} min`;
+    h=`<button class="linkbtn" data-act="desel">← Incident overview</button>
+      <h2 style="margin-top:8px">${cableName(c)}</h2><p class="sub">11 kV underground cable${c.nop?' · interconnector with a normally open point':''}</p>
+      ${lv?`<span class="chip" style="--c:var(${CB[lv].color})">Live · ${CB[lv].name}</span>`:`<span class="chip" style="--c:var(--dead)">Dead</span>`}
+      <dl class="facts"><dt>Condition</dt><dd>${t==='fault'&&faultOn(sel.id)&&faultOn(sel.id).digin?'<span class="trip">Digger damage · about 4 h to repair</span>':t==='fault'?'<span class="trip">Faulty</span>':t==='healthy'?'Tested healthy':t==='repaired'?'Repaired':'Not tested'}</dd></dl>
+      <h3 style="margin-top:14px">End switches</h3>`+['a','b'].map(e=>swRow(c.id+':'+e,false)).join('');
+    if(t==='fault') h+=`<button class="btn wide" data-act="repair" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Repair cable<small>${lv?'make it dead first':busy?'crew already assigned':est('repair')}</small></button>`;
+    else if(t!=='repaired') h+=`<button class="btn wide" data-act="test" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Test cable<small>${lv?'make it dead first':busy?'crew already assigned':est('test')}</small></button>`;
+  }
+  $('#panel').innerHTML=h;
+}
+function crewStatus(cr){
+  const j=cr.job;
+  if(j) return j.stage==='travel'?`Driving to ${N[j.node].name} · arrives ${fmtT(j.tArrive)}`:`${jobText(j)} at ${N[j.node].name} · done ${fmtT(j.tDone)}`;
+  if(cr.at==='depot') return 'At the depot';
+  if(cr.at) return `Standing by at ${N[cr.at].name}`;
+  return 'Waiting on the road';
+}
+function renderSide(){
+  const sol=solve();
+  renderPanel();
+  $('#loads').innerHTML=CBIDS.map(id=>{
+    const b=CB[id], a=cbLoad(sol,id), pct=Math.min(100,a/b.rating*100), closed=S.sw[id];
+    return `<div class="load"><div class="lh"><span class="sw" style="background:var(${b.color})"></span><b>${b.name}</b><span class="nm">${b.feeder}</span>
+      <span class="num${!closed||pct>90?' bad':''}">${closed?`${Math.round(a)} / ${b.rating} A`:'Breaker open'}</span></div>
+      <div class="barl"><i style="width:${pct}%;background:var(${pct>90?'--fault':b.color})"></i></div></div>`;
+  }).join('');
+  const seg=S.crews.length>1?`<div class="seg small" role="group" aria-label="Dispatch">${[['auto','Fastest'],...S.crews.map((c,i)=>[i,c.tag])].map(([v,l])=>`<button data-act="dispatch" data-v="${v}" aria-pressed="${S.dispatch===v}">${l}</button>`).join('')}</div>
+    <p class="muted" style="margin:6px 0 0">Manual jobs go to ${S.dispatch==='auto'?'whichever crew can finish first':S.crews[S.dispatch].id}.</p>`:'';
+  $('#crewSec').innerHTML=`<h3>Crews</h3>${seg}<ul class="crews">${S.crews.map((cr,i)=>`<li><div class="cr-h"><span class="badge">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
+    ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`).join('')}</ul>
+    ${S.control.length?`<p class="muted" style="margin:10px 0 0">Control room: ${plural(S.control.length,'remote operation')} queued.</p>`:''}`;
+  $('#log').innerHTML=S.log.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('');
+}
+function renderStats(){
+  const off=offCount();
+  $('#clock').textContent=fmtT(S.t);
+  $('#off').textContent=fmtN(off);
+  $('#offStat').classList.toggle('zero',off===0);
+  $('#ci').textContent=fmtN(S.ci);
+  $('#cml').textContent=fmtN(S.cml);
+  const paused=S.paused||S.phase==='closed';
+  $('#pz').hidden=!paused;
+  $('#pausedPill').hidden=!(S.paused&&S.phase!=='closed'&&!S.modal);
+  document.querySelectorAll('#speedSeg button').forEach(b=>{ const v=+b.dataset.speed; b.setAttribute('aria-pressed',v===0?paused:(!paused&&S.speed===v)); });
+}
+function lightUpdate(){
+  $('#clock').textContent=fmtT(S.t);
+  $('#cml').textContent=fmtN(S.cml);
+  $('#ci').textContent=fmtN(S.ci);
+  if(UI.view==='m'){ const offs=crewOffsets(); offs.forEach((p,i)=>{ const g=document.getElementById('crew-'+i); if(g) g.setAttribute('transform',`translate(${p[0]},${p[1]})`); }); }
+}
+
+// ---------- Overlays ----------
+function stars(st){
+  const lim=['storm','bigstorm','mixed'].includes(S.scen)?[40,90]:S.scen==='theft'||S.scen==='digin'?[30,60]:[20,45], avg=st.cml/Math.max(1,st.affected);
+  let s=avg<=lim[0]?3:avg<=lim[1]?2:1; if(st.safety) s--; if(st.overloads) s--;
+  return {s:Math.max(0,s),avg,lim};
+}
+function statGrid(st){
+  return `<div class="mgrid"><span>Customer interruptions (CI)</span><b>${fmtN(st.ci)}</b>
+    <span>Customer minutes lost (CML)</span><b>${fmtN(st.cml)}</b>
+    <span>Average minutes off per customer</span><b>${(st.cml/Math.max(1,st.affected)).toFixed(1)}</b>
+    <span>Switching operations</span><b>${st.ops}</b>
+    <span>Trips onto a fault</span><b>${st.faultTrips}</b>
+    <span>Overload trips</span><b>${st.overloads}</b>
+    <span>Safety incidents</span><b>${st.safety}</b></div>`;
+}
+const PROG='openpoint.progress.v1';
+function progress(){ try{ const o=JSON.parse(localStorage.getItem(PROG)||'{}'); return o&&typeof o==='object'?o:{}; }catch(e){ return {}; } }
+function recordStars(){
+  if(!S.shift||!S.restored) return;
+  const p=progress(), s=stars(S.restored).s;
+  if(p[S.shift]==null||s>p[S.shift]){ p[S.shift]=s; try{ localStorage.setItem(PROG,JSON.stringify(p)); }catch(e){} }
+}
+function startShift(id){
+  const sh=SHIFTS.find(x=>x.id===id); if(!sh) return;
+  if(S) S.modal=null;
+  newIncident(clone(MEGAWATT),sh.scen,sh.crews,sh);
+  UI.overlay=null; UI.mode='play'; S.sel=null; render();
+}
+function savedList(){ try{ const o=JSON.parse(localStorage.getItem(STORE)||'{}'); return o&&typeof o==='object'?o:{}; }catch(e){ return {}; } }
+function writeSaved(o){ try{ localStorage.setItem(STORE,JSON.stringify(o)); return true; }catch(e){ return false; } }
+function netOptions(selected,withEditor){
+  const saved=savedList();
+  let o=`<option value="b:megawatt">Megawatt Island · 28 substations</option><option value="b:ashcombe">Ashcombe · 12 substations</option><option value="b:district">Ashcombe & District · 26 substations</option>`;
+  Object.keys(saved).forEach(k=>{ o+=`<option value="s:${k}">${clean(saved[k].name,40)} · saved</option>`; });
+  if(withEditor&&E) o+=`<option value="editor">${clean(E.def.name,40)} · from the editor</option>`;
+  return o.replace(`value="${selected}"`,`value="${selected}" selected`);
+}
+function resolveNet(v){
+  if(v==='editor'&&E) return clone(E.def);
+  if(v.startsWith('s:')){ const s=savedList()[v.slice(2)]; if(s) try{ return normalizeDef(s); }catch(e){} }
+  return clone(BUILTIN[v.slice(2)]||ASHCOMBE);
+}
+function renderOverlay(){
+  const ov=$('#overlay');
+  if(!UI.overlay&&S&&S.modal&&UI.mode==='play') UI.overlay='milestone';
+  if(!UI.overlay){ ov.hidden=true; ov.innerHTML=''; return; }
+  let h='';
+  if(UI.overlay==='home'){
+    const prog=progress();
+    const starsOf=id=>prog[id]==null?'<span>Not played</span>':`<span class="st">${'★'.repeat(prog[id])}<i>${'★'.repeat(3-prog[id])}</i></span>`;
+    h=`<div class="mbox wide" role="dialog" aria-labelledby="ovt"><p class="eyebrow">Megawatt Island Electricity · Network Control Centre</p>
+      <h2 id="ovt">${UI.letter?'Your first day':'Control room'}</h2>`;
+    if(UI.letter){
+      h+=`<div class="letter"><p>To whoever is sitting in my chair,</p>
+        <p>Thirty-eight years I've kept the lights on across Megawatt Island, and from today the desk is yours. Before I hand over the keys, here's what I wish someone had told me:</p>
+        <ul><li>Read the flags before you touch anything. Fault passage indicators trip between the breaker and the fault.</li>
+        <li>Get the healthy customers back first, then go hunting for the fault.</li>
+        <li>Watch your loading. Fell Road and Coast Road are long, thin rural feeders and won't carry a town on their own.</li>
+        <li>Never tie two primaries together. Port Ampere, Ohmsford, Joulebury and Voltcombe each stand alone.</li>
+        <li>Copper Lane has been robbed three times this year. If the intruder alarm goes, that substation is a death trap until a crew has made it safe. Don't operate anything there.</li>
+        <li>Megawatt General has generators for about four hours. Don't make them use all four.</li></ul>
+        <p>The kettle's in the corner. Good luck.</p>
+        <p class="sig">Mags Whitley</p><p style="margin:0;font-size:14px">Senior Control Engineer, retiring</p></div>
+        <div class="mbtns"><button class="btn" data-act="letter-done">Take the chair</button></div>`;
+    } else {
+      h+=`<p class="sub">Pick a shift. Each one brings something new to deal with.</p><div class="shifts">`+
+        SHIFTS.map(s=>`<button class="shift" data-act="shift" data-v="${s.id}"><div><b>${s.title}</b><span>${s.desc}</span></div>${starsOf(s.id)}</button>`).join('')+
+        `<button class="shift" data-act="setup"><div><b>Free play</b><span>Choose the network, the kind of incident and how many crews you have.</span></div><span>→</span></button></div>
+        <div class="mbtns"><button class="btn alt" data-act="letter">Read Mags's note again</button>${S&&S.phase!=='closed'&&S.ops?'<button class="btn alt" data-act="ov-close">Back to the current shift</button>':''}</div>`;
+    }
+    h+='</div>';
+  } else if(UI.overlay==='setup'){
+    const su=UI.setup;
+    h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">New incident</h2>
+      <label class="fld"><span>Network</span><select id="su-net">${netOptions(su.net,true)}</select></label>
+      <div class="fld"><span>Scenario</span><div class="seg" role="group">
+        ${['single','digin','theft','storm','mixed'].map(v=>`<button data-act="su-scen" data-v="${v}" aria-pressed="${su.scen===v}">${SCEN_LABEL[v]}</button>`).join('')}</div></div>
+      <div class="fld"><span>Field crews</span><div class="seg" role="group">
+        ${[1,2,3].map(n=>`<button data-act="su-crews" data-v="${n}" aria-pressed="${su.crews===n}">${n}</button>`).join('')}</div></div>
+      <p class="muted" style="margin:12px 0 0">${{single:'One cable fails and a feeder breaker trips. One in five faults is transient and clears on reclose.',
+        digin:'A contractor\'s digger hits a cable. You know where the damage is, but the repair takes about four hours. A transient fault follows later.',
+        theft:'Thieves strip copper from a substation. Its customers are off and its switchgear is locked out until a crew makes it safe. Another fault follows later.',
+        storm:'3 to 5 faults arrive over the first three hours. Some are transient. The clock pauses each time a breaker trips.',
+        mixed:'A cable fault, then a copper theft, then a digger strike, all in one shift.'}[su.scen]}</p>
+      <div class="mbtns"><button class="btn" data-act="su-start">Start incident</button>${S?'<button class="btn alt" data-act="ov-close">Cancel</button>':''}</div></div>`;
+  } else if(UI.overlay==='milestone'){
+    if(S.modal==='restored'){
+      const st=S.restored, r=stars(st);
+      h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Supply restored</h2>
+        <p class="sub">Everyone back on at ${fmtT(st.t)}, ${Math.round(st.t-S.t0)} minutes after the first trip.</p>
+        <div class="stars" aria-label="${r.s} of 3 stars">${'★'.repeat(r.s)}<i>${'★'.repeat(3-r.s)}</i></div>
+        ${statGrid(st)}
+        <p class="muted" style="margin:0">Three stars: average under ${r.lim[0]} minutes off, no overloads, no safety incidents.</p>
+        <p style="margin:12px 0 0;font-size:14px">The job isn't finished: faulty cables still need repairing and the network is not in normal running.</p>
+        <div class="mbtns"><button class="btn" data-act="m-continue">Repair and return to normal</button><button class="btn alt" data-act="home">Control room</button></div></div>`;
+    } else {
+      const st=S.restored||snapshotStats(), r=stars(st), fin=snapshotStats();
+      const what=S.faults.map(f=>`<li>${cableName(CBL[f.cable])}: ${f.repaired?'repaired':f.transient?'transient, cleared':'cleared'}</li>`).join('');
+      h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Incident closed</h2>
+        <p class="sub">Normal running restored at ${fmtT(S.closedAt)}, ${Math.round(S.closedAt-S.t0)} minutes after the first trip.</p>
+        <div class="stars" aria-label="${r.s} of 3 stars">${'★'.repeat(r.s)}<i>${'★'.repeat(3-r.s)}</i></div>
+        <ul class="todo" style="margin-bottom:6px">${what}</ul>
+        ${statGrid(fin)}
+        ${fin.ci>st.ci?`<p class="muted" style="margin:0">Returning to normal interrupted ${fmtN(fin.ci-st.ci)} more customers. Where both feeders come from the same primary, close the NOP before opening the other point and nobody goes off.</p>`:'<p class="muted" style="margin:0">Nobody lost supply while you returned to normal running.</p>'}
+        <div class="mbtns"><button class="btn" data-act="home">Back to the control room</button><button class="btn alt" data-act="m-view">View the network</button></div></div>`;
+    }
+  } else if(UI.overlay==='export'){
+    h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Export network</h2>
+      <p class="sub">Copy this text and keep it somewhere safe. Paste it into Import to load the network again, on any device.</p>
+      <textarea id="ex-text" readonly>${JSON.stringify(E.def)}</textarea>
+      <div class="mbtns"><button class="btn" data-act="ex-copy">Copy</button><button class="btn alt" data-act="ov-close">Close</button></div></div>`;
+  } else if(UI.overlay==='import'){
+    h=`<div class="mbox" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Import network</h2>
+      <p class="sub">Paste an exported network. It replaces what is in the editor.</p>
+      <textarea id="im-text" placeholder='{"name":"…","nodes":{…},"cables":[…]}'></textarea>
+      ${UI.msg?`<p class="trip" style="margin:8px 0 0;font-size:13px">${UI.msg}</p>`:''}
+      <div class="mbtns"><button class="btn" data-act="im-load">Load into editor</button><button class="btn alt" data-act="ov-close">Cancel</button></div></div>`;
+  }
+  ov.innerHTML=h; ov.hidden=false;
+}
+
+let toastTimer;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true,4500); }
+
+function render(){
+  document.body.className='mode-'+UI.mode;
+  $('#vS').setAttribute('aria-pressed',UI.view==='s'); $('#vM').setAttribute('aria-pressed',UI.view==='m');
+  $('#mP').setAttribute('aria-pressed',UI.mode==='play'); $('#mE').setAttribute('aria-pressed',UI.mode==='edit');
+  if(UI.mode==='play'){
+    if(NET!==S.def) useNetwork(S.def);
+    const sh=SHIFTS.find(x=>x.id===S.shift);
+    $('#netName').textContent=`${S.def.name} · ${sh?sh.title:SCEN_LABEL[S.scen]||S.scen} · ${plural(S.crews.length,'crew')}`;
+    renderStats(); renderSvg(false); renderSide();
+  } else {
+    if(NET!==E.def) useNetwork(E.def);
+    $('#netName').textContent=`Editing ${E.def.name}`;
+    renderSvg(true); renderTools(); renderEditSide();
+  }
+  renderLegend(); renderOverlay();
+  dirty=false;
+}
+
+// ======================= Editor =======================
+const TOOLS=[['select','Select & move','Drag substations to move them. Each view keeps its own layout, so arrange the schematic and the map separately.'],
+  ['sub','Substation','Click an empty spot to add a substation with customers.'],
+  ['prim','Primary','Click an empty spot to add a 33/11 kV primary. Each cable leaving it becomes a feeder with its own breaker.'],
+  ['cable','Cable','Click one substation, then another, to lay a cable between them.'],
+  ['depot','Depot','Click on the map to place the crew depot.'],
+  ['del','Delete','Click a substation or cable to delete it.']];
+function startEditor(){
+  if(!E){ const d=clone(S.def); d.name=clean(d.name.replace(/ \(copy\)$/,'')+' (copy)',40); E={def:d,key:null,tool:'select',sel:null,pend:null,drag:null}; }
+  if(S) S.paused=true;
+  UI.mode='edit'; useNetwork(E.def); render();
+}
+function renderTools(){
+  const cur=TOOLS.find(t=>t[0]===E.tool);
+  $('#tools').innerHTML=TOOLS.map(t=>`<button class="tb" data-act="tool" data-v="${t[0]}" aria-pressed="${E.tool===t[0]}">${t[1]}</button>`).join('')+`<span class="toolhint">${cur[2]}</span>`;
+}
+function validate(){
+  const err=[], warn=[], ids=Object.keys(N);
+  if(!PRIMS.length) err.push('Add at least one primary substation.');
+  if(!RMUS.length) err.push('Add at least one substation with customers.');
+  CABLES.forEach(c=>{ if(N[c.a].kind==='primary'&&N[c.b].kind==='primary') err.push(`${cableName(c)} joins two primaries. Delete it.`); });
+  const adj={}; ids.forEach(k=>adj[k]=[]); CABLES.forEach(c=>{adj[c.a].push(c.b);adj[c.b].push(c.a);});
+  const seen=new Set(PRIMS), q=[...PRIMS];
+  while(q.length){ const n=q.shift(); adj[n].forEach(m=>{ if(!seen.has(m)){seen.add(m);q.push(m);} }); }
+  RMUS.forEach(n=>{ if(!seen.has(n)) err.push(`${N[n].name} has no cable route to a primary.`); });
+  if(!FAULTABLE.length&&RMUS.length) err.push('Add some cables that can develop faults.');
+  const sw=normalSw(), sol=solve(sw);
+  sol.islands.forEach(isl=>{ const ps=[...new Set(isl.cbs.map(cb=>CB[cb].prim))]; if(ps.length>1) err.push(`In normal running ${ps.map(p=>N[p].name).join(' and ')} are connected. Add a normally open point between them.`); });
+  RMUS.forEach(n=>{ if(seen.has(n)&&sol.island[n]==null) warn.push(`${N[n].name} is off supply in normal running. Check the normally open points.`); });
+  CBIDS.forEach(id=>{ const a=cbLoad(sol,id); if(a>CB[id].rating) warn.push(`${CB[id].name} ${CB[id].feeder} carries ${Math.round(a)} A against a ${CB[id].rating} A rating in normal running.`); });
+  const codes={}; RMUS.forEach(n=>{ const c=N[n].code; if(c){ if(codes[c]) warn.push(`Code ${c} is used twice.`); codes[c]=1; } });
+  return {err,warn};
+}
+function renderChecks(){
+  const v=validate(), el=$('#e-checks'); if(!el) return;
+  el.innerHTML=v.err.map(e=>`<li class="e">${e}</li>`).join('')+v.warn.map(w=>`<li class="w">${w}</li>`).join('')||'<li class="ok">Ready to play.</li>';
+}
+function propsHtml(){
+  const sel=E.sel;
+  if(!sel||(sel.k==='node'&&!N[sel.id])||(sel.k==='cable'&&!CBL[sel.id])) return `<h3>Selection</h3><p class="muted" style="margin:0">Select a substation or cable to edit it, or pick a tool above the diagram to add one.</p>`;
+  if(sel.k==='node'){
+    const n=N[sel.id];
+    if(n.kind==='primary') return `<h3>Primary substation</h3>
+      <label class="fld"><span>Name</span><input id="e-n-name" value="${n.name}" maxlength="32"></label>
+      <p class="muted" style="margin:10px 0 0">${plural(INC[sel.id].length,'feeder')} leave this primary. Select a feeder's first cable to set its name and rating.</p>
+      <div class="btnrow"><button class="btn danger" data-act="e-delsel">Delete primary</button></div>`;
+    return `<h3>Substation</h3>
+      <label class="fld"><span>Name</span><input id="e-n-name" value="${n.name}" maxlength="32"></label>
+      <div class="row2"><label class="fld"><span>Code</span><input id="e-n-code" value="${n.code||''}" maxlength="4"></label>
+      <label class="fld"><span>Customers</span><input id="e-n-cust" type="number" min="0" max="5000" step="10" value="${n.cust}"></label></div>
+      <label class="chk"><input type="checkbox" id="e-n-remote" ${n.remote?'checked':''}> Remote control (switches operated from the control room)</label>
+      <label class="fld"><span>Schematic label</span><select id="e-n-sl">${[['b','Below'],['bl','Below, left'],['br','Below, right'],['r','Right'],['l','Left']].map(([v,l])=>`<option value="${v}" ${(n.sl||'b')===v?'selected':''}>${l}</option>`).join('')}</select></label>
+      <div class="btnrow"><button class="btn danger" data-act="e-delsel">Delete substation</button></div>`;
+  }
+  const c=CBL[sel.id], pe=N[c.a].kind==='primary'?'a':N[c.b].kind==='primary'?'b':null;
+  let h=`<h3>Cable</h3><p style="margin:0;font-weight:700">${cableName(c)}</p>`;
+  if(pe){
+    const cb=CB[c.id+':'+pe];
+    h+=`<p class="muted" style="margin:4px 0 0">First section of feeder ${cb?cb.name:''}. Its breaker sits at ${N[c[pe]].name}.</p>
+      <label class="fld"><span>Feeder name</span><input id="e-c-feeder" value="${c.feeder||''}" maxlength="20" placeholder="${N[c[other(pe)]].name}"></label>
+      <label class="fld"><span>Breaker rating (A)</span><input id="e-c-rating" type="number" min="50" max="1000" step="10" value="${c.rating||400}"></label>`;
+  } else {
+    h+=`<label class="fld"><span>Normal running</span><select id="e-c-nop">
+      <option value="" ${!c.nop?'selected':''}>Closed at both ends</option>
+      <option value="a" ${c.nop==='a'?'selected':''}>Normally open at ${N[c.a].name}</option>
+      <option value="b" ${c.nop==='b'?'selected':''}>Normally open at ${N[c.b].name}</option></select></label>`;
+  }
+  if(c.sp||c.mp) h+=`<div class="btnrow"><button class="btn alt" data-act="e-straight">Straighten in this view</button></div>`;
+  return h+`<div class="btnrow"><button class="btn danger" data-act="e-delsel">Delete cable</button></div>`;
+}
+function renderEditSide(){
+  const d=E.def;
+  $('#editSide').innerHTML=`<section><h2>Network editor</h2><p class="sub">Build a network, check it, then play it.</p>
+      <label class="fld"><span>Network name</span><input id="e-name" value="${d.name}" maxlength="40"></label>
+      <label class="fld"><span>Canvas</span><select id="e-size"><option value="1000" ${d.w===1000?'selected':''}>Standard (1000 × 560)</option><option value="1500" ${d.w===1500?'selected':''}>Large (1500 × 800)</option><option value="1600" ${d.w===1600?'selected':''}>Island (1600 × 900)</option></select></label>
+      <div class="btnrow"><button class="btn" data-act="e-play">Play this network</button><button class="btn alt" data-act="e-save">Save</button></div>
+      <div class="btnrow"><button class="btn alt" data-act="e-export">Export</button><button class="btn alt" data-act="e-import">Import</button><button class="btn alt" data-act="e-new">New blank</button></div>
+      <label class="fld"><span>Open another network</span><select id="e-open"><option value="">Choose…</option>${netOptions('',false)}</select></label>
+      ${E.key?`<div class="btnrow"><button class="btn danger" data-act="e-del">${E.confirmDel?'Click again to delete':'Delete saved copy'}</button></div>`:''}
+    </section>
+    <section id="e-props">${propsHtml()}</section>
+    <section><h3>Checks</h3><ul id="e-checks" class="checks"></ul></section>
+    <section><h3>Tips</h3><ul class="tips">
+      <li>Each cable that leaves a primary starts a feeder and gets the next F number.</li>
+      <li>Give every feeder a normally open point to a neighbour so it can be back-fed.</li>
+      <li>Two different primaries must never be connected in normal running.</li>
+      <li>Networks are saved in this browser only. Export to keep a copy.</li></ul></section>`;
+  renderChecks();
+}
+function editChanged(panel){
+  useNetwork(E.def); renderSvg(true); renderLegend();
+  if(panel) renderEditSide(); else renderChecks();
+}
+function svgPoint(evt){
+  const svg=$('#svg'), p=svg.createSVGPoint(); p.x=evt.clientX; p.y=evt.clientY;
+  const r=p.matrixTransform(svg.getScreenCTM().inverse());
+  const g=UI.view==='s'?10:5, d=E.def;
+  return [Math.max(20,Math.min(d.w-20,Math.round(r.x/g)*g)),Math.max(20,Math.min(d.h-20,Math.round(r.y/g)*g))];
+}
+function uid(prefix,taken){ let i=1; while(taken[prefix+i]) i++; return prefix+i; }
+function addNode(kind,p){
+  const d=E.def, id=uid(kind==='prim'?'P':'R',d.nodes);
+  if(kind==='prim') d.nodes[id]={name:'New Primary',kind:'primary',s:p.slice(),m:p.slice()};
+  else{
+    const used=new Set(Object.values(d.nodes).map(n=>n.code)); let k=1; while(used.has('R'+k)) k++;
+    d.nodes[id]={code:'R'+k,name:'Substation R'+k,cust:300,s:p.slice(),m:p.slice()};
+  }
+  E.sel={k:'node',id};
+}
+function addCable(a,b){
+  const d=E.def;
+  if(d.nodes[a].kind==='primary'&&d.nodes[b].kind==='primary'){ toast('Primaries connect to substations, not to each other.'); return; }
+  if(d.cables.some(c=>(c.a===a&&c.b===b)||(c.a===b&&c.b===a))){ toast('Those two are already connected.'); return; }
+  if(d.nodes[b].kind==='primary') [a,b]=[b,a];
+  const taken={}; d.cables.forEach(c=>taken[c.id]=1);
+  const c={id:uid('K',taken),a,b};
+  if(d.nodes[a].kind==='primary') c.rating=400;
+  d.cables.push(c); E.sel={k:'cable',id:c.id};
+}
+function delNode(id){ const d=E.def; delete d.nodes[id]; d.cables=d.cables.filter(c=>c.a!==id&&c.b!==id); E.sel=null; }
+function delCable(id){ const d=E.def; d.cables=d.cables.filter(c=>c.id!==id); E.sel=null; }
+function moveNode(id,dx,dy){
+  const d=E.def, n=d.nodes[id], vk=UI.view==='s'?'s':'m', pk=vk==='s'?'sp':'mp';
+  n[vk]=[n[vk][0]+dx,n[vk][1]+dy];
+  d.cables.forEach(c=>{
+    if(!c[pk]) return;
+    if(c.a===id) c[pk][0]=[c[pk][0][0]+dx,c[pk][0][1]+dy];
+    if(c.b===id){ const L=c[pk].length-1; c[pk][L]=[c[pk][L][0]+dx,c[pk][L][1]+dy]; }
+  });
+  if(vk==='m') BLOCKS=null;
+}
+function editPointerDown(e){
+  const el=e.target.closest('[data-k]'), k=el&&el.dataset.k, id=el&&el.dataset.id, p=svgPoint(e);
+  let panel=true;
+  switch(E.tool){
+    case 'select':
+      if(k==='node'){ E.sel={k:'node',id}; const n=E.def.nodes[id]; E.drag={id,last:p,moved:false}; e.preventDefault(); }
+      else if(k==='cable') E.sel={k:'cable',id};
+      else if(k==='sw') E.sel={k:'cable',id:id.split(':')[0]};
+      else E.sel=null;
+      break;
+    case 'sub': case 'prim':
+      if(k==='node') E.sel={k:'node',id}; else if(!k) addNode(E.tool,p);
+      break;
+    case 'cable':
+      if(k==='node'){ if(!E.pend) E.pend=id; else if(E.pend===id) E.pend=null; else { addCable(E.pend,id); E.pend=null; } }
+      else E.pend=null;
+      break;
+    case 'depot':
+      if(UI.view!=='m'){ toast('Switch to the map view to place the depot.'); return; }
+      E.def.depot=p; panel=false;
+      break;
+    case 'del':
+      if(k==='node') delNode(id); else if(k==='cable') delCable(id); else if(k==='sw') delCable(id.split(':')[0]);
+      break;
+  }
+  editChanged(panel);
+}
+let dragRaf=0;
+function editDrag(e){
+  const p=svgPoint(e), dx=p[0]-E.drag.last[0], dy=p[1]-E.drag.last[1];
+  if(!dx&&!dy) return;
+  moveNode(E.drag.id,dx,dy); E.drag.last=p; E.drag.moved=true;
+  if(!dragRaf) dragRaf=requestAnimationFrame(()=>{ dragRaf=0; useNetwork(E.def); renderSvg(true); });
+}
+function normalizeDef(d){
+  if(!d||typeof d!=='object'||!d.nodes||typeof d.nodes!=='object'||!Array.isArray(d.cables)) throw new Error('That isn\'t an Open Point network. It needs "nodes" and "cables".');
+  const num=v=>typeof v==='number'&&isFinite(v);
+  const pt=p=>Array.isArray(p)&&p.length===2&&num(p[0])&&num(p[1])?[p[0],p[1]]:null;
+  const line=l=>Array.isArray(l)&&l.length>=2&&l.every(pt)?l.map(pt):null;
+  const SIZES={1000:560,1500:800,1600:900}, w=SIZES[d.w]?d.w:1000;
+  const out={name:clean(d.name||'Imported network',40)||'Imported network',w,h:SIZES[w],nodes:{},cables:[]};
+  if(d.dwg) out.dwg=clean(d.dwg,24);
+  out.depot=pt(d.depot)||[60,out.h-50];
+  if(Array.isArray(d.mlDefault)&&num(d.mlDefault[0])&&num(d.mlDefault[1])&&['start','middle','end'].includes(d.mlDefault[2])) out.mlDefault=d.mlDefault.slice(0,3);
+  Object.keys(d.nodes).forEach(k=>{
+    const n=d.nodes[k], id=clean(k,12).replace(/[^A-Za-z0-9_-]/g,'');
+    if(!id||!n||!pt(n.s)||!pt(n.m)) return;
+    const o={name:clean(n.name||id,32)||id,s:pt(n.s),m:pt(n.m)};
+    if(n.kind==='primary') o.kind='primary';
+    else{
+      o.code=clean(n.code||'',4); o.cust=Math.max(0,Math.min(5000,Math.round(+n.cust||0)));
+      if(n.remote) o.remote=true;
+      if(['b','bl','br','r','l'].includes(n.sl)) o.sl=n.sl;
+      if(n.note) o.note=clean(n.note,120);
+    }
+    if(Array.isArray(n.ml)&&num(n.ml[0])&&num(n.ml[1])&&['start','middle','end'].includes(n.ml[2])) o.ml=n.ml.slice(0,3);
+    out.nodes[id]=o;
+  });
+  const taken={};
+  d.cables.forEach(c=>{
+    if(!c||!out.nodes[c.a]||!out.nodes[c.b]||c.a===c.b) return;
+    let id=clean(c.id||'',12).replace(/[^A-Za-z0-9_-]/g,''); if(!id||taken[id]) id=uid('K',taken); taken[id]=1;
+    const o={id,a:c.a,b:c.b};
+    if(c.nop==='a'||c.nop==='b') o.nop=c.nop;
+    if(num(c.rating)) o.rating=Math.max(50,Math.min(1000,Math.round(c.rating)));
+    if(c.feeder) o.feeder=clean(c.feeder,20);
+    if(line(c.sp)) o.sp=line(c.sp);
+    if(line(c.mp)) o.mp=line(c.mp);
+    out.cables.push(o);
+  });
+  if(d.decor&&typeof d.decor==='object'){
+    const dc={};
+    if(typeof d.decor.river==='string'&&/^[0-9MCSLQZmcslqz ,.\-]+$/.test(d.decor.river)) dc.river=d.decor.river.slice(0,400);
+    if(typeof d.decor.coast==='string'&&/^[0-9MCSLQZmcslqz ,.\-]+$/.test(d.decor.coast)) dc.coast=d.decor.coast.slice(0,2000);
+    if(Array.isArray(d.decor.hills)) dc.hills=d.decor.hills.filter(k=>Array.isArray(k)&&k.slice(0,4).every(num)).map(k=>k.slice(0,4));
+    if(Array.isArray(d.decor.parks)) dc.parks=d.decor.parks.filter(p=>Array.isArray(p)&&p.slice(0,4).every(num)).map(p=>[p[0],p[1],p[2],p[3],clean(p[4]||'',30)]);
+    if(Array.isArray(d.decor.labels)) dc.labels=d.decor.labels.filter(l=>Array.isArray(l)&&num(l[0])&&num(l[1])).map(l=>l[3]==='town'||l[3]==='sea'?[l[0],l[1],clean(l[2]||'',30),l[3]]:[l[0],l[1],clean(l[2]||'',30)]);
+    if(Array.isArray(d.decor.roads)) dc.roads=d.decor.roads.map(line).filter(Boolean);
+    out.decor=dc;
+  }
+  return out;
+}
+function editLoad(v){
+  if(!v) return;
+  if(v.startsWith('s:')){ const s=savedList()[v.slice(2)]; if(!s) return; try{ E.def=normalizeDef(s); E.key=v.slice(2); }catch(err){ toast(err.message); return; } }
+  else { E.def=clone(BUILTIN[v.slice(2)]); E.def.name=E.def.name+' (copy)'; E.key=null; }
+  E.sel=null; E.pend=null; E.confirmDel=false; editChanged(true);
+}
+
+// ======================= Input =======================
+function pick(target){
+  const el=target.closest('[data-k]');
+  if(!el){ S.sel=null; render(); return; }
+  const k=el.dataset.k, id=el.dataset.id;
+  if(k==='sw') S.sel={k:'node',id:nodeOfSw(id),sw:id}; else S.sel={k,id};
+  render();
+}
+$('#svg').addEventListener('click',e=>{ if(UI.mode==='play') pick(e.target); });
+$('#svg').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-k]')&&UI.mode==='play'){
+    e.preventDefault(); e.stopPropagation();
+    const id=e.target.closest('[data-k]').dataset.id; pick(e.target);
+    const el=document.querySelector(`#svg [data-id="${id}"]`); if(el&&el.focus) el.focus();
+  }
+});
+$('#svg').addEventListener('pointerdown',e=>{ if(UI.mode==='edit') editPointerDown(e); });
+window.addEventListener('pointermove',e=>{ if(UI.mode==='edit'&&E&&E.drag) editDrag(e); });
+window.addEventListener('pointerup',()=>{ if(E&&E.drag){ const m=E.drag.moved; E.drag=null; if(m) editChanged(false); } });
+
+function setSpeed(v){
+  if(!S||S.phase==='closed') return;
+  if(v===0) S.paused=!S.paused;
+  else { S.speed=v; S.paused=false; }
+  renderStats();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key===' '&&UI.mode==='play'&&!UI.overlay&&!e.target.closest('input,select,textarea,button,[data-k]')){ e.preventDefault(); setSpeed(0); }
+});
+document.addEventListener('click',e=>{
+  const sb=e.target.closest('[data-speed]'); if(sb){ setSpeed(+sb.dataset.speed); return; }
+  const vb=e.target.closest('[data-view]'); if(vb){ UI.view=vb.dataset.view; render(); return; }
+  const mb=e.target.closest('[data-mode]');
+  if(mb){ if(mb.dataset.mode==='edit'&&UI.mode!=='edit') startEditor(); else if(mb.dataset.mode==='play'&&UI.mode!=='play'){ UI.mode='play'; render(); } return; }
+  const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
+  const a=b.dataset.act;
+  switch(a){
+    case 'op': orderOp(b.dataset.sw,b.dataset.close==='1'); break;
+    case 'visit': orderVisit(b.dataset.n); break;
+    case 'test': orderCable(b.dataset.c,'test'); break;
+    case 'repair': orderCable(b.dataset.c,'repair'); break;
+    case 'cancel': cancelJob(+b.dataset.crew,+b.dataset.q); break;
+    case 'dispatch': S.dispatch=b.dataset.v==='auto'?'auto':+b.dataset.v; renderSide(); break;
+    case 'desel': S.sel=null; render(); break;
+    case 'selc': S.sel={k:'cable',id:b.dataset.c}; render(); break;
+    case 'selsw': S.sel={k:'node',id:nodeOfSw(b.dataset.sw),sw:b.dataset.sw}; render(); break;
+    case 'seln': S.sel={k:'node',id:b.dataset.n}; render(); break;
+    case 'makesafe': orderMakeSafe(b.dataset.n); break;
+    case 'home': UI.overlay='home'; UI.letter=false; if(S) S.paused=true; renderStats(); renderOverlay(); break;
+    case 'letter': UI.letter=true; renderOverlay(); break;
+    case 'letter-done': UI.letter=false; try{ localStorage.setItem('openpoint.letterRead','1'); }catch(err){} renderOverlay(); break;
+    case 'shift': startShift(b.dataset.v); break;
+    case 'setup': UI.overlay='setup'; if(S) S.paused=true; renderOverlay(); break;
+    case 'su-scen': UI.setup.scen=b.dataset.v; UI.setup.crews=b.dataset.v==='storm'?3:2; renderOverlay(); break;
+    case 'su-crews': UI.setup.crews=+b.dataset.v; renderOverlay(); break;
+    case 'su-start': {
+      UI.setup.net=$('#su-net').value;
+      if(S) S.modal=null;
+      newIncident(resolveNet(UI.setup.net),UI.setup.scen,UI.setup.crews);
+      UI.overlay=null; UI.mode='play'; render(); break;
+    }
+    case 'ov-close': UI.overlay=null; UI.msg=''; render(); break;
+    case 'm-continue': S.modal=null; UI.overlay=null; S.paused=false; render(); break;
+    case 'm-view': S.modal=null; UI.overlay=null; render(); break;
+    case 'tool': E.tool=b.dataset.v; E.pend=null; renderTools(); renderSvg(true); break;
+    case 'e-delsel': if(E.sel){ if(E.sel.k==='node') delNode(E.sel.id); else delCable(E.sel.id); editChanged(true); } break;
+    case 'e-straight': { const c=E.def.cables.find(x=>x.id===E.sel.id); if(c){ delete c[UI.view==='s'?'sp':'mp']; BLOCKS=null; editChanged(true); } break; }
+    case 'e-save': {
+      const all=savedList(); if(!E.key) E.key='n'+Date.now().toString(36);
+      all[E.key]=E.def; toast(writeSaved(all)?'Saved in this browser.':'This browser blocked saving. Use Export to keep a copy.');
+      renderEditSide(); break;
+    }
+    case 'e-del': {
+      if(!E.confirmDel){ E.confirmDel=true; renderEditSide(); break; }
+      const all=savedList(); delete all[E.key]; writeSaved(all); E.key=null; E.confirmDel=false; toast('Saved copy deleted. The network is still open in the editor.'); renderEditSide(); break;
+    }
+    case 'e-new': E.def={name:'My network',w:1000,h:560,depot:[60,510],nodes:{},cables:[]}; E.key=null; E.sel=null; E.pend=null; E.tool='prim'; editChanged(true); renderTools(); break;
+    case 'e-export': UI.overlay='export'; renderOverlay(); break;
+    case 'e-import': UI.overlay='import'; UI.msg=''; renderOverlay(); break;
+    case 'ex-copy': {
+      const ta=$('#ex-text');
+      try{ navigator.clipboard.writeText(ta.value).then(()=>toast('Copied.'),()=>{ ta.focus(); ta.select(); }); }catch(err){ ta.focus(); ta.select(); }
+      break;
+    }
+    case 'im-load': {
+      try{ const d=normalizeDef(JSON.parse($('#im-text').value)); E.def=d; E.key=null; E.sel=null; UI.overlay=null; UI.msg=''; editChanged(true); renderOverlay(); toast(`Loaded ${d.name}.`); }
+      catch(err){ UI.msg=err instanceof SyntaxError?'That text isn\'t valid JSON. Paste the whole export, including the first { and last }.':err.message; renderOverlay(); }
+      break;
+    }
+    case 'e-play': {
+      const v=validate();
+      if(v.err.length){ toast('Fix the problems listed under Checks first.'); break; }
+      UI.setup.net='editor'; UI.overlay='setup'; renderOverlay(); break;
+    }
+  }
+});
+function editInput(e){
+  if(UI.mode!=='edit') return;
+  const t=e.target, d=E.def, sel=E.sel, n=sel&&sel.k==='node'?d.nodes[sel.id]:null, c=sel&&sel.k==='cable'?d.cables.find(x=>x.id===sel.id):null;
+  switch(t.id){
+    case 'e-name': d.name=clean(t.value,40)||'Untitled'; $('#netName').textContent=`Editing ${d.name}`; break;
+    case 'e-size': { const S2={1000:560,1500:800,1600:900}; d.w=S2[+t.value]?+t.value:1000; d.h=S2[d.w]; break; }
+    case 'e-open': if(e.type==='change') editLoad(t.value); return;
+    case 'e-n-name': if(n) n.name=clean(t.value,32)||'Unnamed'; break;
+    case 'e-n-code': if(n) n.code=clean(t.value,4).toUpperCase(); break;
+    case 'e-n-cust': if(n) n.cust=Math.max(0,Math.min(5000,parseInt(t.value,10)||0)); break;
+    case 'e-n-remote': if(n) n.remote=t.checked; break;
+    case 'e-n-sl': if(n) n.sl=t.value; break;
+    case 'e-c-nop': if(c){ if(t.value) c.nop=t.value; else delete c.nop; } break;
+    case 'e-c-rating': if(c) c.rating=Math.max(50,Math.min(1000,parseInt(t.value,10)||400)); break;
+    case 'e-c-feeder': if(c){ const v=clean(t.value,20); if(v) c.feeder=v; else delete c.feeder; } break;
+    default: return;
+  }
+  editChanged(false);
+}
+$('#editSide').addEventListener('input',editInput);
+$('#editSide').addEventListener('change',editInput);
+
+// ======================= Main loop =======================
+// A steady timer drives the clock. An error in one tick is reported but never stops the clock.
+let lastTick=performance.now(), sideTimer=0, ticker=null;
+function tick(){
+  const now=performance.now(), dtReal=Math.min(0.25,(now-lastTick)/1000); lastTick=now;
+  try{
+    if(UI.mode==='play'&&S&&!S.paused&&S.phase!=='closed'&&!UI.overlay){
+      advance(dtReal*SPEEDS[S.speed]);
+      sideTimer+=dtReal;
+      if(dirty) render();
+      else{
+        lightUpdate();
+        const ae=document.activeElement;
+        if(sideTimer>2&&!(ae&&ae.closest&&ae.closest('.side'))){ sideTimer=0; renderSide(); }
+      }
+    }
+  }catch(err){ console.error('Open Point tick failed',err); }
+}
+
+// ======================= Boot =======================
+const SAVE_VERSION=4;
+function start(data){
+  // only resume a game saved by this version; older saves have a different shape
+  if(data&&data.v===SAVE_VERSION&&data.S&&data.S.def){ S=data.S; Object.assign(UI,data.UI||{}); E=data.E||null; if(E) E.drag=null; }
+  else {
+    // first arrival: the first shift sits paused behind the control room screen
+    newIncident(clone(MEGAWATT),SHIFTS[0].scen,SHIFTS[0].crews,SHIFTS[0]);
+    let read=false; try{ read=localStorage.getItem('openpoint.letterRead')==='1'; }catch(e){}
+    UI.overlay='home'; UI.letter=!read;
+  }
+  if(UI.mode==='edit'&&!E) UI.mode='play';
+  useNetwork(UI.mode==='edit'?E.def:S.def);
+  render();
+  lastTick=performance.now();
+  if(!ticker) ticker=setInterval(tick,50);
+}
+window.claude?.hot?.snapshot?.(()=>({v:SAVE_VERSION,S,UI,E}));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
