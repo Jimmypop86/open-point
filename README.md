@@ -12,6 +12,7 @@ Open `index.html` in any modern browser. Nothing needs installing.
 - **Isolate** the faulty cable by opening the switches at both ends.
 - **Restore** customers by closing breakers and normally open points to back-feed from neighbouring feeders, without overloading them.
 - **Repair** the damage and return the network to normal running.
+- **The desk:** an alarm list under the header (click an alarm to jump to it, then acknowledge it), a timeline of the next four hours under the diagram with deadlines marked, an optional pause 10 minutes before each deadline, right-click (or press and hold) orders on the diagram, a minimap when zoomed in, and a bottom-sheet panel on phones. Press Esc for the pause menu, F for full screen and Shift + 1–7 for the side panel tabs.
 - **Incidents board:** every live fault, damaged site and piece of work in one list, with customers off by area. Give each area an estimated restoration time (ETR) and update it as the job changes. Customers who know when power is coming back ring less, meeting an ETR builds public confidence, and missing one costs it.
 - **Field teams:** reactive crews take the faults, assessors patrol lines and read fault flags, a tree team cuts trees off lines before a crew can repair them, and on planned-work and career shifts a planned team does the maintenance and work requests.
 - **Welfare van:** for long power cuts, send the van with hot drinks, food, phone charging and checks on vulnerable customers. It heads home when the power is back.
