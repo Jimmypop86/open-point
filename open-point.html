@@ -821,6 +821,45 @@ body.compact .app{gap:10px}
 .mbox.pause h2{margin-bottom:14px}
 .keyhint{font:11px var(--mono);color:var(--muted);margin-top:14px}
 
+/* hover cards on the diagram */
+.hovercard{position:fixed;z-index:42;pointer-events:none;max-width:260px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:7px;padding:8px 10px;box-shadow:0 10px 28px rgba(0,0,0,.22);font-size:12px;line-height:1.45;display:flex;flex-direction:column}
+.hovercard[hidden]{display:none}
+.hovercard b{font-size:13px;margin-bottom:2px}
+.hovercard span{color:var(--muted)}
+.hovercard .bad,.hovercard em.bad{color:var(--fault);font-style:normal;font-weight:700} .hovercard .good{color:var(--ok);font-weight:700}
+/* switching schedules */
+.planbox{border:2px solid var(--accent);border-radius:7px;padding:10px 12px;margin:0 0 12px;background:color-mix(in srgb,var(--accent) 6%,var(--panel))}
+.planbox>b{display:block;font:700 11px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:4px}
+.plansteps{margin:6px 0;padding-left:22px;font-size:13px}
+.plansteps li{padding:4px 0;border-top:1px solid var(--rule)}
+.plansteps li:first-child{border-top:0}
+.plansteps li>span:first-child{display:inline-block;max-width:calc(100% - 56px)}
+.plansteps li small{display:block;color:var(--muted);font-size:11px}
+.plansteps li.bad{color:var(--fault)}
+.plansteps .pa{float:right;display:flex;gap:3px}
+.plansteps .pa button{border:1px solid var(--rule);background:var(--panel);border-radius:4px;width:24px;height:22px;cursor:pointer;color:var(--ink);font-size:11px;padding:0}
+.pv-good{color:var(--ok);font-weight:700;font-size:13px}
+.planno circle{fill:var(--accent)} .planno text{font:700 9px var(--mono);fill:var(--accent-ink);text-anchor:middle}
+/* drag a team onto the diagram */
+li[draggable="true"]{cursor:grab}
+body.dragging #svg [data-k]{cursor:copy}
+#svg .droptgt .box,#svg .droptgt .m,#svg polyline.droptgt{stroke:var(--accent)!important;stroke-width:4!important}
+.crews .x.fol.on{color:var(--accent)}
+/* log tools */
+.logtools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}
+.logtools .seg button{padding:3px 8px;font-size:12px}
+.logtools input{flex:1;min-width:120px;font:13px var(--body);padding:5px 8px;border:1px solid var(--rule);border-radius:5px;background:var(--panel);color:var(--ink)}
+/* volume sliders */
+.vols{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.vols label{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.vols input{width:100%;accent-color:var(--accent)}
+.vols output{font:12px var(--mono);text-align:right}
+/* confirm before costly switching */
+.mbox.confirm{max-width:460px;border-top:5px solid var(--fault)}
+.mbox.confirm h2{font-size:24px}
+.cf-never{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
+.menu-btns .btn small{font-size:11px}
+
 /* phones: the panel becomes a bottom sheet you drag up and down */
 .sheet-handle{display:none}
 @media (max-width:760px){
@@ -865,6 +904,7 @@ body.compact .app{gap:10px}
         <button data-speed="1" title="1 game minute per second">1×</button>
         <button data-speed="2" title="4 game minutes per second">4×</button>
         <button data-speed="3" title="15 game minutes per second">15×</button>
+        <button data-act="skip" title="Skip to the next event (N)" aria-label="Skip to the next event">⏭</button>
       </div>
       <div class="seg" role="group" aria-label="View">
         <button id="vS" data-view="s" aria-pressed="true">Schematic</button>
@@ -895,7 +935,7 @@ body.compact .app{gap:10px}
         </div></div>
         <!-- these float over the visible part of the board, not the scrolled diagram -->
         <button id="pausedPill" class="play-only" data-speed="1" hidden>▶ CLOCK PAUSED · PRESS TO RUN</button>
-        <div class="findbox"><input id="find" list="findList" placeholder="Find a substation  ( / )" aria-label="Find a substation" autocomplete="off"><datalist id="findList"></datalist></div>
+        <div class="findbox"><input id="find" list="findList" placeholder="Find substation, cable, team  ( / )" aria-label="Find a substation, cable, feeder or team" autocomplete="off"><datalist id="findList"></datalist></div>
         <div class="zoomctl" role="group" aria-label="Zoom">
           <button data-zoom="in" title="Zoom in (+)" aria-label="Zoom in">+</button><button data-zoom="out" title="Zoom out (−)" aria-label="Zoom out">−</button><button data-zoom="reset" title="Show everything (0)" aria-label="Show everything">⤢</button>
         </div>
@@ -921,7 +961,9 @@ body.compact .app{gap:10px}
         <div class="tabp" data-tab="loads" role="tabpanel" hidden><section><h3 id="loadsH">Feeder loading</h3><div id="loads"></div></section></div>
         <div class="tabp" data-tab="news" role="tabpanel" hidden><section id="newsSec"></section></div>
         <div class="tabp" data-tab="weather" role="tabpanel" hidden><section id="wxSec"></section></div>
-        <div class="tabp" data-tab="log" role="tabpanel" hidden><section><h3>Control log</h3><ol id="log"></ol></section></div>
+        <div class="tabp" data-tab="log" role="tabpanel" hidden><section><h3>Control log</h3>
+          <div class="logtools"><div class="seg small" id="logSeg" role="group" aria-label="Show"></div><input id="logQ" type="search" placeholder="Search the log" aria-label="Search the log"></div>
+          <ol id="log"></ol></section></div>
       </div>
     </aside>
     <aside class="side edit-only" id="editSide"></aside>
@@ -930,6 +972,7 @@ body.compact .app{gap:10px}
 <div id="overlay" hidden></div>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 <div id="ctxMenu" class="ctxmenu" role="menu" hidden></div>
+<div id="hoverCard" class="hovercard" hidden></div>
 
 <script>
 /* Open Point. Copyright (c) 2026 James Procter. All rights reserved.
@@ -1141,7 +1184,7 @@ let S=null, E=null, dirty=false;
 const UI={view:'s',mode:'play',overlay:null,setup:{net:'b:megawatt',scen:'single',crews:2},msg:'',letter:false,
   settings:loadSettings(), undo:[], why:null, hint:null, pulse:null, vb:{}, tut:null};
 function loadSettings(){
-  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false,docs:true,motion:'auto',header:'compact',autoPause:true,tips:true,legend:true};
+  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false,docs:true,motion:'auto',header:'compact',autoPause:true,tips:true,legend:true,confirm:true};
   try{ return Object.assign(def,JSON.parse(localStorage.getItem('openpoint.settings')||'{}')); }catch(e){ return def; }
 }
 function saveSettings(){ try{ localStorage.setItem('openpoint.settings',JSON.stringify(UI.settings)); }catch(e){} }
@@ -1365,7 +1408,7 @@ function checkPhase(){
     onShiftEnd();
   }
 }
-function afterChange(){ updateOn(); checkPhase(); newsCheck(); dirty=true; }
+function afterChange(){ updateOn(); checkPhase(); newsCheck(); runSchedule(); dirty=true; }
 
 // ---------- Weather ----------
 // Storm gusts follow a bell curve around the peak; outside storms the wind stays light.
@@ -1923,7 +1966,7 @@ function dispatch(job){
   log(`${cr.id} given job: ${jobText(job)} at ${N[job.node].name}.`);
   if(!cr.job) startNext(i);
 }
-function orderOp(sid,close){
+function orderOp(sid,close,fromSchedule){
   if(!canOrder()) return;
   if(pendingFor(sid)){ toast('That switch already has an operation queued.'); return; }
   // an earth on (or on its way) interlocks the switch, unless a crew is already queued to take it off
@@ -1934,7 +1977,9 @@ function orderOp(sid,close){
   // the picture first, so the check happens when the switch is actually operated
   const idle=!S.control.length&&S.crews.every(cr=>!cr.job&&!cr.queue.length);
   if(close&&idle){ const why=parallelBlock(sid); if(why){ toast('Blocked: '+why); setWhy(PARALLEL_WHY); render(); return; } }
-  pushUndo(`${close?'close':'open'} ${switchLabel(sid)}`);
+  // a big or sensitive loss of supply asks first
+  if(!fromSchedule&&needsConfirm(sid,close)) return;
+  if(!fromSchedule) pushUndo(`${close?'close':'open'} ${switchLabel(sid)}`);
   if(remoteFor(sid)){
     const last=S.control.length?S.control[S.control.length-1].tDone:S.t;
     S.control.push({sw:sid,close,tDone:Math.max(last,S.t)+2});
@@ -3419,7 +3464,10 @@ function renderSvg(edit){
     const tag=CB[sid]?CB[sid].name:(NOPS.has(sid)?(UI.settings.plain?'SPARE':'NOP'):'');
     const lab=tag?(horiz?`<text class="swl" y="${-sz}" text-anchor="middle">${tag}</text>`:`<text class="swl" x="${sz}" y="4">${tag}</text>`):'';
     const cbtrip=!edit&&CB[sid]&&!S.sw[sid];
-    h+=`<g class="swm ${closed?'closed':'open'}${isSel?' sel':''}${cbtrip?' cbtrip':''}" data-k="sw" data-id="${sid}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
+    // steps of a schedule being planned get their number beside the switch
+    const pi=!edit&&UI.planning?(UI.plan||[]).map((st,k)=>st.sw===sid?k+1:0).filter(Boolean):[];
+    h+=`<g class="swm ${closed?'closed':'open'}${isSel?' sel':''}${cbtrip?' cbtrip':''}" data-k="sw" data-id="${sid}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})" ${edit?'':`tabindex="0" role="button" aria-label="${switchLabel(sid)}, ${closed?'closed':'open'}"`}>
+      ${pi.length?`<g class="planno" transform="translate(${sz},${-sz})"><circle r="8"/><text y="3.5">${pi.join(',')}</text></g>`:''}
       <rect class="hb" x="-13" y="-13" width="26" height="26"/>
       ${abn?`<rect class="ab" x="${-sz/2-4}" y="${-sz/2-4}" width="${sz+8}" height="${sz+8}"/>`:''}
       ${pend?`<circle class="pr" r="${sz}"/>`:''}
@@ -3784,7 +3832,9 @@ function renderPanel(){
       <div class="btnrow">${lv<3&&p.move?`<button class="btn alt" data-act="hint">${lv===2?'Show me the exact move'+(S.diff==='trainee'?'':' (costs a star)'):'More help'}</button>`:''}${lv>=3&&p.move?`<button class="btn" data-act="hint-do">Do it</button>`:''}</div>
       <button class="x" data-act="hint-x" aria-label="Close hint">×</button></div>`;
   }
-  $('#panel').innerHTML=top+h;
+  // the switching schedule sits on top while you're building one; otherwise the overview offers to start one
+  const plan=UI.planning?planHtml():!sel&&S.phase!=='closed'&&!UI.replay?planHtml():'';
+  $('#panel').innerHTML=top+plan+h;
 }
 function crewStatus(cr){
   const j=cr.job;
@@ -3908,19 +3958,20 @@ function renderSide(){
   const seg=S.crews.length>1?`<div class="seg small" role="group" aria-label="Dispatch">${[['auto','Fastest'],...S.crews.map((c,i)=>[i,c.tag])].map(([v,l])=>`<button data-act="dispatch" data-v="${v}" aria-pressed="${S.dispatch===v}">${l}</button>`).join('')}</div>
     <p class="muted" style="margin:6px 0 0">Field jobs go to ${S.dispatch==='auto'?'the quickest team that normally does that job':S.crews[S.dispatch].id}.</p>`:'';
   const ROLE_NOTE={crew:'Switching, testing, repairs and site jobs.',assessor:'Patrol lines and read fault flags only.',veg:'Cut trees back off lines so a crew can repair them.',planned:'Maintenance and work requests. Can switch, earth, test and repair if you send them.'};
-  const crewLi=(cr,i)=>`<li data-hl="crew:${i}"><div class="cr-h"><span class="badge${roleCls(cr)}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
+  const crewLi=(cr,i)=>`<li data-hl="crew:${i}" draggable="${canOrder()}" data-drag="${i}" title="Drag onto a substation, switch or cable to send ${cr.id}"><div class="cr-h"><span class="badge${roleCls(cr)}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>
+    ${cr.job&&cr.job.stage==='travel'?`<button class="x fol${UI.follow===i?' on':''}" data-act="follow" data-crew="${i}" aria-label="Follow ${cr.id} on the map" title="Follow on the map">◎</button>`:''}${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
     <div class="fatigue" title="Hours worked this shift: crews must rest after 12"><i style="width:${Math.min(100,(cr.worked||0)/720*100)}%;background:var(${(cr.worked||0)>600?'--fault':(cr.worked||0)>420?'--warn':'--ok'})"></i></div>
-    ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`;
+    ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span>${k?`<button class="x" data-act="q-up" data-crew="${i}" data-q="${k}" aria-label="Do this job sooner" title="Do this sooner">▲</button>`:''}<button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`;
   const groups=Object.keys(ROLE).map(r=>{ const list=S.crews.map((cr,i)=>[cr,i]).filter(([cr])=>cr.role===r); if(!list.length) return '';
     return `<h3 style="margin-top:14px">${ROLE[r].group}</h3><p class="muted rolenote">${ROLE_NOTE[r]}</p><ul class="crews">${list.map(([cr,i])=>crewLi(cr,i)).join('')}</ul>`; }).join('');
-  $('#crewSec').innerHTML=`<h3>Dispatch</h3>${seg}${groups}
+  $('#crewSec').innerHTML=`<h3>Dispatch</h3>${seg}<p class="muted" style="margin:6px 0 0">Tip: drag a team onto the diagram to send them.</p>${groups}
     ${S.control.length?`<p class="muted" style="margin:10px 0 0">Control room: ${plural(S.control.length,'remote operation')} queued.</p>`:''}
     <h3 style="margin-top:14px">Customer welfare</h3><ul class="crews">${(S.vans||[]).map(v=>`<li><div class="cr-h"><span class="badge wv">${v.id}</span><span>${vanStatus(v)}</span>${v.stage==='travel'||v.stage==='on'?`<button class="x" data-act="van-home" data-id="${v.id}" aria-label="Recall the van" title="Recall the van">×</button>`:''}</div></li>`).join('')}</ul>
     <p class="muted" style="margin:6px 0 0">Hot drinks, food, phone charging and checks on vulnerable customers. Select a substation that has been off for a while to send it (£${VAN.cost} + £${VAN.hourly}/h).</p>
     <h3 style="margin-top:14px">Mobile generators</h3><ul class="crews">${Array.from({length:GEN.fleet},(_,k)=>{ const g=(S.gens||[]).find(x=>x.id==='G'+(k+1)); return `<li><div class="cr-h"><span class="badge gn">G${k+1}</span><span>${g?genStatus(g):'At the generator depot'}</span></div></li>`; }).join('')}</ul>
     <p class="muted" style="margin:6px 0 0">Select a substation that is off to hire one (£${fmtN(GEN.hire)} + £${GEN.hourly}/h, up to ${GEN.cap} customers).</p>
     ${S.phase!=='closed'&&!UI.replay?`<button class="btn wide alt" data-act="contractor" style="margin-top:10px" ${canOrder()?'':'disabled'}>Call in a contractor crew<small>£1,500 · starts at the depot</small></button>`:''}`;
-  $('#log').innerHTML=S.log.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('');
+  renderLog();
   renderWeather(); renderNews(); renderBoard();
   $('#objSec').innerHTML=objectivesHtml(); $('#objSec').hidden=!(S.objectives||[]).length;
   renderTabs();
@@ -4116,17 +4167,25 @@ function renderOverlay(){
         ${statGrid(fin)}
         ${fin.ci>st.ci?`<p class="muted" style="margin:0">Returning to normal interrupted ${fmtN(fin.ci-st.ci)} more customers. Where both feeders come from the same primary, close the NOP before opening the other point and nobody goes off.</p>`:'<p class="muted" style="margin:0">Nobody lost supply while you returned to normal running.</p>'}
         ${debriefHtml(fin)}
+        ${S.ctx&&S.ctx.type==='daily'?'':`<div class="share"><b>Share this shift</b><textarea id="sum-text" readonly>${shiftSummary().text}</textarea><div class="btnrow" style="margin-top:6px"><button class="btn alt" data-act="sum-copy">Copy text</button><button class="btn alt" data-act="sum-img">Save as image</button></div></div>`}
         <div class="mbtns">${S.ctx&&S.ctx.type==='career'?'<button class="btn" data-act="career-start">Next career shift</button><button class="btn alt" data-act="home">Control room</button>':'<button class="btn" data-act="home">Back to the control room</button>'}${S.frames&&S.frames.length>1?'<button class="btn alt" data-act="replay">Watch the replay</button>':''}<button class="btn alt" data-act="m-view">View the network</button></div></div>`;
     }
   } else if(UI.overlay==='title'){
-    const live=S&&S.phase!=='closed'&&S.ops>0;
+    const live=S&&S.phase!=='closed'&&(S.ops>0||S.t>S.t0);
     h=`<div class="mbox title" role="dialog" aria-labelledby="ovt">
       <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" style="fill:var(--desk)"/><path d="M6 22h7l9-9m0 9h6" style="stroke:var(--desk-ink)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="13" cy="22" r="2.6" style="fill:var(--f1)"/></svg>
       <h2 id="ovt">Open Point</h2><p class="tagline">Keep the lights on across Megawatt Island.</p>
-      <div class="menu-btns">${live?'<button class="btn" data-act="title-continue">Continue shift</button>':''}<button class="btn${live?' alt':''}" data-act="title-play">${live?'Control room':'Play'}</button>
+      <div class="menu-btns">${live?`<button class="btn" data-act="title-continue">Continue shift<small>${S.ctx&&S.ctx.label||(SHIFTS.find(x=>x.id===S.shift)||{}).title||SCEN_LABEL[S.scen]||''} · ${fmtT(S.t)}</small></button>`:''}<button class="btn${live?' alt':''}" data-act="title-play">${live?'Control room':'Play'}</button>
         <button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="fullscreen">${document.fullscreenElement?'Leave full screen':'Full screen'}</button>
         ${canQuit()?'<button class="btn alt" data-act="quit">Quit</button>':''}</div>
       <p class="copyright">An electricity fault management game by James Procter · © 2026 James Procter. All rights reserved.</p></div>`;
+  } else if(UI.overlay==='confirm'&&UI.confirm){
+    const c=UI.confirm;
+    h=`<div class="mbox confirm" role="alertdialog" aria-labelledby="ovt"><p class="eyebrow">Check before switching</p><h2 id="ovt">${c.close?'Close':'Open'} the ${switchLabel(c.sid)}?</h2>
+      <p>This takes <b>${fmtN(c.lose)} customers</b> off supply: ${c.names.slice(0,6).join(', ')}${c.names.length>6?'…':''}.</p>
+      ${c.crit.length?`<p class="pv-bad">Including ${c.crit.map(n=>N[n].hospital||N[n].site.name).join(' and ')}.</p>`:''}
+      <label class="cf-never"><input type="checkbox" id="cf-never"> Don't ask again (turn back on in Settings)</label>
+      <div class="mbtns"><button class="btn danger" data-act="confirm-yes">${c.close?'Close':'Open'} it</button><button class="btn" data-act="confirm-no">Cancel</button></div></div>`;
   } else if(UI.overlay==='pause'){
     h=`<div class="mbox pause" role="dialog" aria-labelledby="ovt"><p class="eyebrow">Clock stopped</p><h2 id="ovt">Paused</h2>
       <div class="menu-btns"><button class="btn" data-act="pause-resume">Resume</button><button class="btn alt" data-act="home">Control room</button>
@@ -4143,7 +4202,9 @@ function renderOverlay(){
       <div class="fld"><span>Safety documents (applies to the next shift)</span>${seg('docs',[[true,'On'],[false,'Off']])}
         <p class="diffdesc">${st.docs!==false?'Before a crew repairs or maintains a cable, earth it at both ends and issue a permit to work. Afterwards, cancel the permit and remove the earths before switching it back on.':'Crews start work as soon as a cable is dead. No earths or permits.'}</p></div>
       <div class="fld"><span>Language</span>${seg('plain',[[false,'Engineering terms'],[true,'Plain English']])}</div>
-      <div class="fld"><span>Sound</span>${seg('sound',[[true,'On'],[false,'Off']])}</div>
+      <div class="fld"><span>Sound</span>${seg('sound',[[true,'On'],[false,'Off']])}
+        <div class="vols">${[['alarms','Alarms and phone'],['effects','Switching and effects'],['ambience','Storm wind']].map(([k,l])=>{ const v=st['vol_'+k]==null?100:st['vol_'+k]; return `<label>${l}<input type="range" min="0" max="100" step="5" value="${v}" data-vol="${k}"><output>${v}%</output></label>`; }).join('')}</div></div>
+      <div class="fld"><span>Ask before switching off 500+ customers, the hospital, airport or docks</span>${seg('confirm',[[true,'Ask me'],[false,'Don\'t ask']])}</div>
       <div class="fld"><span>Text size</span>${seg('big',[[false,'Normal'],[true,'Large']])}</div>
       <div class="fld"><span>Circuit colours</span>${seg('cbsafe',[[false,'Standard'],[true,'Colour-blind friendly']])}</div>
       <div class="fld"><span>Motion</span>${seg('motion',[['auto','Follow my device'],['full','Full'],['reduced','Reduced']])}</div>
@@ -4162,6 +4223,10 @@ function renderOverlay(){
         <span><span class="kbd">Esc</span></span><span>Close a window, deselect, dismiss a hint, or open the pause menu</span>
         <span><span class="kbd">Shift</span> + <span class="kbd">1</span>–<span class="kbd">7</span></span><span>Side panel tabs: Overview, Incidents, Teams, Loading, News, Weather, Log</span>
         <span><span class="kbd">F</span></span><span>Full screen</span>
+        <span><span class="kbd">N</span></span><span>Skip to the next event</span>
+        <span><span class="kbd">Tab</span> <span class="kbd">Enter</span></span><span>Move between substations and switches on the diagram, and select one</span>
+        <span><span class="kbd">[</span> <span class="kbd">]</span></span><span>Step through the selected substation's switches</span>
+        <span><span class="kbd">O</span> <span class="kbd">C</span></span><span>Open or close the selected switch</span>
         <span>Right-click</span><span>Orders for a switch, cable or substation (press and hold on a touch screen)</span></div></div>
       <div class="mbtns"><button class="btn" data-act="ov-close">Done</button><button class="btn alt" data-act="tut-start">Replay the training shift</button></div>
       <p class="copyright">Open Point, an electricity fault management game by James Procter. © 2026 James Procter. All rights reserved. The game's code, graphics and design may not be copied or reused without permission.</p></div>`;
@@ -4224,7 +4289,11 @@ function render(){
   const calm=UI.settings.motion==='reduced'||(UI.settings.motion!=='full'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   document.body.className='mode-'+UI.mode+(UI.settings.big?' big':'')+(UI.settings.cbsafe?' cbsafe':'')+(UI.mode==='play'&&!UI.overlay&&UI.settings.header!=='full'?' compact':'')+(calm?' calm':'');
   // keep the substation search list in step with the network on screen
-  if(FINDNET!==(UI.mode==='edit'&&E?E.def:S&&S.def)){ FINDNET=UI.mode==='edit'&&E?E.def:S.def; const nn=FINDNET.nodes; $('#findList').innerHTML=Object.keys(nn).map(k=>`<option value="${nn[k].name}">${nn[k].code||''}</option>`).join(''); }
+  if(FINDNET!==(UI.mode==='edit'&&E?E.def:S&&S.def)){ FINDNET=UI.mode==='edit'&&E?E.def:S.def; const nn=FINDNET.nodes;
+    // substations, then (in play) feeders, cables and teams
+    let opts=Object.keys(nn).map(k=>`<option value="${nn[k].name}">${nn[k].code||'Substation'}</option>`).join('');
+    if(UI.mode==='play'&&S){ opts+=CBIDS.map(id=>`<option value="${CB[id].name} ${CB[id].feeder}">Feeder</option>`).join('')+CABLES.map(c=>`<option value="${cableName(c)}">${c.oh?'Line':'Cable'}</option>`).join('')+S.crews.map(cr=>`<option value="${cr.id}">Team</option>`).join(''); }
+    $('#findList').innerHTML=opts; }
   $('#vS').setAttribute('aria-pressed',UI.view==='s'); $('#vM').setAttribute('aria-pressed',UI.view==='m');
   $('#mP').setAttribute('aria-pressed',UI.mode==='play'); $('#mE').setAttribute('aria-pressed',UI.mode==='edit');
   if(UI.mode==='play'){
@@ -4492,17 +4561,21 @@ function audio(){
   if(!UI.settings.sound||!UI.sfxReady) return null;
   try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); return AC; }catch(e){ return null; }
 }
-function tone(ac,f,t0,dur,type,vol){ const o=ac.createOscillator(), g=ac.createGain(); o.type=type||'sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+.01); g.gain.exponentialRampToValueAtTime(.0001,t0+dur); o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0+dur+.05); }
+// every sound is scaled by its category's volume (set at the start of sfx)
+let SFXK=1;
+function tone(ac,f,t0,dur,type,vol){ vol=Math.max(0.0002,vol*SFXK); const o=ac.createOscillator(), g=ac.createGain(); o.type=type||'sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+.01); g.gain.exponentialRampToValueAtTime(.0001,t0+dur); o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0+dur+.05); }
 function noise(ac,t0,dur,vol,freq){
   const b=ac.createBuffer(1,Math.floor(ac.sampleRate*dur),ac.sampleRate), d=b.getChannelData(0);
   for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
-  const s=ac.createBufferSource(), f=ac.createBiquadFilter(), g=ac.createGain(); s.buffer=b; f.type='lowpass'; f.frequency.value=freq; g.gain.value=vol;
+  const s=ac.createBufferSource(), f=ac.createBiquadFilter(), g=ac.createGain(); s.buffer=b; f.type='lowpass'; f.frequency.value=freq; g.gain.value=vol*SFXK;
   s.connect(f).connect(g).connect(ac.destination); s.start(t0);
 }
 // an alarm makes its own sound only if the event that raised it hasn't just made one
 function alarmSound(kind){ if(performance.now()-(UI.lastSfx||0)<600) return; sfx(kind==='bad'?'alarmHi':'alarmLo'); }
 function sfx(kind){
   UI.lastSfx=performance.now();
+  SFXK=['alarm','alarmHi','alarmLo','phone'].includes(kind)?vol('alarms'):vol('effects');
+  if(SFXK<=0) return;
   const ac=audio(); if(!ac) return; const t=ac.currentTime;
   try{
     if(kind==='alarmHi'){ [0,.18].forEach(d=>tone(ac,988,t+d,.12,'triangle',.07)); return; }
@@ -4525,7 +4598,7 @@ function updateWind(){
     const s=ac.createBufferSource(), f=ac.createBiquadFilter(); s.buffer=b; s.loop=true; f.type='bandpass'; f.frequency.value=420;
     windGain=ac.createGain(); windGain.gain.value=0; s.connect(f).connect(windGain).connect(ac.destination); s.start();
   }
-  windGain.gain.value=Math.max(0,(windAt(S.t)-25)/70)*0.3;
+  windGain.gain.value=Math.max(0,(windAt(S.t)-25)/70)*0.3*vol('ambience');
 }
 
 // ---------- Undo ----------
@@ -5327,6 +5400,8 @@ function pick(target){
   const el=target.closest('[data-k]');
   if(!el){ S.sel=null; render(); return; }
   const k=el.dataset.k, id=el.dataset.id;
+  // while planning a schedule, clicking a switch adds it as the next step
+  if(k==='sw'&&UI.planning&&S.phase!=='closed'){ addPlanStep(id); return; }
   if(k==='sw') S.sel={k:'node',id:nodeOfSw(id),sw:id}; else S.sel={k,id};
   render();
 }
@@ -5367,6 +5442,21 @@ document.addEventListener('mouseover',e=>{
   if(spec!==UI.hlNow){ UI.hlNow=spec; showHl(spec); }
 });
 document.addEventListener('fullscreenchange',()=>renderOverlay());
+// hover cards on the diagram
+$('#svg').addEventListener('pointermove',showHover);
+$('#svg').addEventListener('pointerleave',()=>{ $('#hoverCard').hidden=true; UI.hoverOn=null; });
+// dragging the map yourself stops following a crew
+$('#svg').addEventListener('pointerdown',()=>{ if(UI.follow!=null){ UI.follow=null; renderSide(); } $('#hoverCard').hidden=true; });
+// drag a team from the Teams tab onto the diagram
+document.addEventListener('dragstart',e=>{ const li=e.target.closest&&e.target.closest('[data-drag]'); if(!li) return; e.dataTransfer.setData('text/plain','crew:'+li.dataset.drag); e.dataTransfer.effectAllowed='move'; UI.dragCrew=+li.dataset.drag; document.body.classList.add('dragging'); });
+document.addEventListener('dragend',()=>{ UI.dragCrew=null; document.body.classList.remove('dragging'); document.querySelectorAll('#svg .droptgt').forEach(x=>x.classList.remove('droptgt')); });
+$('#svg').addEventListener('dragover',e=>{ if(UI.dragCrew==null) return; e.preventDefault(); const el=e.target.closest('[data-k]'); document.querySelectorAll('#svg .droptgt').forEach(x=>{ if(x!==el) x.classList.remove('droptgt'); }); if(el) el.classList.add('droptgt'); });
+$('#svg').addEventListener('drop',e=>{ e.preventDefault(); const el=e.target.closest('[data-k]'), i=UI.dragCrew; UI.dragCrew=null; document.body.classList.remove('dragging'); if(el&&i!=null) crewDrop(i,el); });
+// the log search box
+$('#logQ').addEventListener('input',e=>{ UI.logQ=e.target.value; renderLog(); });
+// volume sliders, with a sample of each sound when you let go
+document.addEventListener('input',e=>{ const r=e.target.closest&&e.target.closest('[data-vol]'); if(!r) return; UI.settings['vol_'+r.dataset.vol]=+r.value; saveSettings(); const o=r.parentElement.querySelector('output'); if(o) o.textContent=r.value+'%'; });
+document.addEventListener('change',e=>{ const r=e.target.closest&&e.target.closest('[data-vol]'); if(!r) return; UI.sfxReady=true; if(r.dataset.vol==='alarms') sfx('alarmHi'); else if(r.dataset.vol==='effects') sfx('chime'); });
 // right-click for orders, or press and hold on a touch screen
 $('#svg').addEventListener('contextmenu',e=>{ if(openCtx(e.target,e.clientX,e.clientY)) e.preventDefault(); });
 let pressTimer=null;
@@ -5398,7 +5488,17 @@ function showTip(el){
 $('#find').addEventListener('change',e=>runFind(e.target.value));
 $('#find').addEventListener('keydown',e=>{ if(e.key==='Enter') runFind(e.target.value); if(e.key==='Escape') e.target.blur(); });
 function runFind(v){
-  const id=findNode(v); if(!id){ if(v.trim()) toast(`No substation called "${v}".`); return; }
+  const q=v.trim().toLowerCase();
+  // feeders, cables and teams as well as substations
+  if(UI.mode==='play'&&S&&q){
+    const fd=CBIDS.find(id=>`${CB[id].name} ${CB[id].feeder}`.toLowerCase()===q||CB[id].name.toLowerCase()===q||CB[id].feeder.toLowerCase()===q);
+    if(fd){ S.sel={k:'node',id:CB[fd].prim,sw:fd}; render(); focusNode(CB[fd].prim); $('#find').value=''; $('#find').blur(); return; }
+    const cb=CABLES.find(c=>cableName(c).toLowerCase()===q);
+    if(cb){ S.sel={k:'cable',id:cb.id}; render(); focusNode(cb.a); $('#find').value=''; $('#find').blur(); return; }
+    const ci=S.crews.findIndex(cr=>cr.id.toLowerCase()===q||cr.tag.toLowerCase()===q);
+    if(ci>=0){ const cr=S.crews[ci], at=cr.job?cr.job.node:N[cr.at]?cr.at:null; showTab('teams'); if(at){ S.sel={k:'node',id:at}; render(); showTab('teams'); focusNode(at); } else toast(`${cr.id} is ${crewStatus(cr).toLowerCase()}.`); $('#find').value=''; $('#find').blur(); return; }
+  }
+  const id=findNode(v); if(!id){ if(v.trim()) toast(`Nothing called "${v}".`); return; }
   if(UI.mode==='play') S.sel={k:'node',id}; else E.sel={k:'node',id};
   render(); focusNode(id); $('#find').value=''; $('#find').blur();
 }
@@ -5443,6 +5543,12 @@ document.addEventListener('keydown',e=>{
   if(e.shiftKey&&/^Digit[1-7]$/.test(e.code)&&UI.mode==='play'){ const t=TABS[+e.code.slice(5)-1]; if(t){ e.preventDefault(); showTab(t[0]); } return; }
   if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==='z'&&UI.mode==='play'){ e.preventDefault(); doUndo(); return; }
   if(typing) return;
+  // the diagram from the keyboard: Enter selects what has focus, [ and ] step through a substation's switches, O and C open and close
+  const fk=e.target.closest&&e.target.closest('#svg [data-k]');
+  if(fk&&(k==='Enter'||k===' ')&&UI.mode==='play'){ e.preventDefault(); pick(fk); return; }
+  if(UI.mode==='play'&&S&&S.sel&&S.sel.k==='node'&&(k==='['||k===']')){ const sws=INC[S.sel.id].map(({c,end})=>c.id+':'+end); const i=sws.indexOf(S.sel.sw); S.sel={k:'node',id:S.sel.id,sw:sws[(i+(k===']'?1:-1)+sws.length)%sws.length]}; render(); return; }
+  if(UI.mode==='play'&&S&&(k==='o'||k==='O'||k==='c'||k==='C')){ const sid=S.sel&&S.sel.sw||(fk&&fk.dataset.k==='sw'?fk.dataset.id:null); if(sid){ orderOp(sid,k.toLowerCase()==='c'); } else toast('Select a switch first: click one, or select a substation and press [ or ].'); return; }
+  if((k==='n'||k==='N')&&UI.mode==='play'){ skipAhead(); return; }
   if(k===' '&&UI.mode==='play'&&!e.target.closest('button,[data-k]')){ e.preventDefault(); setSpeed(0); return; }
   if(UI.mode==='play'&&['1','2','3'].includes(k)){ setSpeed(+k); return; }
   if(k==='s'||k==='S'){ UI.view='s'; render(); return; }
@@ -5496,7 +5602,20 @@ document.addEventListener('click',e=>{
     case 'title-play': { let read=false; try{ read=localStorage.getItem('openpoint.letterRead')==='1'; }catch(err){} UI.overlay='home'; UI.letter=!read; render(); return; }
     case 'title-continue': UI.overlay=null; render(); return;
     case 'quit': if(canQuit()) window.close(); return;
-    case 'op': orderOp(b.dataset.sw,b.dataset.close==='1'); break;
+    case 'op': if(UI.planning&&S&&S.phase!=='closed') addPlanStep(b.dataset.sw); else orderOp(b.dataset.sw,b.dataset.close==='1'); break;
+    case 'skip': skipAhead(); break;
+    case 'confirm-yes': { const c=UI.confirm; UI.confirm=null; UI.overlay=null; if(b.closest('.mbox').querySelector('#cf-never')?.checked){ UI.settings.confirm=false; saveSettings(); } if(c){ UI.confirmOk=true; orderOp(c.sid,c.close); UI.confirmOk=false; } render(); break; }
+    case 'confirm-no': UI.confirm=null; UI.overlay=null; render(); break;
+    case 'plan-start': UI.planning=true; UI.plan=[]; S.sel=S.sel||null; render(); toast('Planning: click switches to add steps. Nothing happens until you send the schedule.'); break;
+    case 'plan-cancel': UI.planning=false; UI.plan=[]; render(); break;
+    case 'plan-x': UI.plan.splice(+b.dataset.i,1); render(); break;
+    case 'plan-up': { const i=+b.dataset.i; [UI.plan[i-1],UI.plan[i]]=[UI.plan[i],UI.plan[i-1]]; render(); break; }
+    case 'plan-send': sendPlan(); break;
+    case 'q-up': moveJobUp(+b.dataset.crew,+b.dataset.q); break;
+    case 'follow': startFollow(+b.dataset.crew); break;
+    case 'log-f': UI.logF=b.dataset.v; renderLog(); break;
+    case 'sum-copy': { const ta=$('#sum-text'); try{ navigator.clipboard.writeText(ta.value).then(()=>toast('Copied.'),()=>{ ta.focus(); ta.select(); }); }catch(err){ ta.focus(); ta.select(); } break; }
+    case 'sum-img': saveSummaryImage(); break;
     case 'visit': orderVisit(b.dataset.n); break;
     case 'test': orderCable(b.dataset.c,'test'); break;
     case 'repair': orderCable(b.dataset.c,'repair'); break;
@@ -5665,7 +5784,9 @@ function tick(){
         const ae=document.activeElement;
         if(sideTimer>2&&!(ae&&ae.closest&&ae.closest('.side'))){ sideTimer=0; renderSide(); }
       }
+      if(UI.follow!=null) followStep();
     }
+    if(UI.mode==='play') autoSave();
   }catch(err){ console.error('Open Point tick failed',err); }
 }
 
@@ -5873,6 +5994,216 @@ const canQuit = ()=>/Electron/i.test(navigator.userAgent);
 function openPause(){ if(!S||UI.mode!=='play') return; UI.pausePrev=S.paused; S.paused=true; UI.overlay='pause'; renderStats(); renderOverlay(); }
 function resumeFromPause(){ UI.overlay=null; if(S&&UI.pausePrev===false) S.paused=false; render(); }
 
+// ======================= Quality of life =======================
+// ---------- Auto-save ----------
+// The shift on screen is saved in the browser every few seconds, and when the page is hidden or closed.
+const AUTOSAVE_KEY='openpoint.shift.v1';
+let lastSaveAt=0, lastSavedT=null;
+function autoSave(force){
+  if(!S||UI.replay||UI.mode!=='play') return;
+  // orders given with the clock stopped count as changes too
+  const now=performance.now(), key=S.t+'|'+(S.logN||0)+'|'+S.ops+'|'+S.phase;
+  if(!force&&(now-lastSaveAt<4000||lastSavedT===key)) return;
+  lastSaveAt=now; lastSavedT=key;
+  try{
+    if(S.phase==='closed'){ localStorage.removeItem(AUTOSAVE_KEY); return; }
+    localStorage.setItem(AUTOSAVE_KEY,JSON.stringify({v:SAVE_VERSION,at:Date.now(),S,ui:{view:UI.view,tab:UI.tab,tut:UI.tut}}));
+  }catch(e){}
+}
+function loadAutoSave(){
+  try{ const d=JSON.parse(localStorage.getItem(AUTOSAVE_KEY)||'null'); if(d&&d.v===SAVE_VERSION&&d.S&&d.S.def&&d.S.phase!=='closed') return d; }catch(e){}
+  return null;
+}
+addEventListener('pagehide',()=>autoSave(true));
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') autoSave(true); });
+// ---------- Skip to the next event ----------
+// Runs the clock straight to the next thing that happens (or a deadline coming up), then stops it there.
+function skipAhead(){
+  if(!S||UI.mode!=='play'||S.phase==='closed'||UI.overlay||UI.replay) return;
+  const ev=nextEvent(), dl=upcoming().filter(x=>x.dl&&x.t-10>S.t+0.5).map(x=>x.t-10);
+  let target=Math.min(ev?ev.t:Infinity,...dl,S.t+360);
+  if(target<=S.t) target=S.t+1;
+  const from=S.t; S.paused=false;
+  advance(target-S.t+0.01); afterChange();
+  S.paused=true;
+  const what=S.log.find(l=>l.t>from-0.01), mins=Math.round(S.t-from);
+  toast(`Skipped ${fmtH(Math.max(1,mins))} to ${fmtT(S.t)}${what?`: ${what.text.length>90?what.text.slice(0,88)+'…':what.text}`:'.'}`);
+  dirty=true; render();
+}
+// ---------- Hover cards on the diagram ----------
+function hoverHtml(k,id){
+  const sol=solve();
+  if(k==='node'){
+    const n=N[id];
+    if(n.kind==='primary'){ const ways=INC[id].filter(({c,end})=>CB[c.id+':'+end]); return `<b>${n.name}</b><span>33/11 kV primary · ${ways.length} feeders</span>${ways.map(({c,end})=>{ const sid=c.id+':'+end; return `<span>${CB[sid].name} ${CB[sid].feeder}: ${S.sw[sid]?`${Math.round(cbLoad(sol,sid))} / ${rat(sid)} A`:'<em class="bad">open</em>'}</span>`; }).join('')}`; }
+    const off=!S.on[id], f=S.fpi[id], crews=S.crews.filter(cr=>cr.at===id||(cr.job&&cr.job.node===id&&cr.job.stage==='travel'));
+    return `<b>${n.code?n.code+' · ':''}${n.name}</b><span>${fmtN(n.cust)} customers · ${n.remote?'remote control':'manual'}</span>
+      <span class="${off?'bad':'good'}">${off?`Off for ${fmtH(S.t-S.offSince[id])}`:'On supply'}${sol.feed[id]?` · ${CB[sol.feed[id]].name}`:''}</span>
+      <span>Fault flag: ${!f.known?'not read':f.trip?'<em class="bad">tripped</em>':'clear'}</span>
+      ${S.theft[id]?'<span class="bad">Copper theft: locked out</span>':''}${S.lvFault[id]?'<span class="bad">Street fault</span>':''}${S.flooded[id]?'<span class="bad">Flooded</span>':''}
+      ${crews.map(cr=>`<span>${cr.id}: ${cr.at===id&&!(cr.job&&cr.job.stage==='travel')?'on site':`arriving ${fmtT(cr.job.tArrive)}`}</span>`).join('')}
+      ${vanAt(id)?'<span>Welfare van here</span>':''}${genAt(id)?`<span>Generator ${genAt(id).id}: ${genAt(id).stage}</span>`:''}`;
+  }
+  if(k==='cable'){
+    const c=CBL[id], lv=sol.cab[id], t=S.tested[id], f=faultOn(id), p=docsOn()&&permitOn(id);
+    const cond=t==='fault'?`<em class="bad">${f&&f.damage?DMG_TITLE[f.damage]:'Faulty'}</em>`:t==='healthy'?'Proven healthy':t==='repaired'?'Repaired':'Not tested';
+    return `<b>${cableName(c)}</b><span>11 kV ${c.oh?'overhead line':'cable'}${c.nop?' · interconnector':''}</span><span>${lv?`Live · ${CB[lv].name}`:'Dead'} · ${cond}</span>${p?`<span>${p.no}${p.state==='cleared'?' (cleared)':''}</span>`:''}${cableEnds(id).some(earthed)?'<span>Earthed</span>':''}`;
+  }
+  if(k==='sw'){ const r=previewOp(id,!S.sw[id]); return `<b>${switchLabel(id)}</b><span>${S.sw[id]?'Closed':'Open'} · ${remoteFor(id)?'remote':'manual'}</span><span>Click to select · right-click for orders</span>`; }
+  return '';
+}
+function showHover(e){
+  const card=$('#hoverCard'); if(!card) return;
+  const el=e.target.closest&&e.target.closest('#svg [data-k]');
+  if(!el||!S||UI.mode!=='play'||UI.pan||e.pointerType==='touch'||!$('#ctxMenu').hidden){ card.hidden=true; UI.hoverOn=null; return; }
+  const key=el.dataset.k+':'+el.dataset.id;
+  if(UI.hoverOn!==key){ UI.hoverOn=key; card.innerHTML=hoverHtml(el.dataset.k,el.dataset.id); }
+  card.hidden=false;
+  const w=card.offsetWidth, h=card.offsetHeight;
+  card.style.left=Math.min(innerWidth-w-8,e.clientX+16)+'px'; card.style.top=Math.min(innerHeight-h-8,e.clientY+14)+'px';
+}
+// ---------- Confirm costly switching ----------
+// returns true if the order should wait for the player to confirm it
+function needsConfirm(sid,close){
+  if(UI.settings.confirm===false||UI.confirmOk) return false;
+  const r=previewOp(sid,close); if(r.block) return false;
+  const lose=custSum(r.lose), crit=r.lose.filter(n=>N[n].hospital||N[n].site);
+  if(lose<500&&!crit.length) return false;
+  UI.confirm={sid,close,lose,crit,names:r.lose.map(n=>N[n].name)}; UI.overlay='confirm'; if(S) S.paused=true; renderOverlay(); renderStats();
+  return true;
+}
+// ---------- Switching schedules ----------
+// Plan several operations, check what they do together, then send them; each starts when the one before has finished.
+function planState(){ const sw=Object.assign({},S.sw); (UI.plan||[]).forEach(st=>sw[st.sw]=st.close); return sw; }
+function addPlanStep(sid){ const sw=planState(); UI.plan=(UI.plan||[]).concat({sw:sid,close:!sw[sid]}); renderPanel(); renderSvg(false); }
+// what the schedule does, step by step, against the true network
+function checkPlan(){
+  const sw=Object.assign({},S.sw), s0=solve(); let first=null;
+  (UI.plan||[]).forEach((st,i)=>{
+    if(first) return;
+    const s2=Object.assign({},sw); s2[st.sw]=st.close;
+    if(st.close&&docsOn()&&earthed(st.sw)) first={i,why:'that switch is interlocked with its earth'};
+    else { const r=simSw(s2); if(!r.ok){ const s1=solve(s2); first={i,why:CABLES.some(c=>s1.cab[c.id]&&cableEarthed(c.id))?'it would flash over onto earths':CBIDS.some(id=>s2[id]&&cbLoad(s1,id)>rat(id)+0.01)?'a circuit would overload':S.faults.some(f=>f.active&&s1.cab[f.cable]&&!solve(sw).cab[f.cable])?'it would switch onto a fault':'it would tie two primaries together, or put power onto a crew'}; } }
+    Object.assign(sw,s2);
+  });
+  const s1=solve(sw); let gain=0, lose=0;
+  RMUS.forEach(n=>{ if(S.lvOut[n]) return; const a=s0.island[n]!=null, b=s1.island[n]!=null; if(!a&&b) gain+=N[n].cust; if(a&&!b) lose+=N[n].cust; });
+  return {first,gain,lose};
+}
+function planHtml(){
+  if(!UI.planning) return `<button class="btn wide alt" data-act="plan-start" ${canOrder()?'':'disabled'} style="margin:0 0 12px">Plan a switching schedule<small>line up several operations, check them, then send them in order</small></button>`;
+  const steps=UI.plan||[], chk=checkPlan();
+  return `<div class="planbox"><b>Switching schedule</b><p class="muted" style="margin:0 0 6px">Click switches (on the diagram or below) to add steps.</p>
+    ${steps.length?`<ol class="plansteps">${steps.map((st,i)=>`<li class="${chk.first&&chk.first.i===i?'bad':''}"><span>${st.close?'Close':'Open'} ${switchLabel(st.sw)}<small>${remoteFor(st.sw)?'remote':'crew'}</small></span>
+      <span class="pa">${i?`<button data-act="plan-up" data-i="${i}" aria-label="Move up">▲</button>`:''}<button data-act="plan-x" data-i="${i}" aria-label="Remove">✕</button></span></li>`).join('')}</ol>`:'<p class="note">No steps yet.</p>'}
+    ${steps.length?`<p class="${chk.first?'pv-bad':'pv-good'}" style="margin:6px 0">${chk.first?`Step ${chk.first.i+1} won't work: ${chk.first.why}.`:`Together: +${fmtN(chk.gain)} back on${chk.lose?`, −${fmtN(chk.lose)} off`:''}.`}</p>`:''}
+    <div class="btnrow"><button class="btn" data-act="plan-send" ${!steps.length||!canOrder()?'disabled':''}>Send ${plural(steps.length,'step')}</button><button class="btn alt" data-act="plan-cancel">Cancel</button></div></div>`;
+}
+function sendPlan(){
+  const steps=(UI.plan||[]).map(st=>({sw:st.sw,close:st.close,issued:false}));
+  if(!steps.length) return;
+  pushUndo(`send a switching schedule of ${plural(steps.length,'step')}`);
+  S.schedule=steps; UI.plan=[]; UI.planning=false;
+  log(`Switching schedule sent: ${plural(steps.length,'step')}.`);
+  runSchedule(); afterChange(); render();
+}
+// issue the next step once the one before has been carried out
+let schedBusy=false;
+function runSchedule(){
+  if(schedBusy||!S||!S.schedule||!S.schedule.length) return;
+  schedBusy=true;
+  try{
+    const q=S.schedule, cur=q[0];
+    if(cur.issued){
+      if(pendingFor(cur.sw)) return;
+      if(S.sw[cur.sw]!==cur.close){ log(`Switching schedule stopped: the ${switchLabel(cur.sw)} did not ${cur.close?'close':'open'}.`,'warn'); S.schedule=null; return; }
+      q.shift();
+      if(!q.length){ log('Switching schedule complete.','good'); S.schedule=null; return; }
+    }
+    const nx=q[0]; nx.issued=true; UI.confirmOk=true;
+    orderOp(nx.sw,nx.close,true);
+    UI.confirmOk=false;
+    if(!pendingFor(nx.sw)&&S.sw[nx.sw]!==nx.close){ log(`Switching schedule stopped at the ${switchLabel(nx.sw)}.`,'warn'); S.schedule=null; }
+  } finally { schedBusy=false; }
+}
+// ---------- Drag a crew onto the diagram ----------
+function crewDrop(i,el){
+  const cr=S.crews[i]; if(!cr||!canOrder()) return;
+  const k=el.dataset.k, id=el.dataset.id, prev=S.dispatch;
+  S.dispatch=i;
+  try{
+    if(k==='sw'){ if(!canDo(cr,'op')) return toast(`${cr.id} can't operate switches.`); orderOp(id,!S.sw[id]); }
+    else if(k==='node'){
+      if(N[id].kind==='primary') return toast('Drop a crew on a street substation, a switch or a cable.');
+      if(S.theft[id]&&canDo(cr,'makesafe')) orderMakeSafe(id);
+      else if(S.lvFault[id]&&canDo(cr,'lvfix')) orderNodeJob(id,'lvfix');
+      else if(S.flooded[id]==='damaged'&&S.flood&&S.flood.state==='receded'&&canDo(cr,'rebuild')) orderNodeJob(id,'rebuild');
+      else if(canDo(cr,'visit')) orderVisit(id);
+      else toast(`${cr.id} has nothing to do there.`);
+    } else if(k==='cable'){
+      const c=CBL[id], t=S.tested[id], f=faultOn(id);
+      const type=t==='fault'&&f&&f.damage==='tree'&&!S.cleared[id]&&canDo(cr,'clear')?'clear':t==='fault'?'repair':c.oh?'patrol':'test';
+      if(!canDo(cr,type)) return toast(`${cr.id} can't ${type==='clear'?'clear trees':type} there.`);
+      orderCable(id,type);
+    }
+  } finally { S.dispatch=prev; }
+}
+function moveJobUp(i,q){ const cr=S.crews[i]; if(!cr||q<1||q>=cr.queue.length) return; [cr.queue[q-1],cr.queue[q]]=[cr.queue[q],cr.queue[q-1]]; log(`${cr.id}: job order changed.`); dirty=true; render(); }
+// ---------- Follow a crew ----------
+function followStep(){
+  if(UI.follow==null||!S) return;
+  const cr=S.crews[UI.follow]; if(!cr){ UI.follow=null; return; }
+  if(UI.view==='m'){ const p=crewOffsets()[UI.follow], vb=UI.vb.m||[0,0,NET.w/3,NET.h/3]; setVB([p[0]-vb[2]/2,p[1]-vb[3]/2,vb[2],vb[3]]); }
+  if(!cr.job||cr.job.stage!=='travel'){ toast(`${cr.id} ${cr.job?`is at ${N[cr.job.node].name}`:'has stopped'}.`); UI.follow=null; renderSide(); }
+}
+function startFollow(i){
+  const cr=S.crews[i]; if(!cr) return;
+  if(!cr.job||cr.job.stage!=='travel'){ toast(`${cr.id} isn't driving anywhere right now.`); return; }
+  UI.follow=i; UI.view='m'; UI.vb.m=null; const p=crewOffsets()[i]; render(); setVB([p[0]-NET.w/6,p[1]-NET.h/6,NET.w/3,NET.h/3]);
+  toast(`Following ${cr.id}. Drag the map to stop.`);
+}
+// ---------- Log filter and search ----------
+const LOG_FILTERS=[['all','All'],['alarm','Alarms'],['crew','Teams'],['sw','Switching']];
+function logMatch(l){
+  const f=UI.logF||'all', q=(UI.logQ||'').trim().toLowerCase();
+  if(q&&!l.text.toLowerCase().includes(q)) return false;
+  if(f==='alarm') return l.kind==='bad'||l.kind==='warn';
+  if(f==='crew') return /\b(Crew|Assessor|Tree team|Planned team|Contractor|Welfare van|Generator)\b/.test(l.text);
+  if(f==='sw') return /\b(Opened|Closed|tripped|switch|Switching|earth|permit|Permit)\b/i.test(l.text);
+  return true;
+}
+function renderLog(){
+  const list=$('#log'); if(!list||!S) return;
+  const rows=S.log.filter(logMatch);
+  list.innerHTML=rows.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('')||'<li><span class="muted">Nothing matches.</span></li>';
+  const seg=$('#logSeg'); if(seg) seg.innerHTML=LOG_FILTERS.map(([v,l])=>`<button data-act="log-f" data-v="${v}" aria-pressed="${(UI.logF||'all')===v}">${l}</button>`).join('');
+}
+// ---------- Volumes ----------
+const vol = cat=>{ const v=UI.settings['vol_'+cat]; return v==null?1:v/100; };
+// ---------- Shift summary to share ----------
+function shiftSummary(){
+  const st=S.restored||snapshotStats(), fin=snapshotStats(), sc=stars(st).s, sh=SHIFTS.find(x=>x.id===S.shift);
+  const name=S.ctx&&S.ctx.label||(sh?sh.title:SCEN_LABEL[S.scen]||'Incident');
+  const back=S.restored?fmtH(S.restored.t-(S.firstAt||S.t0)):'not yet';
+  return {name,sc,text:`Open Point · ${name}\n${'★'.repeat(sc)}${'☆'.repeat(3-sc)} · ${fmtN(Math.round(fin.cml))} customer minutes lost · ${fmtN(fin.ci)} interrupted · everyone back in ${back} · ${fin.safety} safety incident${fin.safety===1?'':'s'}`,st:fin,back};
+}
+function saveSummaryImage(){
+  const s=shiftSummary(), W=900, H=470, tl=timelineSvg().replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+  const css=getComputedStyle(document.body), c=v=>css.getPropertyValue(v).trim()||'#000';
+  const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <rect width="${W}" height="${H}" fill="${c('--desk')}"/><rect x="0" y="${H-8}" width="${W}" height="8" fill="${c('--accent')}"/>
+    <text x="40" y="64" font-family="Arial Narrow,Arial,sans-serif" font-weight="700" font-size="44" fill="${c('--desk-ink')}">OPEN POINT</text>
+    <text x="40" y="100" font-family="Arial,sans-serif" font-size="22" fill="${c('--desk-muted')}">${esc(s.name)}</text>
+    <text x="${W-40}" y="72" text-anchor="end" font-family="Arial,sans-serif" font-size="46" fill="#f2c230">${'★'.repeat(s.sc)}<tspan fill="${c('--desk-rule')}">${'★'.repeat(3-s.sc)}</tspan></text>
+    ${[['Minutes lost (CML)',fmtN(Math.round(s.st.cml))],['Interrupted (CI)',fmtN(s.st.ci)],['Everyone back in',s.back],['Safety incidents',s.st.safety]].map(([l,v],i)=>`<g transform="translate(${40+i*210},150)"><text font-family="Arial,sans-serif" font-size="14" fill="${c('--desk-muted')}">${esc(l.toUpperCase())}</text><text y="40" font-family="Consolas,monospace" font-size="32" font-weight="700" fill="${c('--desk-ink')}">${esc(v)}</text></g>`).join('')}
+    <g class="tlg" transform="translate(40,232) scale(1.7)"><rect width="420" height="110" rx="4" fill="${c('--panel')}"/>${tl}</g>
+    <text x="40" y="${H-22}" font-family="Arial,sans-serif" font-size="13" fill="${c('--desk-muted')}">An electricity fault management game by James Procter</text></svg>`;
+  // the timeline's own styles live in the page's stylesheet, so carry them over
+  const style=`<style>.tl-a{fill:${c('--fault')};opacity:.35}.tl-ax{stroke:${c('--muted')}}.tl-trip{fill:${c('--fault')}}.tlg text{font-family:Consolas,monospace;font-size:9px;fill:${c('--muted')}}</style>`;
+  svgToPng(svg.replace('<rect width=',style+'<rect width='),W,H).then(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`open-point-${(S.shift||S.scen)}.png`; a.click(); toast('Summary image saved.'); }).catch(()=>toast('Sorry, the image could not be made.'));
+}
+
 // ======================= Boot =======================
 const SAVE_VERSION=10;
 function start(data){
@@ -5887,6 +6218,11 @@ function start(data){
     newIncident(clone(MEGAWATT),s1.scen,s1.crews,s1);
     // the title screen comes first; Play leads to Mags's letter or the control room
     UI.overlay='title';
+  }
+  // a shift left mid-way (the page was closed or reloaded) is picked up where it was
+  if(!(data&&data.v===SAVE_VERSION&&data.S)){
+    const sv=loadAutoSave();
+    if(sv){ S=sv.S; if(S.def.name===MEGAWATT.name) S.def.decor=clone(MEGAWATT.decor); S.paused=true; UI.view=sv.ui&&sv.ui.view||'s'; UI.tab=sv.ui&&sv.ui.tab||'incident'; UI.tut=sv.ui&&sv.ui.tut||null; UI.mode='play'; UI.overlay='title'; }
   }
   if(UI.mode==='edit'&&!E) UI.mode='play';
   useNetwork(UI.mode==='edit'?E.def:S.def);
