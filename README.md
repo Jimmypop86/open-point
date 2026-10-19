@@ -12,6 +12,7 @@ Open `index.html` in any modern browser. Nothing needs installing.
 - **Isolate** the faulty cable by opening the switches at both ends.
 - **Restore** customers by closing breakers and normally open points to back-feed from neighbouring feeders, without overloading them.
 - **Repair** the damage and return the network to normal running.
+- **Safety documents:** before a crew repairs or maintains a cable, earth it at both ends and issue a permit to work. Afterwards, cancel the permit and remove the earths before switching it back on. Switching power onto an earthed cable causes a flashover. You can turn this off in Settings, and the training shift leaves it out.
 
 Incidents include:
 
@@ -73,3 +74,4 @@ Drag the map with the mouse or one finger to move around it, and pinch or scroll
 
 - `index.html` is the standalone game.
 - `open-point.html` is the same game without the page header, used to publish it as a Claude artifact.
+- `art/` holds the optional hand-drawn art pack for Megawatt Island. See [art/ART-GUIDE.md](art/ART-GUIDE.md).

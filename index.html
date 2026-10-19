@@ -159,6 +159,19 @@ textarea{width:100%;min-height:220px;font:12px/1.4 var(--mono);color:var(--ink);
 .side{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--rule);border-radius:6px;min-width:0}
 .side section{padding:14px 16px;border-top:1px solid var(--rule)}
 .side section:first-child{border-top:0}
+/* the play panel: a row of tabs, and only the open tab's content scrolls */
+#playSide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:hidden}
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--rule);background:color-mix(in srgb,var(--panel) 85%,var(--ink) 4%);border-radius:6px 6px 0 0;flex:none}
+.tabs button{position:relative;appearance:none;border:0;background:none;color:var(--muted);font:600 12px var(--body);padding:11px 2px 10px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;min-width:0;overflow:visible;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel)}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tabs .tb{position:absolute;top:3px;right:3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;font:700 10px/16px var(--mono);color:#fff;background:var(--muted)}
+.tabs .tb.hot{background:var(--fault)}
+.tabs .tb.warn{background:var(--warn)}
+.tabs .tb.dot{min-width:8px;width:8px;height:8px;padding:0;top:6px;right:6px}
+.tabbody{overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1}
+@media (max-width:980px){#playSide{position:static;max-height:none;overflow:visible}.tabbody{overflow:visible}.tabs{position:sticky;top:0;z-index:5}}
 .side h2{font:700 22px/1.1 var(--display);letter-spacing:.03em;text-transform:uppercase;margin:0;text-wrap:balance}
 .side h3,.h3{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 8px}
 .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
@@ -180,6 +193,14 @@ textarea{width:100%;min-height:220px;font:12px/1.4 var(--mono);color:var(--ink);
 .swstate.c::before{content:"■ "}
 .swstate.o::before{content:"□ "}
 .swstate .abn{color:var(--warn)}
+.swstate .ert, .swstate.e{color:#b8860b}
+.swstate.e::before{content:"⏚ "}
+.ptwline{font-size:13px;margin:8px 0 6px;color:var(--muted)}
+.ptwline b{color:var(--ink)}
+.earthg path{fill:none;stroke:#e0a800;stroke-width:2;stroke-linecap:round}
+.ptwtag rect{fill:#ffd23f;stroke:#6a5208;stroke-width:1}
+.ptwtag text{font:700 8px var(--mono);fill:#2a2205;text-anchor:middle}
+.ptwtag.cleared rect{fill:var(--panel);stroke-dasharray:3 2}
 .tag{font:600 10px var(--mono);border:1px solid var(--muted);border-radius:3px;padding:0 4px;color:var(--muted);margin-left:4px;vertical-align:2px}
 .btn{border:0;border-radius:5px;padding:7px 11px;cursor:pointer;font-weight:700;font-size:13px;background:var(--accent);color:var(--accent-ink);white-space:nowrap;text-align:right;line-height:1.2}
 .btn small{display:block;font-weight:400;font-size:11px;opacity:.85}
@@ -383,6 +404,8 @@ svg text{font-family:var(--body)}
 .nightshade{fill:#061328;opacity:calc(var(--night,0)*.62);pointer-events:none}
 .duskglow{fill:#ff7a2e;opacity:calc(var(--dusk,0)*.17);pointer-events:none}
 .litg{opacity:var(--night,0);pointer-events:none}
+.art-n{opacity:var(--night,0)}
+.art-dim{filter:brightness(calc(1 - var(--night,0)*.55))}
 .lit{fill:#ffd36b}
 .litglow{fill:#ffcf5a;opacity:.22}
 .lm-w{fill:#fdfbf6} .lm-r{fill:#d8453a} .lm-d{fill:#38403f} .lm-y{fill:#ffd36b} .lm-g{fill:#2f7d5a}
@@ -685,14 +708,16 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
       <div class="legend" id="legend"></div>
     </section>
 
-    <aside class="side play-only">
-      <section id="panel"></section>
-      <section id="objSec"></section>
-      <section id="wxSec" hidden></section>
-      <section id="newsSec"></section>
-      <section><h3 id="loadsH">Feeder loading</h3><div id="loads"></div></section>
-      <section id="crewSec"></section>
-      <section><h3>Control log</h3><ol id="log"></ol></section>
+    <aside class="side play-only" id="playSide">
+      <nav class="tabs" role="tablist" aria-label="Desk panels" id="sideTabs"></nav>
+      <div class="tabbody">
+        <div class="tabp" data-tab="incident" role="tabpanel"><section id="panel"></section><section id="objSec"></section></div>
+        <div class="tabp" data-tab="teams" role="tabpanel" hidden><section id="crewSec"></section></div>
+        <div class="tabp" data-tab="loads" role="tabpanel" hidden><section><h3 id="loadsH">Feeder loading</h3><div id="loads"></div></section></div>
+        <div class="tabp" data-tab="news" role="tabpanel" hidden><section id="newsSec"></section></div>
+        <div class="tabp" data-tab="weather" role="tabpanel" hidden><section id="wxSec"></section></div>
+        <div class="tabp" data-tab="log" role="tabpanel" hidden><section><h3>Control log</h3><ol id="log"></ol></section></div>
+      </div>
     </aside>
     <aside class="side edit-only" id="editSide"></aside>
   </main>
@@ -700,6 +725,8 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
 <div id="overlay" hidden></div>
 <div id="tip" class="tip" role="tooltip" hidden></div>
 
+<!-- optional hand-drawn art pack; the game draws its own art if this file is missing. See art/ART-GUIDE.md -->
+<script src="art/art.js"></script>
 <script>
 /* Open Point. Copyright (c) 2026 James Procter. All rights reserved.
    Not for copying, modification, redistribution or reuse without written permission. See LICENSE. */
@@ -847,7 +874,7 @@ const SHIFTS = [
 
 // ======================= Constants & helpers =======================
 const AMPS = 0.1;                 // amps per customer at 11 kV (about 2 kW each)
-const WORK = {op:5, visit:2, test:30, repair:150, makesafe:90, maint:180, lvfix:60, rebuild:240};
+const WORK = {op:5, visit:2, test:30, repair:150, makesafe:90, maint:180, lvfix:60, rebuild:240, earth:10};
 const SPEEDS = [0,1,4,15];        // game minutes per real second
 const STORE = 'openpoint.networks.v1';
 const $ = s=>document.querySelector(s);
@@ -906,7 +933,7 @@ let S=null, E=null, dirty=false;
 const UI={view:'s',mode:'play',overlay:null,setup:{net:'b:megawatt',scen:'single',crews:2},msg:'',letter:false,
   settings:loadSettings(), undo:[], why:null, hint:null, pulse:null, vb:{}, tut:null};
 function loadSettings(){
-  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false};
+  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false,docs:true};
   try{ return Object.assign(def,JSON.parse(localStorage.getItem('openpoint.settings')||'{}')); }catch(e){ return def; }
 }
 function saveSettings(){ try{ localStorage.setItem('openpoint.settings',JSON.stringify(UI.settings)); }catch(e){} }
@@ -977,7 +1004,7 @@ function feedersOf(sol,cid){
 const offCount = ()=>RMUS.reduce((s,n)=>s+(S.on[n]?0:N[n].cust),0);
 const crewOnSite = n=>S.crews.some(cr=>cr.at===n);
 const faultOn = cid=>S.faults.find(f=>f.cable===cid&&f.active);
-function log(text,kind=''){ S.log.unshift({t:S.t,text,kind}); if(S.log.length>120) S.log.pop(); }
+function log(text,kind=''){ S.log.unshift({t:S.t,text,kind}); if(S.log.length>120) S.log.pop(); S.logN=(S.logN||0)+1; }
 
 // Protection: trip every breaker feeding an energised fault, then any breaker over its rating.
 function protect(natural){
@@ -1096,7 +1123,8 @@ const INCIDENT_KINDS=new Set(['fault','digin','theft','floodhit','floodclear','v
 const incidentPending = ()=>S.pending.some(e=>INCIDENT_KINDS.has(e.kind))||!!(S.pole&&!S.pole.done);
 function allClear(){
   return !incidentPending()&&S.faults.every(f=>!f.active)&&!RMUS.some(n=>S.theft[n]||(S.flooded&&S.flooded[n])||(S.lvFault&&S.lvFault[n]))
-    &&(!S.planned||S.planned.state==='done')&&offCount()===0&&isNormal()&&!(S.gens||[]).some(g=>g.stage==='on'||g.stage==='setup')&&!(S.works||[]).some(w=>w.state==='prep');
+    &&(!S.planned||S.planned.state==='done')&&offCount()===0&&isNormal()&&!(S.gens||[]).some(g=>g.stage==='on'||g.stage==='setup')&&!(S.works||[]).some(w=>w.state==='prep')
+    &&!(docsOn()&&(Object.keys(S.earths).length||Object.keys(S.permits).length));
 }
 // switchgear nobody may touch: after a theft, or while a substation is under flood water
 const locked = n=>!!((S.theft&&S.theft[n])||(S.flooded&&S.flooded[n]));
@@ -1109,11 +1137,13 @@ function checkPhase(){
     return;
   }
   if(S.phase==='restore'&&!incidentPending()&&offCount()===0){
-    S.phase='repair'; S.restored=snapshotStats(); recordStars();
+    // with safety documents the permit work still lies ahead, so the stars wait until the incident closes
+    S.phase='repair'; S.restored=snapshotStats(); if(!docsOn()) recordStars();
     log('All customers back on supply.','good'); sfx('chime');
     if(!allClear()){ S.paused=true; S.modal='restored'; }
   }
   if(S.phase==='repair'&&allClear()){
+    if(docsOn()) recordStars();
     S.phase='closed'; S.paused=true; S.modal='closed'; S.closedAt=S.t;
     log('Network back in normal running. Incident closed.','good');
     onShiftEnd();
@@ -1215,7 +1245,7 @@ function nextEvent(){
   let best=null;
   const consider=(t,fn)=>{ if(!best||t<best.t) best={t,fn}; };
   if(S.control.length) consider(S.control[0].tDone,doControl);
-  S.crews.forEach((cr,i)=>{ const j=cr.job; if(j) consider(j.stage==='travel'?j.tArrive:j.tDone,()=>crewEvent(i)); else if(cr.restUntil&&cr.queue.length) consider(cr.restUntil,()=>{ cr.restUntil=null; log(`${cr.id} is back from rest.`); startNext(i); }); });
+  S.crews.forEach((cr,i)=>{ const j=cr.job; if(j&&j.stage==='wait') return; if(j) consider(j.stage==='travel'?j.tArrive:j.tDone,()=>crewEvent(i)); else if(cr.restUntil&&cr.queue.length) consider(cr.restUntil,()=>{ cr.restUntil=null; log(`${cr.id} is back from rest.`); startNext(i); }); });
   if(S.pending.length) consider(S.pending[0].t,()=>{
     const p=S.pending[0], r=handleEvent(false);
     // after a quiet start, the first real trouble becomes the shift's headline
@@ -1374,7 +1404,7 @@ function poleDeadline(){
   S.pole.done=true;
   const f={cable:S.pole.cable,active:true,transient:false,trips:0,t:S.t,damage:'pole',found:true}; S.faults.push(f); S.tested[f.cable]='fault';
   if(live){
-    S.safety++; log(`The pole on ${cableName(c)} gave way and live wires came down in the road.`,'bad');
+    S.safety++; S.safetyTip='Switch damaged lines off before the police deadline, so nothing live falls into the road.'; log(`The pole on ${cableName(c)} gave way and live wires came down in the road.`,'bad');
     news(null,'Live wires fall into road after electricity pole collapses',-10);
     protect(true); afterChange();
     setWhy('The line was still switched on when the damaged pole gave way, so live wires came down in the road. That is a serious safety incident. Switch damaged lines off before the deadline.');
@@ -1391,13 +1421,16 @@ function applyOp(sid,close,who){
   if(S.sw[sid]===close){ log(`${switchLabel(sid)} is already ${close?'closed':'open'}.`); return; }
   if(locked(nodeOfSw(sid))){ log(`Refused: ${N[nodeOfSw(sid)].name} is unsafe after the theft. It must be made safe before anything there is operated.`,'warn'); return; }
   if(close){ const why=parallelBlock(sid); if(why){ log('Refused: '+why,'warn'); toast('Refused: '+why); setWhy(PARALLEL_WHY); return; } }
+  // the switch and its own earth are mechanically interlocked
+  if(close&&docsOn()&&earthed(sid)){ log(`Refused: the ${switchLabel(sid)} is interlocked with its earth. Remove the earth first.`,'warn'); toast('Interlocked: that switch has its earth on.'); return; }
   S.sw[sid]=close; S.ops++;
   log(`${close?'Closed':'Opened'} ${switchLabel(sid)} (${who}).`); sfx('click');
+  if(close) checkEarths();
   // switching on a cable while a crew is working on it is the worst mistake in the job
   if(close){
     const sol=solve(), busy=S.crews.filter(cr=>cr.job&&cr.job.stage==='work'&&['maint','repair','test'].includes(cr.job.type)&&sol.cab[cr.job.cable]);
     if(busy.length){
-      S.safety++; busy.forEach(cr=>{ const j=cr.job; cr.job=null; log(`${cr.id} was working on ${cableName(CBL[j.cable])} when it was switched on. Work stopped.`,'bad'); });
+      S.safety++; S.safetyTip='You switched on a cable while a crew was working on it. Check nobody is working on a section before closing onto it.'; busy.forEach(cr=>{ const j=cr.job; cr.job=null; log(`${cr.id} was working on ${cableName(CBL[j.cable])} when it was switched on. Work stopped.`,'bad'); });
       news(null,'Investigation after cable switched on while engineers were working on it',-12);
       setWhy('You switched on a cable while a crew was working on it. In real life that could kill someone. Always check that nobody is working on a section before closing onto it.');
       sfx('alarm');
@@ -1405,7 +1438,7 @@ function applyOp(sid,close,who){
   }
   const r=protect(false);
   if(who!=='remote'&&close&&r.fault){
-    S.safety++;
+    S.safety++; S.safetyTip='A crew closed a switch onto a fault. Always prove a section is healthy (test or patrol it) before closing onto it by hand.';
     log(`${who} closed a switch onto a fault. In real life that is a serious safety incident: prove a section healthy before closing onto it by hand.`,'bad');
   }
 }
@@ -1424,6 +1457,7 @@ function jobText(j){
   const c=j.cable?CBL[j.cable]:null;
   if(j.type==='op'){ const [cid,e]=j.sw.split(':'); return `${j.close?'Close':'Open'} switch to ${N[CBL[cid][other(e)]].name}`; }
   if(j.type==='visit') return 'Read FPI';
+  if(j.type==='earth'){ const [cid,e]=j.esw.split(':'); return `${j.on?'Apply':'Remove'} earth on cable to ${N[CBL[cid][other(e)]].name}`; }
   if(j.type==='makesafe') return 'Make safe after theft';
   if(j.type==='lvfix') return 'Fix low-voltage fault';
   if(j.type==='rebuild') return 'Rebuild flooded switchgear';
@@ -1462,7 +1496,8 @@ function crewEvent(i){
   const cr=S.crews[i], j=cr.job;
   if(j.stage==='travel'){
     const was=cr.at; cr.pos=j.to.slice(); cr.at=j.node;
-    if(was!==j.node){
+    // primaries have no fault flag to read (a crew can go there to earth a breaker's cable)
+    if(was!==j.node&&S.fpi[j.node]){
       S.fpi[j.node].known=true;
       log(`${cr.id} at ${N[j.node].name}. FPI ${S.fpi[j.node].trip?'TRIPPED':'not tripped'}.`,S.fpi[j.node].trip?'warn':'');
     }
@@ -1470,25 +1505,46 @@ function crewEvent(i){
       log(`${cr.id} cannot ${j.type} ${cableName(CBL[j.cable])}: the cable is live.`,'warn');
       cr.job=null; startNext(i); return;
     }
-    let start=S.t;
-    // nobody climbs a pole in high wind: overhead repairs wait for the gusts to drop
-    if(j.type==='repair'&&CBL[j.cable].oh&&windAt(S.t)>=WIND_LIMIT){
-      start=windOK(S.t); j.held=start;
+    // with safety documents, repair and maintenance wait on site until the control room issues a permit
+    if(docsOn()&&needsPermit(j.type)&&!(permitOn(j.cable)&&permitOn(j.cable).state==='issued')){
+      j.stage='wait';
+      log(`${cr.id} on site at ${N[j.node].name}, waiting for a permit to work on ${cableName(CBL[j.cable])}.`,'warn');
+      toast(`${cr.id} is waiting for a permit to work.`);
+      return;
     }
-    j.stage='work'; j.tDone=start+jobMins(j,cr);
-    const f=faultOn(j.cable), mins=jobMins(j,cr), what=f&&f.damage?DAMAGE[f.damage].label:'the damage';
-    if(j.type==='test') log(`${cr.id} testing ${cableName(CBL[j.cable])} (30 min).`);
-    if(j.type==='patrol') log(`${cr.id} patrolling ${cableName(CBL[j.cable])} (about ${mins} min).`);
-    if(j.type==='repair'&&j.held) log(`${cr.id} on site, but gusts are ${windAt(S.t)} mph: no climbing. Repairs to ${what} start when the wind drops below ${WIND_LIMIT} mph (forecast about ${fmtT(start)}), then take about ${fmtH(mins)}.`,'warn');
-    else if(j.type==='repair') log(`${cr.id} repairing ${what} on ${cableName(CBL[j.cable])} (about ${fmtH(mins)}).`);
-    if(j.type==='makesafe') log(`${cr.id} making ${N[j.node].name} safe: new earth bonds and LV joints (about 1½ hours).`);
-    if(j.type==='maint') log(`${cr.id} has the permit and is starting maintenance on ${cableName(CBL[j.cable])} (about ${fmtH(jobMins(j,cr))}). Keep it switched off.`);
-    if(j.type==='lvfix') log(`${cr.id} fixing the low-voltage fault at ${N[j.node].name} (about 1 hour).`);
-    if(j.type==='rebuild') log(`${cr.id} rebuilding the flooded switchgear at ${N[j.node].name} (about 4 hours).`);
+    startWork(cr,j);
     return;
   }
   cr.job=null;
+  finishJob(i,cr,j);
+  startNext(i);
+}
+function startWork(cr,j){
+  let start=S.t;
+  // nobody climbs a pole in high wind: overhead repairs wait for the gusts to drop
+  if(j.type==='repair'&&CBL[j.cable].oh&&windAt(S.t)>=WIND_LIMIT){
+    start=windOK(S.t); j.held=start;
+  }
+  j.stage='work'; j.tDone=start+jobMins(j,cr);
+  const f=faultOn(j.cable), mins=jobMins(j,cr), what=f&&f.damage?DAMAGE[f.damage].label:'the damage', ptw=docsOn()&&j.cable&&permitOn(j.cable)?` under ${permitOn(j.cable).no}`:'';
+  if(j.type==='test') log(`${cr.id} testing ${cableName(CBL[j.cable])} (30 min).`);
+  if(j.type==='patrol') log(`${cr.id} patrolling ${cableName(CBL[j.cable])} (about ${mins} min).`);
+  if(j.type==='repair'&&j.held) log(`${cr.id} on site, but gusts are ${windAt(S.t)} mph: no climbing. Repairs to ${what} start when the wind drops below ${WIND_LIMIT} mph (forecast about ${fmtT(start)}), then take about ${fmtH(mins)}.`,'warn');
+  else if(j.type==='repair') log(`${cr.id} repairing ${what} on ${cableName(CBL[j.cable])}${ptw} (about ${fmtH(mins)}).`);
+  if(j.type==='makesafe') log(`${cr.id} making ${N[j.node].name} safe: new earth bonds and LV joints (about 1½ hours).`);
+  if(j.type==='maint') log(`${cr.id} has the permit${ptw} and is starting maintenance on ${cableName(CBL[j.cable])} (about ${fmtH(jobMins(j,cr))}). Keep it switched off.`);
+  if(j.type==='lvfix') log(`${cr.id} fixing the low-voltage fault at ${N[j.node].name} (about 1 hour).`);
+  if(j.type==='rebuild') log(`${cr.id} rebuilding the flooded switchgear at ${N[j.node].name} (about 4 hours).`);
+  if(j.type==='earth') log(`${cr.id} ${j.on?'proving dead and earthing':'removing the earth'} at ${N[j.node].name}.`);
+}
+// the crew hands the permit back for cancelling once the job is done
+function clearPermit(cr,cid){
+  const p=docsOn()&&permitOn(cid); if(!p) return;
+  p.state='cleared'; log(`${cr.id} has cleared ${p.no}: all staff withdrawn from ${cableName(CBL[cid])}. Cancel the permit, then remove the earths.`,'good');
+}
+function finishJob(i,cr,j){
   if(j.type==='op') applyOp(j.sw,j.close,cr.id);
+  else if(j.type==='earth') applyEarth(cr,j.esw,j.on);
   else if(j.type==='test'){
     const f=faultOn(j.cable);
     if(S.dev&&!S.dev.fixed&&S.dev.cable===j.cable&&!f){ S.tested[j.cable]='fault'; log(`Test on ${cableName(CBL[j.cable])}: the insulation is breaking down. This is the cable behind the flickering lights. Repair it before it fails.`,'warn'); }
@@ -1505,11 +1561,13 @@ function crewEvent(i){
     if(f){ f.active=false; f.repaired=true; }
     S.tested[j.cable]='repaired'; if(S.cost) S.cost.materials+=2000;
     log(`${cr.id} repaired ${cableName(CBL[j.cable])}. Cable tested and ready to return to service.`,'good');
+    clearPermit(cr,j.cable);
     if(S.dev&&!S.dev.fixed&&S.dev.cable===j.cable){ S.dev.fixed=true; S.pending=S.pending.filter(e=>!(e.dev&&e.cable===j.cable)); log('The failing cable was replaced before it broke down. No power cut!','good'); news(null,'Engineers stop a power cut before it happens',4); }
   } else if(j.type==='maint'){
     if(S.planned&&S.planned.cable===j.cable){ S.planned.state='done'; S.planned.doneAt=S.t; }
     const wk=workFor(j.cable); if(wk){ wk.state='done'; wk.doneAt=S.t; S.worksDone=(S.worksDone||0)+1; log(`${WORK_KINDS[wk.kind].label} on ${cableName(CBL[j.cable])} is finished. Put the cable back into service and the network back to normal.`,'good'); }
     log(`${cr.id} has finished the maintenance on ${cableName(CBL[j.cable])} and handed the cable back. Now put the network back to normal.`,'good');
+    clearPermit(cr,j.cable);
   } else if(j.type==='lvfix'){
     S.lvFault[j.node]=false; S.lvOut[j.node]=false; if(S.cost) S.cost.materials+=400;
     log(`${cr.id} fixed the low-voltage fault at ${N[j.node].name}.`,'good');
@@ -1520,7 +1578,6 @@ function crewEvent(i){
     S.theft[j.node]=false; S.lvOut[j.node]=false;
     log(`${cr.id} made ${N[j.node].name} safe. Earth bonds replaced, LV cables jointed and the switchgear released.`,'good');
   }
-  startNext(i);
 }
 
 // ---------- Orders from the player ----------
@@ -1528,7 +1585,7 @@ function crewPlan(cr){
   let t=S.t, pos=crewPos(cr);
   const j=cr.job;
   if(cr.restUntil&&cr.restUntil>t) t=cr.restUntil;
-  if(j){ t=j.stage==='travel'?j.tArrive+jobMins(j,cr):j.tDone; pos=j.to; }
+  if(j){ t=j.stage==='travel'?j.tArrive+jobMins(j,cr):j.stage==='wait'?S.t+jobMins(j,cr):j.tDone; pos=j.to; }
   cr.queue.forEach(q=>{ t+=ttc(cr,pos,N[q.node].m)+jobMins(q,cr); pos=N[q.node].m; });
   return {t,pos};
 }
@@ -1558,6 +1615,9 @@ function dispatch(job){
 function orderOp(sid,close){
   if(!canOrder()) return;
   if(pendingFor(sid)){ toast('That switch already has an operation queued.'); return; }
+  // an earth on (or on its way) interlocks the switch, unless a crew is already queued to take it off
+  const earthQ=j=>j&&j.esw===sid, removing=S.crews.some(cr=>[cr.job,...cr.queue].some(j=>earthQ(j)&&!j.on));
+  if(close&&docsOn()&&(earthed(sid)||S.crews.some(cr=>[cr.job,...cr.queue].some(j=>earthQ(j)&&j.on)))&&!removing){ toast('Interlocked: that switch has its earth on. Remove the earth first.'); return; }
   if(locked(nodeOfSw(sid))){ toast(`Locked out: ${N[nodeOfSw(sid)].name} is unsafe after the theft. Send a crew to make it safe first.`); return; }
   // with nothing else queued we can refuse straight away; otherwise queued orders may change
   // the picture first, so the check happens when the switch is actually operated
@@ -1679,6 +1739,78 @@ function cancelJob(i,q){
   dirty=true; render();
 }
 
+// ---------- Safety documents ----------
+// With safety documents on, nobody repairs or maintains a cable until it is isolated, earthed at every end
+// and covered by a permit to work. Afterwards the permit is cancelled and the earths come off before it is switched back on.
+const docsOn = ()=>!!(S&&S.docs);
+const cableEnds = cid=>[cid+':a',cid+':b'];
+const earthed = sid=>!!(S.earths&&S.earths[sid]);
+const cableEarthed = cid=>cableEnds(cid).some(earthed);
+const permitOn = cid=>S.permits&&S.permits[cid]||null;
+const needsPermit = type=>type==='repair'||type==='maint';
+const earthPending = sid=>S.crews.some(cr=>(cr.job&&cr.job.esw===sid)||cr.queue.some(j=>j.esw===sid));
+// why a permit can't be issued yet, or null when the cable is safe to work on
+function permitBlock(cid){
+  if(solve().cab[cid]) return 'the cable is live';
+  const shut=cableEnds(cid).find(s=>S.sw[s]); if(shut) return `the ${switchLabel(shut)} is still closed`;
+  const bare=cableEnds(cid).find(s=>!earthed(s)); if(bare) return `there is no earth at ${N[nodeOfSw(bare)].name}`;
+  return null;
+}
+function issuePermit(cid){
+  if(!canOrder()||!docsOn()||permitOn(cid)) return;
+  const why=permitBlock(cid); if(why){ toast(`Permit not issued: ${why}.`); return; }
+  pushUndo('issue a permit on '+cableName(CBL[cid]));
+  S.permitSeq=(S.permitSeq||0)+1;
+  const p=S.permits[cid]={no:'PTW '+String(S.permitSeq).padStart(3,'0'),t:S.t,state:'issued'};
+  log(`Permit to work ${p.no} issued for ${cableName(CBL[cid])}: isolated and earthed at both ends.`,'good'); sfx('click');
+  // a crew already waiting on site starts straight away
+  S.crews.forEach(cr=>{ const j=cr.job; if(j&&j.stage==='wait'&&j.cable===cid) startWork(cr,j); });
+  afterChange(); render();
+}
+function cancelPermit(cid){
+  const p=permitOn(cid); if(!canOrder()||!p) return;
+  if(S.crews.some(cr=>cr.job&&cr.job.cable===cid&&needsPermit(cr.job.type)&&cr.job.stage==='work')){ toast(`A crew is still working under ${p.no}.`); return; }
+  pushUndo('cancel permit '+p.no);
+  delete S.permits[cid];
+  log(`Permit ${p.no} cancelled. The earths on ${cableName(CBL[cid])} can come off.`);
+  afterChange(); render();
+}
+function orderEarth(sid,on){
+  if(!canOrder()||!docsOn()||earthPending(sid)) return;
+  const cid=sid.split(':')[0];
+  if(on&&S.sw[sid]&&pendingFor(sid)==null){ toast('Open that switch before earthing it.'); return; }
+  if(!on&&permitOn(cid)){ toast(`Cancel ${permitOn(cid).no} before removing the earths.`); return; }
+  pushUndo(`${on?'earth':'remove the earth at'} ${switchLabel(sid)}`);
+  dispatch({type:'earth',node:nodeOfSw(sid),esw:sid,on});
+  afterChange(); render();
+}
+// a crew on site applies or removes an earth, proving the cable dead first
+function applyEarth(cr,sid,on){
+  const cid=sid.split(':')[0], where=`${N[nodeOfSw(sid)].name} on ${cableName(CBL[cid])}`;
+  if(!on){
+    if(permitOn(cid)){ log(`${cr.id} did not remove the earth at ${where}: ${permitOn(cid).no} is still in force.`,'warn'); return; }
+    delete S.earths[sid]; log(`${cr.id} removed the earth at ${where}.`); return;
+  }
+  if(S.sw[sid]){ log(`${cr.id} could not earth at ${where}: the switch is closed.`,'warn'); return; }
+  if(solve().cab[cid]){ log(`${cr.id} tested before earthing and found ${cableName(CBL[cid])} live. Earth not applied. Make it dead first.`,'warn'); return; }
+  S.earths[sid]=true; log(`${cr.id} proved ${cableName(CBL[cid])} dead and applied an earth at ${N[nodeOfSw(sid)].name}.`,'good');
+}
+// switching that makes an earthed cable live: a flashover. The breakers feeding it trip at once.
+function checkEarths(){
+  if(!docsOn()) return;
+  const sol=solve(), hot=CABLES.filter(c=>sol.cab[c.id]&&cableEarthed(c.id));
+  if(!hot.length) return;
+  const fe=new Set(); hot.forEach(c=>feedersOf(sol,c.id).forEach(x=>fe.add(x)));
+  fe.forEach(cb=>S.sw[cb]=false);
+  S.safety++; S.safetyTip='You switched power onto a cable that still had its earths on. Cancel the permit and remove every earth before you switch a cable back on.';
+  const names=[...fe].map(cb=>`CB ${CB[cb].name}`).join(' and ');
+  log(`Flashover: ${cableName(hot[0])} was switched on with its earths still applied. ${names} tripped.`,'bad');
+  news(null,'Explosion at substation as power switched onto earthed cable',-10);
+  setWhy(`Earths connect a dead cable to the ground so it can't become live while people work on it. Switching power onto it drives a huge current straight into the earth, which is a flashover. ${names} tripped to clear it. Before you switch a cable back on, cancel its permit and remove all its earths.`);
+  UI.pulse={cables:[...hot.map(c=>c.id),...[...fe].map(cb=>cb.split(':')[0])],until:performance.now()+3800};
+  sfx('alarm');
+}
+
 // ---------- New incident ----------
 // Work out what will happen during the shift. The first event always takes customers off.
 function planEvents(scen,t,shift){
@@ -1760,8 +1892,11 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
      flooded:{}, lvFault:{}, rtuDown:{}, rtuFail:null, bkStart:{}, welfare:{}, heat:scen==='heatwave', festival:null, planned:null, pole:null, dev:null, flood:null,
      cost:{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0,generators:0}, gens:[], upg, ctx:ctx?{type:ctx.type,label:ctx.label,date:ctx.date,week:ctx.week,day:ctx.day}:null,
      season:ctx&&ctx.season||null,
+     // earths and permits to work (the guided training shift leaves them out)
+     docs:UI.settings.docs!==false&&!(shift&&shift.id==='s0'), earths:{}, permits:{}, permitSeq:0,
      objectives:(shift&&shift.objectives)||SCEN_OBJ[scen]||(storm?['allBack240','hosp60','psr','press']:['allBack120','noFaultTrips','noOverload','press'])};
-  UI.undo=[]; UI.why=null; UI.hint=null; UI.pulse=null; UI.vb={}; UI.replay=null;
+  UI.undo=[]; UI.why=null; UI.hint=null; UI.pulse=null; UI.vb={}; UI.replay=null; UI.tab='incident'; UI.logSeen=0;
+  if(S.docs&&!S.objectives.includes('noSafety')) S.objectives=S.objectives.concat('noSafety');
   RMUS.forEach(n=>{S.fpi[n]={trip:false,known:S.diff==='trainee'||!!upg.fpi||!!N[n].remote,t:null}; S.on[n]=true;});
   // now and then a remote control unit is going to fail when it's first used
   const remotes=RMUS.filter(n=>N[n].remote);
@@ -2206,6 +2341,124 @@ const LANDMARK = {
   gendepot:`<rect x="-30" y="-20" width="60" height="38" rx="2" fill="#d9d6cc" stroke="#7d7a70" stroke-width="1" stroke-dasharray="3 1.5"/><rect x="-26" y="-17" width="22" height="14" fill="#8a9aa6" stroke="#55606a" stroke-width=".8"/><path d="M-27,-17 L-15,-23 L-3,-17Z" fill="#55606a"/><rect x="-19" y="-10" width="8" height="7" fill="#3a444c"/>`+[[2,-15],[2,-2],[16,-15],[16,-2]].map(([x,y])=>`<rect x="${x}" y="${y}" width="11" height="8" rx="1" fill="#f2c230" stroke="#6a5208" stroke-width=".8"/><path d="M${x+6},${y+1.5} L${x+4},${y+4} L${x+6.5},${y+4} L${x+4.5},${y+6.5}" fill="none" stroke="#2a2205" stroke-width=".9"/>`).join('')+`<rect x="-26" y="5" width="22" height="9" rx="1.5" fill="#fdfbf6" stroke="#55606a" stroke-width=".6"/><text x="-15" y="12" text-anchor="middle" style="font:700 6.5px var(--mono);fill:#2a2205">GEN</text>`,
   lifeboat:`<rect class="lm-w" x="-9" y="-6" width="18" height="12" style="stroke:#6b6f6c;stroke-width:.7"/><path style="fill:#2f6fb3" d="M-10,-6 L0,-11 L10,-6Z"/><path style="fill:#e07b28" d="M-6,1 L6,1 L4,5 L-4,5Z"/><path d="M0,6 L0,16" stroke="#9c8f76" stroke-width="3"/>`,
 };
+// ---------- Hand-drawn art pack ----------
+// art/art.js can supply pictures for Megawatt Island: the map, the houses and the landmarks, each with a day and a night version.
+// Anything it leaves out is drawn by the game as before. Networks made in the editor always use the drawn art. See art/ART-GUIDE.md.
+const ART = window.OPEN_POINT_ART||null;
+const artOn = ()=>!!ART&&!!NET&&!!NET.decor&&NET.decor.coast===MEGAWATT.decor.coast;
+// the box [x, y, width, height] each landmark's picture fills, measured from its map position (the same space the drawn one uses)
+const ART_BOX = {
+  lighthouse:[-6,-22,12,32], mast:[-7,-20,14,31], hospital:[-9,-9,18,18], church:[-8,-27,16,33], cathedral:[-13,-25,26,33], castle:[-15,-10,30,18],
+  tents:[-15,-7,32,18], boat:[-8,-8,16,13], turbine:[-12,-25,25,38], offshore:[-13,-28,27,43], solar:[-29,-17,56,36], stadium:[-33,-41,67,62],
+  golf:[-31,-14,60,33], quarry:[-27,-17,54,36], pier:[-56,-12,57,19], huts:[-15,-7,32,11], cows:[-12,-7,27,14], tractor:[-8,-10,15,16],
+  gendepot:[-31,-24,62,43], lifeboat:[-11,-12,22,29],
+};
+// a day picture with its night picture fading in over it as it gets dark
+function artPair(a,box,off){
+  const f=v=>(+v).toFixed(1), im=(src,cls)=>src?`<image href="art/${src}" x="${f(box[0])}" y="${f(box[1])}" width="${f(box[2])}" height="${f(box[3])}"${cls?` class="${cls}"`:''}/>`:'';
+  return im(off&&a.dayOff||a.day)+im(off&&a.nightOff||a.night,'art-n');
+}
+function landmarkSvg(k){
+  const a=artOn()&&ART.landmarks&&ART.landmarks[k];
+  if(!a) return LANDMARK[k];
+  let h=artPair(a,a.box||ART_BOX[k]||[-16,-16,32,32]);
+  // spinning parts (turbine blades) turn about their pivot
+  if(a.spin){ const [px,py]=a.spin.pivot||[0,0]; h+=`<g>${artPair(a.spin,a.spin.box)}<animateTransform attributeName="transform" type="rotate" from="0 ${px} ${py}" to="360 ${px} ${py}" dur="${a.spin.dur||4}s" repeatCount="indefinite"/></g>`; }
+  // the lighthouse keeps its sweeping beam after dark
+  if(k==='lighthouse') h=(LANDMARK.lighthouse.match(/<path class="lm-beam"[\s\S]*?<\/path>/)||[''])[0]+h;
+  return h;
+}
+// the picture for one house, if the art pack has one; flats are the bigger city blocks
+function houseArt(b){
+  let v=artOn()&&ART.houses&&ART.houses[b.flat?'flat':'house'];
+  if(!v) return null;
+  if(Array.isArray(v)) v=v[Math.abs(Math.round(b.x*7+b.y*13))%v.length];
+  const bx=v.box||(b.flat?[-8,-6.5,18,15]:[-7.2,-8.5,14.4,15]), s=b.w/(b.flat?15.5:12);
+  return {v,box:[b.x+bx[0]*s,b.y+bx[1]*s,bx[2]*s,bx[3]*s]};
+}
+// Paint-over templates for the artist: open index.html#art-template to download them.
+// template: the island's layout in layers (coast, roads, houses, landmark boxes, network); reference: the island as the game draws it now.
+function artTemplates(){
+  useNetwork(MEGAWATT); MAPSTATIC=null;
+  const W=NET.w,H=NET.h,d=NET.decor,RN=roadNet(),onLand=landTest(),f=v=>Math.round(v*10)/10,P=ps=>ps.map(p=>f(p[0])+','+f(p[1])).join(' ');
+  const layers=[], L=(id,body)=>{ layers.push([id,body]); return `<g id="${id}" inkscape:groupmode="layer" inkscape:label="${id}">${body}</g>\n`; };
+  let o=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="${W*3}" height="${H*3}" viewBox="0 0 ${W} ${H}" font-family="Arial,sans-serif">\n<!-- Open Point art template for Megawatt Island. 1 map unit = 3 pixels at this size. Hide these layers before exporting your painting. -->\n`;
+  let g='', gt='';
+  for(let x=0;x<=W;x+=100){ g+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}"/>`; if(x&&x<W) gt+=`<text x="${x+2}" y="10">${x}</text>`; }
+  for(let y=0;y<=H;y+=100){ g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}"/>`; if(y&&y<H) gt+=`<text x="2" y="${y-2}">${y}</text>`; }
+  o+=L('sea-and-land',`<rect width="${W}" height="${H}" fill="#cfe6f0"/><path d="${d.coast}" fill="#f6f2e2" stroke="#3a5560" stroke-width="2"/>`);
+  o+=L('grid',`<g stroke="#000" stroke-opacity=".12" stroke-width=".6">${g}</g><g font-size="8" fill="#000" fill-opacity=".45">${gt}</g>`);
+  o+=L('hills-and-woods',(d.hills||[]).map(k=>`<ellipse cx="${k[0]}" cy="${k[1]}" rx="${k[2]}" ry="${k[3]}" fill="#d9e8c4" stroke="#6d8f4e" stroke-dasharray="4 3"/>`).join('')+
+    (d.parks||[]).map(p=>`<rect x="${p[0]}" y="${p[1]}" width="${p[2]}" height="${p[3]}" rx="${Math.min(p[2],p[3])/2}" fill="#c4dfb0" stroke="#4f7d3a" stroke-dasharray="4 3"/>`).join(''));
+  o+=L('water',(d.river?`<path d="${d.river}" fill="none" stroke="#5aa9c9" stroke-width="12" stroke-linecap="round"/>`:'')+(d.lakes||[]).map(k=>`<ellipse cx="${k[0]}" cy="${k[1]}" rx="${k[2]}" ry="${k[3]}" fill="#7cc0dc"/>`).join(''));
+  o+=L('roads-and-railway',RN.lines.map(l=>`<polyline points="${P(l.pts)}" fill="none" stroke="#8a8478" stroke-width="${l.kind==='main'?9:6}" stroke-linejoin="round" stroke-linecap="round"/>`).join('')+
+    (d.rail?`<polyline points="${P(railPts(d))}" fill="none" stroke="#222" stroke-width="4" stroke-dasharray="6 4"/>`+(d.rail.stations||[]).map(s=>`<rect x="${s[0]-8}" y="${s[1]-5}" width="16" height="9" fill="none" stroke="#222"/>`).join(''):''));
+  const a=d.airport, hz=d.harbour&&mapZones(onLand)[d.airport?1:0];
+  o+=L('airport-and-docks',(a?`<g transform="translate(${a.c[0]},${a.c[1]}) rotate(${a.a||0})"><rect x="-112" y="-30" width="224" height="88" rx="10" fill="none" stroke="#7a4b8c" stroke-width="1.5" stroke-dasharray="5 3"/><rect x="-102" y="-8" width="204" height="16" fill="#7a4b8c" fill-opacity=".25"/><text x="0" y="30" font-size="10" text-anchor="middle" fill="#7a4b8c">AIRPORT (runway shaded)</text></g>`:'')+
+    (hz?`<rect x="${f(hz[0])}" y="${f(hz[1])}" width="${f(hz[2])}" height="${f(hz[3]+60)}" fill="none" stroke="#7a4b8c" stroke-width="1.5" stroke-dasharray="5 3"/><text x="${f(hz[0]+4)}" y="${f(hz[1]-4)}" font-size="10" fill="#7a4b8c">DOCKS</text>`:''));
+  o+=L('houses-placed-by-game',blocks().map(b=>{ const bx=b.flat?[-8,-6.5,18,15]:[-7.2,-8.5,14.4,15], s=b.w/(b.flat?15.5:12);
+    return `<rect x="${f(b.x+bx[0]*s)}" y="${f(b.y+bx[1]*s)}" width="${f(bx[2]*s)}" height="${f(bx[3]*s)}" fill="${b.flat?'#f3c1b8':'#fde2c8'}" stroke="#c0392b" stroke-width=".6"/>`; }).join(''));
+  const box=(k,b,x,y)=>`<g transform="translate(${x},${y})"><rect x="${b[0]}" y="${b[1]}" width="${b[2]}" height="${b[3]}" fill="#2f6fb3" fill-opacity=".12" stroke="#2f6fb3" stroke-width=".8" stroke-dasharray="3 2"/><circle r="1.5" fill="#2f6fb3"/><text y="${b[1]+b[3]+8}" font-size="7" text-anchor="middle" fill="#2f6fb3">${k}</text></g>`;
+  o+=L('landmarks',(d.landmarks||[]).map(l=>box(l[2],ART_BOX[l[2]]||[-16,-16,32,32],l[0],l[1])).join('')+box('depot',[-11,-9,22,18],NET.depot[0],NET.depot[1]));
+  o+=L('network-drawn-on-top',CABLES.map(c=>`<polyline points="${P(c.mp||[N[c.a].m,N[c.b].m])}" fill="none" stroke="#b8327a" stroke-width="3" stroke-opacity=".6"${c.oh?' stroke-dasharray="7 4"':''}/>`).join('')+
+    Object.keys(N).map(k=>{ const m=N[k].m; return `<circle cx="${m[0]}" cy="${m[1]}" r="${N[k].kind==='primary'?14:9}" fill="#fff" stroke="#b8327a" stroke-width="2"/><text x="${m[0]}" y="${m[1]+3}" font-size="8" font-weight="bold" text-anchor="middle" fill="#b8327a">${N[k].code||k}</text>`; }).join(''));
+  o+=L('place-names',(d.labels||[]).map(l=>`<text x="${l[0]}" y="${l[1]}" font-size="${l[3]==='town'?16:11}" font-weight="${l[3]==='town'?'bold':'normal'}" text-anchor="middle" fill="#14201d">${l[3]==='town'?String(l[2]).toUpperCase():l[2]}</text>`).join('')+
+    (d.parks||[]).filter(p=>p[4]).map(p=>`<text x="${p[0]+p[2]/2}" y="${p[1]+p[3]/2+4}" font-size="11" text-anchor="middle">${p[4]}</text>`).join('')+
+    (d.lakes||[]).filter(k=>k[4]).map(k=>`<text x="${k[0]}" y="${k[1]+4}" font-size="11" text-anchor="middle">${k[4]}</text>`).join(''));
+  o+='</svg>\n';
+  // the reference uses the game's own styles, so open it in a web browser
+  const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  const ref=`<svg xmlns="http://www.w3.org/2000/svg" id="svg" class="is-map" width="${W*3}" height="${H*3}" viewBox="0 0 ${W} ${H}" style="--night:0;--dusk:0"><style>${css}</style>${mapBg(true)}</svg>\n`;
+  // each layer on its own as well, for painting apps that can't open SVG (Procreate)
+  const one=body=>`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,sans-serif">${body}</svg>`;
+  return {template:o,reference:ref,layers:[['reference-current-map',ref],...layers.map(([id,b])=>[id,one(b)])]};
+}
+// draw an SVG onto a canvas of the given width and return it as a PNG
+function svgToPng(svg,w,h){
+  return new Promise((ok,fail)=>{
+    const img=new Image(), u=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+    img.onload=()=>{ const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(u); c.toBlob(b=>b?ok(b):fail(new Error('PNG failed')),'image/png'); };
+    img.onerror=()=>fail(new Error('SVG failed to load')); img.src=u;
+  });
+}
+// a plain (uncompressed) zip of [name, Uint8Array] files, so the PNG layers download as one file
+function makeZip(files){
+  const crcT=Array.from({length:256},(_,n)=>{ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; return c>>>0; });
+  const crc=d=>{ let c=0xFFFFFFFF; for(let i=0;i<d.length;i++) c=crcT[(c^d[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+  const enc=new TextEncoder(), parts=[], cent=[]; let off=0;
+  files.forEach(([name,data])=>{
+    const nm=enc.encode(name), c=crc(data), h=new DataView(new ArrayBuffer(30));
+    [[0,0x04034b50,4],[4,20,2],[14,c,4],[18,data.length,4],[22,data.length,4],[26,nm.length,2]].forEach(([p,v,n])=>n===4?h.setUint32(p,v,true):h.setUint16(p,v,true));
+    const e=new DataView(new ArrayBuffer(46));
+    [[0,0x02014b50,4],[4,20,2],[6,20,2],[16,c,4],[20,data.length,4],[24,data.length,4],[28,nm.length,2],[42,off,4]].forEach(([p,v,n])=>n===4?e.setUint32(p,v,true):e.setUint16(p,v,true));
+    parts.push(new Uint8Array(h.buffer),nm,data); cent.push(new Uint8Array(e.buffer),nm);
+    off+=30+nm.length+data.length;
+  });
+  const size=cent.reduce((a,b)=>a+b.length,0), end=new DataView(new ArrayBuffer(22));
+  [[0,0x06054b50,4],[8,files.length,2],[10,files.length,2],[12,size,4],[16,off,4]].forEach(([p,v,n])=>n===4?end.setUint32(p,v,true):end.setUint16(p,v,true));
+  return new Blob([...parts,...cent,new Uint8Array(end.buffer)],{type:'application/zip'});
+}
+function showArtTemplates(){
+  const t=artTemplates(), url=s=>URL.createObjectURL(new Blob([s],{type:'image/svg+xml'}));
+  const el=document.createElement('div');
+  el.setAttribute('style','position:fixed;inset:auto 16px 16px auto;z-index:99;background:#fff;color:#14201d;padding:14px 16px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.25);font:14px system-ui;line-height:1.6;max-width:340px');
+  el.innerHTML=`<b>Art templates</b><br><a href="${url(t.template)}" download="megawatt-template.svg">Download layout template (SVG)</a><br><a href="${url(t.reference)}" download="megawatt-reference.svg">Download current map (SVG reference)</a>
+    <br><b style="display:block;margin-top:6px">For Procreate: PNG layers</b><button data-w="6400">6400 × 3600</button> <button data-w="4800">4800 × 2700</button><div class="st" style="font-size:12px;color:#5a6a66"></div><small>See art/ART-GUIDE.md</small>`;
+  el.querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+    const w=+b.dataset.w, h=w*9/16, st=el.querySelector('.st'), files=[];
+    el.querySelectorAll('button').forEach(x=>x.disabled=true);
+    try{
+      for(let i=0;i<t.layers.length;i++){
+        const [id,svg]=t.layers[i]; st.textContent=`Drawing ${id} (${i+1} of ${t.layers.length})…`;
+        files.push([`${String(i).padStart(2,'0')}-${id}.png`,new Uint8Array(await (await svgToPng(svg,w,h)).arrayBuffer())]);
+      }
+      const a=document.createElement('a'); a.href=URL.createObjectURL(makeZip(files)); a.download=`megawatt-template-${w}x${h}.zip`; a.click();
+      st.textContent='Done: unzip it, then add each PNG as a layer.';
+    }catch(e){ st.textContent='Sorry, that failed: '+e.message; }
+    el.querySelectorAll('button').forEach(x=>x.disabled=false);
+  });
+  document.body.appendChild(el);
+}
 // A river is a ribbon that widens downstream and stops at the shore, so it can't be mistaken for a road.
 function riverSvg(d,coastal,onLand,rnd){
   let pts=[];
@@ -2465,17 +2718,27 @@ function mapStatic(){
       roads+=`<g transform="translate(${x[0].toFixed(1)},${x[1].toFixed(1)}) rotate(${ang.toFixed(1)})" pointer-events="none"><rect x="-15" y="${-w/2-2}" width="30" height="${w+4}" rx="2" fill="#cfc6b3" stroke="#8b8270" stroke-width=".8"/><rect x="-15" y="${-w/2}" width="30" height="${w}" fill="#f6efe0"/><line x1="-15" y1="${-w/2-1}" x2="15" y2="${-w/2-1}" stroke="#8b8270" stroke-width="1.2"/><line x1="-15" y1="${w/2+1}" x2="15" y2="${w/2+1}" stroke="#8b8270" stroke-width="1.2"/></g>`; } });
   }
   // the night shade and dusk glow sit over the land, houses and roads, but under the names and the network
-  const shade=`<rect width="${W}" height="${H}" class="duskglow"/><rect width="${W}" height="${H}" class="nightshade"/>`;
+  let shade=`<rect width="${W}" height="${H}" class="duskglow"/><rect width="${W}" height="${H}" class="nightshade"/>`;
   let top='';
   parks.forEach(p=>{ if(p[4]) top+=`<text x="${p[0]+p[2]/2}" y="${p[1]+p[3]/2+4}" class="mapt" text-anchor="middle">${p[4]}</text>`; });
-  (d.landmarks||[]).forEach(l=>{ if(LANDMARK[l[2]]) top+=`<g transform="translate(${l[0]},${l[1]})" pointer-events="none">${LANDMARK[l[2]]}</g>`; });
+  (d.landmarks||[]).forEach(l=>{ if(LANDMARK[l[2]]) top+=`<g transform="translate(${l[0]},${l[1]})" pointer-events="none">${landmarkSvg(l[2])}</g>`; });
   (d.labels||[]).forEach(l=>{ if(l[3]==='sea') return; top+=`<text x="${l[0]}" y="${l[1]}" class="${l[3]==='town'?'townt':l[3]==='sea'?'seat':'mapt'}" text-anchor="middle">${l[3]==='town'?String(l[2]).toUpperCase():l[2]}</text>`; });
   const [dx,dy]=NET.depot;
-  top+=`<g transform="translate(${dx},${dy})"><rect x="-11" y="-9" width="22" height="18" rx="2" class="depot"/><text x="0" y="24" text-anchor="middle" class="lbl2">Depot</text></g>
+  const depotArt=artOn()&&ART.landmarks&&ART.landmarks.depot;
+  top+=`<g transform="translate(${dx},${dy})">${depotArt?artPair(depotArt,depotArt.box||[-11,-9,22,18]):'<rect x="-11" y="-9" width="22" height="18" rx="2" class="depot"/>'}<text x="0" y="24" text-anchor="middle" class="lbl2">Depot</text></g>
   <g transform="translate(30,${H-20})"><line x1="0" y1="0" x2="62" y2="0" style="stroke:var(--ink)" stroke-width="2"/><line x1="0" y1="-4" x2="0" y2="4" style="stroke:var(--ink)" stroke-width="2"/><line x1="62" y1="-4" x2="62" y2="4" style="stroke:var(--ink)" stroke-width="2"/><text x="70" y="4" class="lbl2">500 m</text></g>`;
   (d.lakes||[]).forEach(k=>{ if(k[4]) top+=`<text x="${k[0]}" y="${k[1]+4}" class="mapt" text-anchor="middle">${k[4]}</text>`; });
+  // a hand-painted island replaces the drawn landscape; its night picture does the darkening, so the night shade comes off
+  // (the airport and dock lights stay, so they still go out when their substation loses supply)
+  const map=artOn()&&ART.map; let dim=false;
+  if(map&&map.day){
+    base=artPair(map,[0,0,W,H]);
+    if(ART.roads===false) roads='';
+    if(map.night){ shade=`<rect width="${W}" height="${H}" class="duskglow"/>`; dim=true; }
+    if(ART.labels===false) top=top.replace(/<text [^>]*class="(townt|mapt)"[^>]*>[^<]*<\/text>/g,'');
+  }
   blocks(); MAPKEY=NET;
-  return MAPSTATIC={base,roads,shade,top,siteLights};
+  return MAPSTATIC={base,roads,shade,top,siteLights,dim};
 }
 
 // ======================= Rendering =======================
@@ -2569,12 +2832,13 @@ function mapBg(edit){
   blocks().forEach(b=>{ (groups[b.n]=groups[b.n]||[]).push(b); });
   // each substation's houses share one group, so a single class switches their windows on or off
   let houses='';
-  Object.keys(groups).forEach(n=>{ const on=edit||!S||S.on[n]!==false; houses+=`<g class="hood${on?'':' off'}" pointer-events="none">${groups[n].map(houseSvg).join('')}</g>`; });
+  Object.keys(groups).forEach(n=>{ const on=edit||!S||S.on[n]!==false; houses+=`<g class="hood${on?'':' off'}" pointer-events="none">${groups[n].map(b=>{ const a=houseArt(b); return a?artPair(a.v,a.box,!on):houseSvg(b); }).join('')}</g>`; });
   // after dark, windows glow in every house that has power (drawn above the night shade)
   let lit='';
   Object.keys(groups).forEach(n=>{
     if(!(edit||!S||S.on[n]!==false)) return;
     lit+=groups[n].map(b=>{
+      if(houseArt(b)) return '';   // a hand-drawn house shows its own lit windows
       const x=b.x-b.w/2, y=b.y-b.h/2, f=v=>v.toFixed(1);
       const wins=b.flat?[[x+2.2,y+4.5],[x+b.w-6.2,y+4.5]]:[[b.x-2,y+5]];
       return `<circle class="litglow" cx="${f(b.x)}" cy="${f(b.y+1)}" r="${f(b.w*0.6)}"/>`+wins.map(w=>`<rect class="lit" x="${f(w[0])}" y="${f(w[1])}" width="4" height="4"/>`).join('');
@@ -2593,7 +2857,9 @@ function mapBg(edit){
   // things that move: boats on the sea, cars and the train above the roads, a plane over everything
   // a covering of snow over the land (the roads stay clear: the gritters have been out)
   const snow=!edit&&S&&S.snow&&NET.decor&&NET.decor.coast?`<path d="${NET.decor.coast}" fill="#ffffff" opacity=".5" pointer-events="none"/>`:'';
-  return st.base+moverLayer('sea')+houses+snow+st.roads+moverLayer('road')+st.shade+`<g class="litg">${lit}</g>`+bolts+st.top;
+  // over a painted night map there's no night shade, so the game's own roads, cars and boats are dimmed instead
+  const dim=s=>st.dim?`<g class="art-dim">${s}</g>`:s;
+  return st.base+dim(moverLayer('sea'))+houses+snow+dim(st.roads+moverLayer('road'))+st.shade+`<g class="litg">${lit}</g>`+bolts+st.top;
 }
 // the moving things for one layer; the 'air' layer (the plane) is drawn last of all, over the network
 function moverLayer(k){
@@ -2710,6 +2976,8 @@ function renderSvg(edit){
     else if(showFault) h+=`<g class="fmark" transform="translate(${x},${y})" pointer-events="none"><circle class="ring" r="11"/><circle r="11"/><path d="M2,-7 L-4,1 L0,1 L-2,7 L4,-1 L0,-1Z"/></g>`;
     else if(t==='repaired') h+=`<g class="wrench" transform="translate(${x},${y})" pointer-events="none"><circle r="9"/><text y="3.5">R</text></g>`;
     else if(t==='healthy') h+=`<g class="okmark" transform="translate(${x},${y})" pointer-events="none"><circle r="8"/><path d="M-3.5,0 L-1,2.8 L3.8,-2.6"/></g>`;
+    const p=docsOn()&&permitOn(c.id);
+    if(p) h+=`<g class="ptwtag${p.state==='cleared'?' cleared':''}" transform="translate(${x},${y-21})" pointer-events="none"><rect x="-16" y="-7" width="32" height="14" rx="3"/><text y="3.5">PTW</text><title>${p.no}${p.state==='cleared'?' (cleared: cancel it)':''}</title></g>`;
   });
   // nodes
   Object.keys(N).forEach(id=>{
@@ -2784,7 +3052,8 @@ function renderSvg(edit){
       <rect class="hb" x="-13" y="-13" width="26" height="26"/>
       ${abn?`<rect class="ab" x="${-sz/2-4}" y="${-sz/2-4}" width="${sz+8}" height="${sz+8}"/>`:''}
       ${pend?`<circle class="pr" r="${sz}"/>`:''}
-      <rect class="m" x="${-sz/2}" y="${-sz/2}" width="${sz}" height="${sz}"/>${lab}</g>`;
+      <rect class="m" x="${-sz/2}" y="${-sz/2}" width="${sz}" height="${sz}"/>${lab}
+      ${!edit&&docsOn()&&earthed(sid)?`<g class="earthg" transform="translate(0,${sz/2+1})"><path d="M0,0 v4 M-6,4 h12 M-4,7 h8 M-2,10 h4"/><title>Earthed</title></g>`:''}</g>`;
   }));
   // hint and training rings round the substations to look at
   const ringAt=(id,cls)=>{ const p=isS?N[id].s:N[id].m, r=isS?(N[id].kind==='primary'?40:34):20; return `<circle class="${cls}" cx="${p[0]}" cy="${p[1]}" r="${r}" pointer-events="none"/>`; };
@@ -2836,9 +3105,10 @@ function swRow(sid,ctxNode){
   const tag=NOPS.has(sid)?'<span class="tag">NOP</span>':'';
   const btn=locked(node)?`<button class="btn alt" disabled>Locked<small>${S.flooded&&S.flooded[node]?'flooded':'site unsafe'}</small></button>`
     :pend?`<button class="btn alt" disabled>Queued<small>${pend==='control'?'control room':pend}</small></button>`
+    :docsOn()&&!closed&&earthed(sid)?`<button class="btn alt" disabled>Interlocked<small>earth applied</small></button>`
     :`<button class="btn${closed?' alt':''}" data-act="op" data-sw="${sid}" data-close="${closed?0:1}" ${lock?'disabled':''}>${closed?'Open':'Close'}<small>${costText(sid)}</small></button>`;
   return `<div class="swrow${S.sel&&S.sel.sw===sid?' hl':''}"><div><div class="swname">${name}${tag}</div>
-    <div class="swstate ${closed?'c':'o'}">${closed?'Closed':'Open'} · ${remoteFor(sid)?'remote':'manual'}${abn?' · <span class="abn">abnormal</span>':''}</div></div>${btn}</div>`;
+    <div class="swstate ${closed?'c':'o'}">${closed?'Closed':'Open'} · ${remoteFor(sid)?'remote':'manual'}${abn?' · <span class="abn">abnormal</span>':''}${docsOn()&&earthed(sid)?' · <span class="ert">earthed</span>':''}</div></div>${btn}</div>`;
 }
 function phaseBar(){
   if(S.scen==='planned'){
@@ -2856,7 +3126,7 @@ function taskBoxes(){
   if(p&&S.phase!=='closed'){
     const c=CBL[p.cable], dead=!solve().cab[p.cable], busy=cableBusy(p.cable);
     const st=p.state==='done'?'Maintenance finished. Put the network back to normal.':maintWorking()?'Crew working. Keep the cable switched off.':busy?'Crew on the way.':
-      dead?'Cable switched out. Hand it over to a crew.':S.t<p.from?`Prepare: feed the customers beyond it from a neighbour, then open both ends. Work can start from ${fmtT(p.from)}.`:'Switch the cable out without anyone losing power.';
+      dead?(docsOn()&&!permitOn(p.cable)?'Cable switched out. Earth both ends and issue a permit (select the cable), then hand it over to a crew.':'Cable switched out. Hand it over to a crew.'):S.t<p.from?`Prepare: feed the customers beyond it from a neighbour, then open both ends. Work can start from ${fmtT(p.from)}.`:'Switch the cable out without anyone losing power.';
     h+=`<div class="taskbox"><b>Planned work</b><button class="linkbtn" data-act="selc" data-c="${p.cable}">${cableName(c)}</button> · window ${fmtT(p.from)}–${fmtT(p.to)}<p>${st}</p>
       ${p.state==='prep'&&dead&&!busy?`<button class="btn wide" data-act="maint" data-c="${p.cable}" ${canOrder()?'':'disabled'}>Hand over to a crew for maintenance<small>about 3 hours</small></button>`:''}</div>`;
   }
@@ -2873,7 +3143,7 @@ function taskBoxes(){
     if(w.state!=='prep'&&!(w.state==='done'&&S.t-w.doneAt<60)) return;
     const c=CBL[w.cable], K=WORK_KINDS[w.kind], dead=!solve().cab[w.cable], busy=cableBusy(w.cable);
     const working=S.crews.some(cr=>cr.job&&cr.job.type==='maint'&&cr.job.cable===w.cable&&cr.job.stage==='work');
-    const st=w.state==='done'?'Finished. Put the cable back into service.':working?'Team working. Keep it switched off.':busy?'Crew on the way.':dead?'Switched out. Hand it over to the team.':`Feed the customers beyond it from a neighbour, then open both ends. Must start by ${fmtT(w.to)}.`;
+    const st=w.state==='done'?'Finished. Put the cable back into service.':working?'Team working. Keep it switched off.':busy?'Crew on the way.':dead?(docsOn()&&!permitOn(w.cable)?'Switched out. Earth both ends and issue a permit (select the cable), then hand it over to the team.':'Switched out. Hand it over to the team.'):`Feed the customers beyond it from a neighbour, then open both ends. Must start by ${fmtT(w.to)}.`;
     h+=`<div class="taskbox"><b>Work request · ${K.label}</b><button class="linkbtn" data-act="selc" data-c="${w.cable}">${cableName(c)}</button> · ${fmtT(w.from)}–${fmtT(w.to)} · about ${fmtH(w.mins)}<p>${st}</p>
       ${w.state==='prep'&&dead&&!busy?`<button class="btn wide" data-act="maint" data-c="${w.cable}" ${canOrder()?'':'disabled'}>Hand over for ${K.label.toLowerCase()}<small>about ${fmtH(w.mins)} · earns £${fmtN(WORK_CREDIT)}</small></button>`:''}</div>`;
   });
@@ -2897,12 +3167,24 @@ function taskBoxes(){
   if(S.ctx&&S.ctx.type==='career'&&S.cost){ const m=shiftMoney(); h+=`<p class="note budget">Shift budget: <b>${money(m.spent)}</b> of ${money(m.budget)} spent so far${m.spent>m.budget?' <span class="trip">over budget</span>':''}.</p>`; }
   return h;
 }
+// crews standing by for a permit, and the paperwork still to finish before normal running
+const waitingCrews = ()=>S.crews.filter(cr=>cr.job&&cr.job.stage==='wait');
+function docsTodo(){
+  if(!docsOn()) return '';
+  const cl=cid=>`<button class="linkbtn" data-act="selc" data-c="${cid}">${cableName(CBL[cid])}</button>`;
+  let h='';
+  Object.keys(S.permits).forEach(cid=>{ const p=S.permits[cid]; if(p.state==='cleared') h+=`<li>Cancel ${p.no}: ${cl(cid)}</li>`; });
+  const left=new Set(Object.keys(S.earths).map(s=>s.split(':')[0]).filter(cid=>!permitOn(cid)));
+  left.forEach(cid=>{ h+=`<li>Remove the earths: ${cl(cid)}</li>`; });
+  return h;
+}
 function incidentPanel(){
   const sh=SHIFTS.find(x=>x.id===S.shift);
   let h=`${S.ctx?`<p class="ctxlabel">${S.ctx.label}</p>`:''}<h2>${sh?sh.title.replace(/^Shift \d+ · /,''):S.ctx?SCEN_LABEL[S.scen]||'Incident':'Incident'}</h2><p class="lead">${S.headline}</p>${phaseBar()}`;
   if(S.brief&&S.phase!=='closed') h+=`<div class="brief"><b>Note from Mags</b>${S.brief}</div>`;
   h+=taskBoxes();
   const thefts=RMUS.filter(n=>S.theft[n]);
+  waitingCrews().forEach(cr=>{ const cid=cr.job.cable; h+=`<div class="alertbox"><b>${cr.id} is waiting for a permit</b> to work on <button class="linkbtn" data-act="selc" data-c="${cid}">${cableName(CBL[cid])}</button>. ${permitBlock(cid)?`It can't be issued yet: ${permitBlock(cid)}.`:'It is isolated and earthed, so you can issue it now.'}</div>`; });
   if(thefts.length) h+=`<div class="alertbox"><b>Unsafe after copper theft:</b> ${thefts.map(n=>`<button class="linkbtn" data-act="seln" data-n="${n}">${N[n].name}</button>`).join(', ')}. Send a crew to make ${thefts.length===1?'it':'them'} safe.</div>`;
   if(S.stormUntil&&S.pending.length) h+=`<p class="note"><b>Storm in progress.</b> More faults are likely until about ${fmtT(S.stormUntil)}.</p>`;
   if(S.phase==='restore'){
@@ -2918,18 +3200,19 @@ function incidentPanel(){
   }
   if(S.phase==='restore'){
   } else if(S.phase==='planned'){
-    const abn=Object.keys(S.sw).filter(k=>S.sw[k]!==!NOPS.has(k));
+    const abn=Object.keys(S.sw).filter(k=>S.sw[k]!==!NOPS.has(k)), todo=docsTodo();
+    if(todo) h+=`<h3 style="margin-top:14px">Safety documents</h3><ul class="todo">${todo}</ul>`;
     if(abn.length&&S.planned&&S.planned.state==='done') h+=`<h3 style="margin-top:14px">Switches out of normal position (${abn.length})</h3><ul class="todo">`+
       abn.map(sid=>`<li><button class="linkbtn" data-act="selsw" data-sw="${sid}">${switchLabel(sid)}</button> <span class="muted">should be ${NOPS.has(sid)?'open':'closed'}</span></li>`).join('')+'</ul>';
   } else if(S.phase==='repair'){
     const found=S.faults.filter(f=>f.active&&S.tested[f.cable]==='fault');
     const hidden=S.faults.filter(f=>f.active&&S.tested[f.cable]!=='fault').length;
     const abn=Object.keys(S.sw).filter(k=>S.sw[k]!==!NOPS.has(k));
-    h+=`<p class="note">Everyone is back on. Now repair the damage and put the network back to its normal running arrangement.</p><ul class="todo">`;
+    h+=`<p class="note">Everyone is back on. Now repair the damage and put the network back to its normal running arrangement.${docsOn()?' Before a crew can repair a cable, earth it at both ends and issue a permit to work. Afterwards, cancel the permit and remove the earths before switching it back on.':''}</p><ul class="todo">`;
     found.forEach(f=>{ h+=`<li>Repair: <button class="linkbtn" data-act="selc" data-c="${f.cable}">${cableName(CBL[f.cable])}</button></li>`; });
     if(hidden) h+=`<li>${plural(hidden,'faulty cable')} not yet located. Test the dead sections to find ${hidden===1?'it':'them'}.</li>`;
     if(!found.length&&!hidden) h+='<li>All faults repaired ✓</li>';
-    h+='</ul>';
+    h+=docsTodo()+'</ul>';
     if(abn.length){
       h+=`<h3 style="margin-top:14px">Switches out of normal position (${abn.length})</h3><ul class="todo">`+
         abn.map(sid=>`<li><button class="linkbtn" data-act="selsw" data-sw="${sid}">${switchLabel(sid)}</button> <span class="muted">should be ${NOPS.has(sid)?'open':'closed'}</span></li>`).join('')+'</ul>';
@@ -2962,6 +3245,24 @@ function nodeExtras(n){
   }
   if(!S.on[n]&&!S.welfare[n]) h+=`<button class="btn wide alt" data-act="welfare" data-n="${n}" ${canOrder()?'':'disabled'}>Arrange welfare visits<small>${psrCount(n)} vulnerable customers · £800</small></button>`;
   return h;
+}
+// earths at each end of a cable, and its permit to work
+function docsSection(cid){
+  if(!docsOn()) return '';
+  const p=permitOn(cid), lock=!canOrder();
+  const rows=cableEnds(cid).map(sid=>{
+    const n=nodeOfSw(sid), on=earthed(sid), going=earthPending(sid);
+    const i=chooseCrew(n,'earth'), est=`${S.crews[i].id} · ~${Math.round(crewEta(i,n,'earth'))} min`;
+    const btn=going?`<button class="btn alt" disabled>Queued<small>crew on the way</small></button>`
+      :on?`<button class="btn alt" data-act="earth" data-sw="${sid}" data-on="0" ${lock||p?'disabled':''}>Remove earth<small>${p?'cancel the permit first':est}</small></button>`
+      :`<button class="btn" data-act="earth" data-sw="${sid}" data-on="1" ${lock||(S.sw[sid]&&!pendingFor(sid))?'disabled':''}>Apply earth<small>${S.sw[sid]&&!pendingFor(sid)?'open the switch first':est}</small></button>`;
+    return `<div class="swrow"><div><div class="swname">Earth at ${N[n].name}</div><div class="swstate ${on?'e':'o'}">${on?'Earthed':'Not earthed'}</div></div>${btn}</div>`;
+  }).join('');
+  const why=permitBlock(cid);
+  const pst=!p?'No permit in force':p.state==='cleared'?`<b>${p.no}</b> cleared at the end of the work. Cancel it.`:`<b>${p.no}</b> in force since ${fmtT(p.t)}`;
+  const pbtn=!p?`<button class="btn wide" data-act="permit" data-c="${cid}" ${lock||why?'disabled':''}>Issue permit to work<small>${why?why.replace(/^./,ch=>ch.toUpperCase()):'Isolated and earthed at both ends'}</small></button>`
+    :`<button class="btn wide${p.state==='cleared'?'':' alt'}" data-act="permit-x" data-c="${cid}" ${lock?'disabled':''}>Cancel ${p.no}<small>${p.state==='cleared'?'then remove the earths':'only if nobody is working'}</small></button>`;
+  return `<h3 style="margin-top:14px">Safety documents</h3>${rows}<p class="ptwline">${pst}</p>${pbtn}`;
 }
 function renderPanel(){
   const sol=solve(), sel=S.sel; let h='';
@@ -3002,7 +3303,7 @@ function renderPanel(){
       ${lv?`<span class="chip" style="--c:var(${CB[lv].color})">Live · ${CB[lv].name}</span>`:`<span class="chip" style="--c:var(--dead)">Dead</span>`}
       <dl class="facts"><dt>Condition</dt><dd>${dmg?`<span class="trip">Damaged: ${dmg.label}</span> · repair about ${fmtH(dmg.mins)}`:t==='fault'?'<span class="trip">Faulty</span>':t==='healthy'?(c.oh?'Patrolled, no damage':'Tested healthy'):t==='repaired'?'Repaired':c.oh?'Not patrolled':'Not tested'}</dd></dl>
       ${c.oh&&t==='fault'&&g>=WIND_LIMIT?`<p class="restrict">Gusts of ${g} mph: no climbing. A crew sent now waits on site until the wind drops below ${WIND_LIMIT} mph (about ${fmtT(windOK(S.t))}).</p>`:''}
-      <h3 style="margin-top:14px">End switches</h3>`+['a','b'].map(e=>swRow(c.id+':'+e,false)).join('');
+      <h3 style="margin-top:14px">End switches</h3>`+['a','b'].map(e=>swRow(c.id+':'+e,false)).join('')+docsSection(sel.id);
     if(t==='fault') h+=`<button class="btn wide" data-act="repair" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Repair ${c.oh?'line':'cable'}<small>${lv?'make it dead first':busy?'crew already assigned':est('repair')}</small></button>`;
     else if(t!=='repaired'&&c.oh) h+=`<button class="btn wide" data-act="patrol" data-c="${sel.id}" ${!canOrder()||busy?'disabled':''}>Patrol line for damage<small>${busy?'already assigned':est('patrol')}</small></button>`;
     else if(t!=='repaired') h+=`<button class="btn wide" data-act="test" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Test cable<small>${lv?'make it dead first':busy?'crew already assigned':est('test')}</small></button>`;
@@ -3025,14 +3326,47 @@ function renderPanel(){
 function crewStatus(cr){
   const j=cr.job;
   if(j&&j.stage==='work'&&j.held&&S.t<j.held) return `At ${N[j.node].name}, waiting for the wind to drop · starts about ${fmtT(j.held)}`;
+  if(j&&j.stage==='wait') return `At ${N[j.node].name}, waiting for a permit to work`;
   if(j) return j.stage==='travel'?`Driving to ${N[j.node].name} · arrives ${fmtT(j.tArrive)}`:`${jobText(j)} at ${N[j.node].name} · done ${fmtT(j.tDone)}`;
   if(cr.restUntil&&S.t<cr.restUntil) return `Resting after a long shift · back at ${fmtT(cr.restUntil)}`;
   if(cr.at==='depot') return 'At the depot';
   if(cr.at) return `Standing by at ${N[cr.at].name}`;
   return 'Waiting on the road';
 }
+// ---------- Side panel tabs ----------
+const TABS=[['incident','Incident'],['teams','Teams'],['loads','Loading'],['news','News'],['weather','Weather'],['log','Log']];
+// what each tab shows on its badge: a count, or a dot, coloured by how urgent it is
+function tabBadges(){
+  const b={}, sol=solve();
+  if(UI.why&&UI.tab!=='incident') b.incident={dot:true,cls:'hot'};
+  const wait=S.crews.filter(cr=>cr.job&&cr.job.stage==='wait').length;
+  if(wait) b.teams={n:wait,cls:'warn'};
+  if(CBIDS.some(id=>S.sw[id]&&cbLoad(sol,id)>rat(id)*0.9)) b.loads={dot:true,cls:'hot'};
+  const press=S.media.filter(m=>!m.answered).length;
+  if(press) b.news={n:press,cls:'hot'};
+  const w=S.weather, lvl=w&&w.storm?warnLevel(windAt(S.t)):null;
+  if(lvl||S.snow||S.heat) b.weather={dot:true,cls:lvl==='Red'||windAt(S.t)>=WIND_LIMIT?'hot':'warn'};
+  const unseen=(S.logN||0)-(UI.logSeen||0);
+  if(UI.tab!=='log'&&unseen>0) b.log={n:unseen>9?'9+':unseen};
+  return b;
+}
+function renderTabs(){
+  // picking something on the diagram, or asking for a hint, brings the incident tab forward
+  if(S.sel!==UI.lastSel){ UI.lastSel=S.sel; if(S.sel) UI.tab='incident'; }
+  if(UI.hint&&UI.hint!==UI.lastHint){ UI.lastHint=UI.hint; UI.tab='incident'; }
+  if(UI.tab==='log') UI.logSeen=S.logN||0;
+  const bd=tabBadges();
+  $('#sideTabs').innerHTML=TABS.map(([k,l])=>{ const x=bd[k];
+    return `<button role="tab" id="tab-${k}" data-tab="${k}" aria-selected="${UI.tab===k}" tabindex="${UI.tab===k?0:-1}">${l}${x?`<span class="tb ${x.cls||''}${x.dot?' dot':''}" aria-label="needs attention">${x.dot?'':x.n}</span>`:''}</button>`; }).join('');
+  document.querySelectorAll('#playSide .tabp').forEach(p=>{ p.hidden=p.dataset.tab!==UI.tab; p.setAttribute('aria-labelledby','tab-'+p.dataset.tab); });
+}
+function showTab(k){
+  if(!TABS.some(t=>t[0]===k)) return;
+  UI.tab=k; renderTabs(); $('#playSide .tabbody').scrollTop=0;
+}
 function renderSide(){
   const sol=solve();
+  if(!UI.tab) UI.tab='incident';
   renderPanel();
   const dm=demand(S.t), h=hourOf(S.t);
   $('#loadsH').textContent=`Feeder loading · demand ${Math.round(dm*100)}% of peak${h>=12&&h<18.5?' · evening peak 18:30':''}`;
@@ -3054,6 +3388,7 @@ function renderSide(){
   $('#log').innerHTML=S.log.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('');
   renderWeather(); renderNews();
   $('#objSec').innerHTML=objectivesHtml(); $('#objSec').hidden=!(S.objectives||[]).length;
+  renderTabs();
   decorateAll();
 }
 function renderWeather(){
@@ -3062,7 +3397,7 @@ function renderWeather(){
     // snow and heat get a simple card; calm days show nothing
     if(S.snow||S.heat){ el.hidden=false; el.innerHTML=`<h3>Weather</h3>`+(S.snow?`<div class="wx-head"><span class="wx-name">Snow</span><span class="wlevel Yellow">Yellow warning</span></div><p class="restrict">Icy roads: crews and generators take about 60% longer to travel. Repairs and patrols take longer in the cold, and heating pushes demand up.</p>`:'')
       +(S.heat?`<div class="wx-head" style="margin-top:${S.snow?10:0}px"><span class="wx-name">Heat</span><span class="wlevel Amber">31°C</span></div><p class="restrict">Demand is up about 12% and cables can carry about 12% less. Leave headroom when you back-feed.</p>`:''); }
-    else el.hidden=true;
+    else { el.hidden=false; el.innerHTML=`<h3>Weather</h3><div class="wx-head"><span class="wx-name">Calm</span></div><div class="gust">${windAt(S.t)} mph<small>gusts · no warnings in force</small></div><p class="restrict ok">Crews can climb and work normally.</p>`; }
     return;
   }
   const g=windAt(S.t), trend=windAt(S.t+15)-g, lvl=warnLevel(g)||'';
@@ -3123,7 +3458,8 @@ function lightUpdate(){
 // ---------- Overlays ----------
 function stars(st){
   const lim=['storm','bigstorm','mixed'].includes(S.scen)?[40,90]:S.scen==='theft'||S.scen==='digin'?[30,60]:[20,45], avg=st.cml/Math.max(1,st.affected);
-  let s=avg<=lim[0]?3:avg<=lim[1]?2:1; if(st.safety) s--; if(st.overloads) s--; if(st.rep!=null&&st.rep<50) s--;
+  // safety incidents count even if they happen after everyone is back on (most permit work does)
+  let s=avg<=lim[0]?3:avg<=lim[1]?2:1; if(st.safety||S.safety) s--; if(st.overloads) s--; if(st.rep!=null&&st.rep<50) s--;
   if((st.hints||st.undos)&&S.diff!=='trainee') s--;   // the exact-move hint and undo each cost a star (free for trainees)
   return {s:Math.max(0,s),avg,lim};
 }
@@ -3251,6 +3587,8 @@ function renderOverlay(){
         <p class="diffdesc">${{trainee:'Every fault flag is visible, previews tell you exactly where the fault is, circuits warn instead of tripping on overload, press deadlines are relaxed, and hints and undo are free.',
           engineer:'The full game. Hints and undo are there, but the exact-move hint and undo each cost a star.',
           control:'Hidden information: about one fault flag in eight misreads, there is always one extra problem, press deadlines are tight, and there is no undo.'}[st.difficulty]}</p></div>
+      <div class="fld"><span>Safety documents (applies to the next shift)</span>${seg('docs',[[true,'On'],[false,'Off']])}
+        <p class="diffdesc">${st.docs!==false?'Before a crew repairs or maintains a cable, earth it at both ends and issue a permit to work. Afterwards, cancel the permit and remove the earths before switching it back on.':'Crews start work as soon as a cable is dead. No earths or permits.'}</p></div>
       <div class="fld"><span>Language</span>${seg('plain',[[false,'Engineering terms'],[true,'Plain English']])}</div>
       <div class="fld"><span>Sound</span>${seg('sound',[[true,'On'],[false,'Off']])}</div>
       <div class="fld"><span>Text size</span>${seg('big',[[false,'Normal'],[true,'Large']])}</div>
@@ -3653,6 +3991,9 @@ const GLOSS=[
   ['earth fault protection','fault protection','Equipment that spots current leaking to the ground and trips the breaker in a fraction of a second.'],
   ['energised','switched on','Connected to a supply.'],
   ['interconnector','link cable','A cable joining two circuits, normally left open at one end.'],
+  ['permit to work','work permit','A safety document the control engineer issues once a cable is switched off at both ends and earthed. Nobody may work on the cable without one, and it must be cancelled before the earths come off.'],
+  ['earths','safety earths','Heavy connections from a switched-off cable to the ground, applied at each end. If the cable were switched on by mistake, the current would go to ground instead of through the people working on it.'],
+  ['flashover','flashover','What happens when power is switched onto an earthed cable: a huge current straight to ground, a bang and a tripped breaker.'],
   ['abnormal','not in normal position','A switch left in a different position from usual, for example a spare link that has been closed.'],
 ];
 const GLOSS_RE=new RegExp('\\b('+GLOSS.map(g=>g[0].replace(/[.*+?^${}()|[\]\\-]/g,'\\$&')).join('|')+')\\b','gi');
@@ -3683,6 +4024,7 @@ function previewOp(sid,close){
   const res={sid,close,gain:[],lose:[],loads:[],risk:[],trip:false,block:null};
   if(locked(nodeOfSw(sid))){ res.block='this site is unsafe after the theft'; return res; }
   if(close){ const b=parallelBlock(sid); if(b){ res.block=b; return res; } }
+  if(close&&docsOn()&&earthed(sid)){ res.block='its earth is on, and the switch is interlocked with it'; return res; }
   const sw2=Object.assign({},S.sw); sw2[sid]=close;
   const s0=solve(), s1=solve(sw2);
   RMUS.forEach(n=>{ if(S.lvOut[n]) return; const a=s0.island[n]!=null, b=s1.island[n]!=null; if(!a&&b) res.gain.push(n); if(a&&!b) res.lose.push(n); });
@@ -3694,6 +4036,8 @@ function previewOp(sid,close){
     if(t==='fault'&&faultOn(c.id)) res.trip=true;
     else if(anyFault&&t!=='healthy'&&t!=='repaired') res.risk.push(c.id);
   });
+  // earths are known to the control room, so this warning is always exact
+  if(docsOn()) res.flash=CABLES.filter(c=>!s0.cab[c.id]&&s1.cab[c.id]&&cableEarthed(c.id)).map(c=>c.id);
   // trainees get the true answer
   if(S.diff==='trainee'){ res.trip=res.trip||S.faults.some(f=>f.active&&!(f.transient&&f.trips>0)&&!s0.cab[f.cable]&&s1.cab[f.cable]); res.risk=[]; }
   return res;
@@ -3709,6 +4053,7 @@ function showPreview(sid,close){
     if(r.lose.length) h+=`<div class="pv-bad">−${fmtN(custSum(r.lose))} customers lose power (${r.lose.slice(0,3).map(n=>N[n].name).join(', ')}${r.lose.length>3?'…':''})</div>`;
     if(!r.gain.length&&!r.lose.length) h+=`<div>Nobody gains or loses power.</div>`;
     r.loads.forEach(l=>{ const over=l.a>l.r; h+=`<div class="${over?'pv-bad':''}">${CB[l.id].name} ${CB[l.id].feeder}: ${Math.round(l.a)} / ${l.r} A ${over?(S.diff==='trainee'?'· overloaded':'· will trip on overload'):'· OK'}</div>`; });
+    if(r.flash&&r.flash.length) h+=`<div class="pv-bad">Flashover! This switches power onto ${cableName(CBL[r.flash[0]])}, which still has its earths on. Remove them first.</div>`;
     if(r.trip) h+=`<div class="pv-bad">This switches the faulty cable back on: the breaker will trip.</div>`;
     else if(r.risk.length) h+=`<div class="pv-warn">Switches on ${plural(r.risk.length,'section')} not yet proven healthy. If the fault is there, the breaker trips.</div>`;
   }
@@ -3735,9 +4080,12 @@ function simSw(sw2){
   const par=s1.islands.some(isl=>new Set(isl.cbs.map(cb=>CB[cb].prim)).size>1)
     ||CABLES.some(c=>{ if(!sw2[c.id+':a']||!sw2[c.id+':b']) return false; const ia=s1.island[c.a], ib=s1.island[c.b]; return ia!=null&&ib!=null&&ia!==ib&&primOf(ia)!==primOf(ib); });
   let gain=0, lose=0; RMUS.forEach(n=>{ if(S.lvOut[n]) return; const a=s0.island[n]!=null, b=s1.island[n]!=null; if(!a&&b) gain+=N[n].cust; if(a&&!b) lose+=N[n].cust; });
-  return {ok:!trip&&!over&&!par,gain,lose};
+  const flash=docsOn()&&CABLES.some(c=>s1.cab[c.id]&&cableEarthed(c.id));
+  // never switch on a cable a crew is working on
+  const crew=S.crews.some(cr=>{ const j=cr.job; return j&&j.cable&&j.stage!=='travel'&&['maint','repair','test'].includes(j.type)&&s1.cab[j.cable]; });
+  return {ok:!trip&&!over&&!par&&!flash&&!crew,gain,lose};
 }
-const usable = sid=>!pendingFor(sid)&&!locked(nodeOfSw(sid));
+const usable = sid=>!pendingFor(sid)&&!locked(nodeOfSw(sid))&&!(docsOn()&&earthed(sid));
 function hintPlan(){
   const sw=S.sw, active=S.faults.filter(f=>f.active&&!(f.transient&&f.trips>0));
   const ends=c=>[c.a,c.b].filter(n=>N[n].kind!=='primary');
@@ -3752,6 +4100,23 @@ function hintPlan(){
       for(const s of closed){ const s2=Object.assign({},s1); s2[s]=false; if(simSw(s2).lose===0) return {text:`First close the ${switchLabel(x)} so the far side has another supply, then open the ${switchLabel(s)}.`,sw:x,close:true}; } }
     return closed.length?{text:`Open the ${switchLabel(closed[0])}. Some customers will lose power, but it has to be done.`,sw:closed[0],close:false}:null;
   };
+  // the paperwork before anyone works on a cable: earth each end, then issue the permit
+  const docsStep=cid=>{
+    if(!docsOn()||permitOn(cid)) return null;
+    // earths go on at the points of isolation, so both ends must be open first
+    const shut=cableEnds(cid).find(s=>S.sw[s]);
+    if(shut) return pendingFor(shut)?{wait:true}:isolateMove(cid)||{wait:true};
+    const bare=cableEnds(cid).find(s=>!earthed(s)&&!earthPending(s));
+    if(bare) return {text:`Earth ${cableName(CBL[cid])} at ${N[nodeOfSw(bare)].name}. A crew proves it dead, then applies the earth.`,kind:'earth',id:bare};
+    if(cableEnds(cid).some(earthPending)) return {wait:true};
+    return {text:`Issue a permit to work on ${cableName(CBL[cid])}.`,kind:'permit',id:cid};
+  };
+  const docsNudge='Before anyone works on a cable, earth it at both ends and issue a permit to work.';
+  const docsWait=cid=>({nudge:'The crews are isolating and earthing the cable. Let the clock run until they finish, then issue the permit.',focus:{nodes:[],cables:[cid]},move:null});
+  for(const cr of waitingCrews()){
+    const cid=cr.job.cable, d=deadCable(cid)&&docsStep(cid);
+    if(d&&!d.wait) return {nudge:`${cr.id} is on site waiting for a permit to work on ${cableName(CBL[cid])}. ${docsNudge}`,focus:{nodes:[],cables:[cid]},move:d};
+  }
   if(S.pole&&!S.pole.done&&!deadCable(S.pole.cable)){
     let m=isolateMove(S.pole.cable);
     // a crew may not get there in time: a remote switch or breaker further back makes the line dead at once
@@ -3777,11 +4142,16 @@ function hintPlan(){
   if(pw){
     const cid=pw.cable;
     if(!deadCable(cid)){ const m=isolateMove(cid); if(m) return {nudge:'Switch the cable out for maintenance without anyone losing power: give the far side another supply first, then open both ends.',focus:{nodes:[CBL[cid].a,CBL[cid].b],cables:[cid]},move:m}; }
-    else if(!cableBusy(cid)) return {nudge:'The cable is switched out. Hand it over to a crew.',focus:{nodes:[],cables:[cid]},move:{text:`Send a crew to do the maintenance on ${cableName(CBL[cid])}.`,kind:'maint',id:cid}};
+    else if(!cableBusy(cid)){
+      const d=docsStep(cid); if(d&&d.wait) return docsWait(cid); if(d) return {nudge:`The cable is switched out. ${docsNudge}`,focus:{nodes:[],cables:[cid]},move:d};
+      return {nudge:'The cable is switched out. Hand it over to a crew.',focus:{nodes:[],cables:[cid]},move:{text:`Send a crew to do the maintenance on ${cableName(CBL[cid])}.`,kind:'maint',id:cid}};
+    }
   }
   if(S.dev&&!S.dev.fixed&&!S.dev.failed){
     const cid=S.dev.cable;
-    if(S.tested[cid]==='fault'){ if(!cableBusy(cid)&&deadCable(cid)) return {nudge:'You have found the failing cable. Repair it before it breaks down.',focus:{nodes:[],cables:[cid]},move:{text:`Repair ${cableName(CBL[cid])}.`,kind:'repair',id:cid}}; }
+    if(S.tested[cid]==='fault'){ if(!cableBusy(cid)&&deadCable(cid)){
+      const d=docsStep(cid); if(d&&d.wait) return docsWait(cid); if(d) return {nudge:`You have found the failing cable. ${docsNudge}`,focus:{nodes:[],cables:[cid]},move:d};
+      return {nudge:'You have found the failing cable. Repair it before it breaks down.',focus:{nodes:[],cables:[cid]},move:{text:`Repair ${cableName(CBL[cid])}.`,kind:'repair',id:cid}}; } }
     else if(!deadCable(cid)){ const m=isolateMove(cid); if(m) return {nudge:`One of the cables near ${N[S.dev.node].name} is failing. Switch it out safely so it can be tested.`,focus:{nodes:[S.dev.node],cables:[cid]},move:m}; }
     else if(!cableBusy(cid)) return {nudge:'The suspect cable is switched out. Test it.',focus:{nodes:[],cables:[cid]},move:{text:`Test ${cableName(CBL[cid])}.`,kind:'test',id:cid}};
   }
@@ -3842,7 +4212,20 @@ function hintPlan(){
     const c=CBL[f.cable], known=S.tested[f.cable]==='fault', live=solve().cab[f.cable];
     if(live) continue;
     if(!known) return {nudge:'The damaged section is cut off. Now find exactly where the fault is.',focus:{nodes:ends(c),cables:[c.id]},move:{text:`${c.oh?'Patrol':'Test'} the ${cableName(c)} ${c.oh?'line':'cable'}.`,kind:c.oh?'patrol':'test',id:c.id}};
+    const d=docsStep(c.id);
+    if(d&&d.wait) return docsWait(c.id);
+    if(d) return {nudge:`The damage is found and cut off. ${docsNudge}`,focus:{nodes:ends(c),cables:[c.id]},move:d};
     return {nudge:'The damage is found and cut off. Get a crew to repair it.',focus:{nodes:ends(c),cables:[c.id]},move:{text:`Repair the ${cableName(c)} ${c.oh?'line':'cable'}.`,kind:'repair',id:c.id}};
+  }
+  // finished work: cancel the permit, then take the earths off, before anything is switched back on
+  if(docsOn()){
+    const done=Object.keys(S.permits).find(cid=>S.permits[cid].state==='cleared');
+    if(done) return {nudge:'The crew has finished and cleared the permit. Cancel it so the earths can come off.',focus:{nodes:[],cables:[done]},move:{text:`Cancel ${S.permits[done].no} on ${cableName(CBL[done])}.`,kind:'permitx',id:done}};
+    const stillNeeded=cid=>S.faults.some(f=>f.active&&f.cable===cid)||(S.planned&&S.planned.cable===cid&&S.planned.state==='prep')||(S.works||[]).some(w=>w.cable===cid&&w.state==='prep');
+    const off=Object.keys(S.earths).find(s=>{ const cid=s.split(':')[0]; return !permitOn(cid)&&!earthPending(s)&&!stillNeeded(cid); });
+    if(off) return {nudge:'The work is finished. Remove the earths before switching the cable back on, or it will flash over.',focus:{nodes:[nodeOfSw(off)],cables:[off.split(':')[0]]},move:{text:`Remove the earth at ${N[nodeOfSw(off)].name} on ${cableName(CBL[off.split(':')[0]])}.`,kind:'unearth',id:off}};
+    const going=Object.keys(S.earths).find(s=>earthPending(s)&&!stillNeeded(s.split(':')[0]));
+    if(going) return {nudge:'A crew is still taking an earth off. Wait until every earth is removed before switching the cable back on.',focus:{nodes:[nodeOfSw(going)],cables:[going.split(':')[0]]},move:null};
   }
   // 6. return to normal running without cutting anyone off
   if(offCount()===0&&!isNormal()){
@@ -3850,7 +4233,10 @@ function hintPlan(){
     for(const sid of ab){ const s2=Object.assign({},sw); s2[sid]=!sw[sid]; const r=simSw(s2); if(r.ok&&r.lose===0) return {nudge:'Everyone is on. Put each switch back to its normal position without cutting anyone off.',focus:{nodes:[nodeOfSw(sid)],cables:[sid.split(':')[0]]},move:{text:`${sw[sid]?'Open':'Close'} the ${switchLabel(sid)}.`,sw:sid,close:!sw[sid]}}; }
     for(const a of ab) for(const b of ab){ if(a===b||sw[a]||!sw[b]) continue; const s1=Object.assign({},sw); s1[a]=true; if(!simSw(s1).ok) continue; const s2=Object.assign({},s1); s2[b]=false; const r=simSw(s2); if(r.ok&&r.lose===0) return {nudge:'Close a link first, then open the other point, so nobody goes off.',focus:{nodes:[nodeOfSw(a),nodeOfSw(b)],cables:[]},move:{text:`Close the ${switchLabel(a)} first, then open the ${switchLabel(b)}.`,sw:a,close:true}}; }
     // between two different primaries a short break can't be avoided: open the temporary link first
-    const sid=ab.find(s=>sw[s])||ab[0]; if(sid) return {nudge:'Some switches are still out of their normal position. A short break may be unavoidable between different main substations.',focus:{nodes:[nodeOfSw(sid)],cables:[]},move:{text:`${sw[sid]?'Open':'Close'} the ${switchLabel(sid)}.`,sw:sid,close:!sw[sid]}};
+    // closing must not put power onto earths or onto a crew
+    const unsafe=s=>{ if(sw[s]) return false; const s2=Object.assign({},sw); s2[s]=true; const s1=solve(s2);
+      return (docsOn()&&CABLES.some(c=>s1.cab[c.id]&&cableEarthed(c.id)))||S.crews.some(cr=>{ const j=cr.job; return j&&j.cable&&j.stage!=='travel'&&['maint','repair','test'].includes(j.type)&&s1.cab[j.cable]; }); };
+    const sid=ab.find(s=>sw[s])||ab.find(s=>!unsafe(s)); if(sid) return {nudge:'Some switches are still out of their normal position. A short break may be unavoidable between different main substations.',focus:{nodes:[nodeOfSw(sid)],cables:[]},move:{text:`${sw[sid]?'Open':'Close'} the ${switchLabel(sid)}.`,sw:sid,close:!sw[sid]}};
   }
   // 7. customers who will be off for a long time: a mobile generator can carry them until the repair is done
   const gn=RMUS.filter(n=>!S.on[n]&&S.t-S.offSince[n]>=20&&!genBlock(n)).sort((a,b)=>N[b].cust-N[a].cust)[0];
@@ -3870,6 +4256,9 @@ function doHintMove(){
   else if(m.kind==='makesafe') orderMakeSafe(m.id);
   else if(m.kind==='lvfix'||m.kind==='rebuild') orderNodeJob(m.id,m.kind);
   else if(m.kind==='gen') hireGenerator(m.id);
+  else if(m.kind==='earth'||m.kind==='unearth') orderEarth(m.id,m.kind==='earth');
+  else if(m.kind==='permit') issuePermit(m.id);
+  else if(m.kind==='permitx') cancelPermit(m.id);
   else orderCable(m.id,m.kind);
 }
 
@@ -3921,7 +4310,7 @@ function expertCML(){
   return Math.round(cml);
 }
 function pickTip(st,exp){
-  if(st.safety) return 'A crew closed a switch onto a fault. Always prove a section is healthy (test or patrol it) before closing onto it by hand.';
+  if(st.safety||S.safety) return S.safetyTip||'A crew closed a switch onto a fault. Always prove a section is healthy (test or patrol it) before closing onto it by hand.';
   if(st.faultTrips) return 'Before switching a section back on, cut the fault off at both ends. Use the preview: hover a switch to see what it would do.';
   if(st.overloads) return 'Check the circuit loading before closing a spare link. If one neighbour can\'t take everyone, split the area between two.';
   if(S.media.some(m=>m.answered==='ignored')) return 'Answer the press when they call, even with a holding statement. Silence costs public confidence.';
@@ -4161,6 +4550,7 @@ function finishEarly(){
   const open=S.faults.filter(f=>f.active).length+RMUS.filter(n=>S.theft[n]||S.flooded[n]||S.lvFault[n]).length;
   S.cost.materials+=open*3000;
   if(!isNormal()) S.cost.materials+=1000;
+  if(docsOn()) recordStars();
   S.phase='closed'; S.closedAt=S.t; S.paused=true; S.modal='closed'; S.handedOver=true;
   log(`Shift handed over with ${plural(open,'job')} left for the next team.`,'warn');
   onShiftEnd(); render();
@@ -4450,6 +4840,14 @@ document.addEventListener('keydown',e=>{
   if(k==='0'){ setVB(fullVB()); return; }
   if(k==='/'){ e.preventDefault(); $('#find').focus(); return; }
 });
+// arrow keys move between the side panel tabs
+$('#sideTabs').addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight'&&e.key!=='Home'&&e.key!=='End') return;
+  e.preventDefault(); e.stopPropagation();
+  const i=TABS.findIndex(t=>t[0]===UI.tab), n=TABS.length;
+  const j=e.key==='Home'?0:e.key==='End'?n-1:(i+(e.key==='ArrowRight'?1:-1)+n)%n;
+  showTab(TABS[j][0]); $('#tab-'+TABS[j][0]).focus();
+});
 document.addEventListener('click',e=>{
   const tm=e.target.closest('.term'); if(tm){ showTip(tm); return; }
   const zb=e.target.closest('[data-zoom]'); if(zb){ const z=zb.dataset.zoom; if(z==='in') zoomAt(1/1.3); else if(z==='out') zoomAt(1.3); else setVB(fullVB()); return; }
@@ -4457,6 +4855,7 @@ document.addEventListener('click',e=>{
   const vb=e.target.closest('[data-view]'); if(vb){ UI.view=vb.dataset.view; render(); return; }
   const mb=e.target.closest('[data-mode]');
   if(mb){ UI.vb={}; hidePreview(); if(mb.dataset.mode==='edit'&&UI.mode!=='edit') startEditor(); else if(mb.dataset.mode==='play'&&UI.mode!=='play'){ UI.mode='play'; render(); } return; }
+  const tb=e.target.closest('#sideTabs [data-tab]'); if(tb){ showTab(tb.dataset.tab); return; }
   const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
   const a=b.dataset.act;
   switch(a){
@@ -4464,6 +4863,9 @@ document.addEventListener('click',e=>{
     case 'visit': orderVisit(b.dataset.n); break;
     case 'test': orderCable(b.dataset.c,'test'); break;
     case 'repair': orderCable(b.dataset.c,'repair'); break;
+    case 'earth': orderEarth(b.dataset.sw,b.dataset.on==='1'); break;
+    case 'permit': issuePermit(b.dataset.c); break;
+    case 'permit-x': cancelPermit(b.dataset.c); break;
     case 'cancel': cancelJob(+b.dataset.crew,+b.dataset.q); break;
     case 'dispatch': S.dispatch=b.dataset.v==='auto'?'auto':+b.dataset.v; renderSide(); break;
     case 'desel': S.sel=null; render(); break;
@@ -4647,6 +5049,7 @@ function start(data){
 }
 window.claude?.hot?.snapshot?.(()=>({v:SAVE_VERSION,S,UI,E}));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+if(location.hash==='#art-template') showArtTemplates();
 </script>
 
 </body>
