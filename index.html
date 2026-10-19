@@ -161,8 +161,9 @@ textarea{width:100%;min-height:220px;font:12px/1.4 var(--mono);color:var(--ink);
 .side section:first-child{border-top:0}
 /* the play panel: a row of tabs, and only the open tab's content scrolls */
 #playSide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:hidden}
-.tabs{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--rule);background:color-mix(in srgb,var(--panel) 85%,var(--ink) 4%);border-radius:6px 6px 0 0;flex:none}
-.tabs button{position:relative;appearance:none;border:0;background:none;color:var(--muted);font:600 12px var(--body);padding:11px 2px 10px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;min-width:0;overflow:visible;white-space:nowrap}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule);background:color-mix(in srgb,var(--panel) 85%,var(--ink) 4%);border-radius:6px 6px 0 0;flex:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto;position:relative;appearance:none;border:0;background:none;color:var(--muted);font:600 12px var(--body);padding:11px 4px 10px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;min-width:0;overflow:visible;white-space:nowrap}
 .tabs button:hover{color:var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel)}
 .tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -443,6 +444,79 @@ svg text{font-family:var(--body)}
 .van.as .body{fill:var(--accent)}
 .van.as text{fill:var(--accent-ink)}
 .badge.as{background:var(--accent);color:var(--accent-ink)}
+/* tree teams green, planned teams blue, the welfare van purple */
+.crew.vg rect,.van.vg .body,.badge.vg{fill:#3f8f3a;background:#3f8f3a}
+.crew.pw rect,.van.pw .body,.badge.pw{fill:#2f6fb3;background:#2f6fb3}
+.crew.wvb rect{fill:#8236bf} .crew.wvb.enroute rect{fill:var(--panel);stroke:#8236bf} .crew.wvb text{fill:#fff} .crew.wvb.enroute text{fill:#8236bf}
+.crew.vg text,.crew.pw text,.van.vg text,.van.pw text{fill:#fff}
+.badge.vg,.badge.pw,.badge.wv{color:#fff}
+.badge.wv{background:#8236bf}
+.route.vg{stroke:#3f8f3a} .route.pw{stroke:#2f6fb3} .route.wv{stroke:#8236bf}
+.crew.enroute.vg rect,.crew.enroute.pw rect{fill:var(--panel)}
+.crew.enroute.vg text{fill:#3f8f3a} .crew.enroute.pw text{fill:#2f6fb3}
+.rolenote{margin:-4px 0 6px;font-size:12px}
+.btn.veg{background:#3f8f3a;border-color:#2f6f2b;color:#fff}
+.btn.van{background:#8236bf;border-color:#64289a;color:#fff}
+.vanbox{margin-top:10px;padding:10px 12px;border-radius:6px;border:1px solid color-mix(in srgb,#8236bf 40%,var(--rule));background:color-mix(in srgb,#8236bf 7%,var(--panel));font-size:13px}
+.vanbox b{display:block;color:#8236bf;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+/* the substation picture in the side panel */
+.subpic{margin:12px 0 4px;padding:8px 6px 2px;border:1px solid var(--rule);border-radius:6px;background:color-mix(in srgb,var(--panel) 92%,var(--ink) 3%)}
+.subpic svg{display:block;width:100%;height:auto;overflow:visible}
+.subpic .ln{stroke-width:3;stroke-linecap:round;fill:none}
+.subpic .bus{stroke:none}
+.subpic .tx{fill:none;stroke:var(--ink);stroke-width:2}
+.subpic .fuse{fill:var(--panel);stroke:var(--ink);stroke-width:1.5}
+.subpic .lvb{fill:var(--muted)}
+.subpic .nm{font:600 10px var(--body);fill:var(--ink);text-anchor:middle}
+.subpic .sl,.subpic .sm{font:10px var(--mono);fill:var(--muted);text-anchor:middle}
+.subpic .sm.hot,.subpic .warnt{fill:var(--fault);font-weight:700}
+.subpic .sm.l{text-anchor:start}
+.subpic .warnt{font:700 10px var(--body)}
+.subpic .ssw .hit{fill:transparent}
+.subpic .ssw .blade{stroke:var(--ink);stroke-width:2}
+.subpic .ssw.c .blade{fill:var(--ink)}
+.subpic .ssw.o .blade{fill:var(--panel)}
+.subpic .ssw.act{cursor:pointer}
+.subpic .ssw.act:hover .blade,.subpic .ssw.act:focus .blade{stroke:var(--accent);stroke-width:3}
+.subpic .ssw.act:hover .hit{fill:color-mix(in srgb,var(--accent) 12%,transparent)}
+.subpic .ssw .pend{fill:none;stroke:var(--warn);stroke-width:2;stroke-dasharray:3 3}
+.subpic .ssw .nop{font:700 8px var(--mono);fill:var(--muted)}
+.subpic .ssw .earth{fill:none;stroke:#e0a800;stroke-width:2;stroke-linecap:round}
+.subpic .fpic line{stroke:var(--ink);stroke-width:1.5}
+.subpic .fpic .trip{fill:var(--fault)} .subpic .fpic .clr{fill:var(--panel);stroke:var(--ink);stroke-width:1}
+.subpic .fpic text{font:700 11px var(--mono);fill:var(--muted)}
+.subpic .rtu path{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round}
+.subpic .rtu.down path{stroke:var(--muted)} .subpic .rtu .x{stroke:var(--fault)!important;stroke-width:2.2}
+.subpic .xmark{stroke:var(--fault);stroke-width:3;stroke-linecap:round}
+.subpic .hs-r{fill:var(--roof,#d9684c)} .subpic .hs-w{fill:var(--wall,#fbf4e4);stroke:var(--muted);stroke-width:.6}
+.subpic .hs-lit{fill:#ffd36b} .subpic .hs-dark{fill:#5b6468}
+.subpic .water{fill:#5aa9c9;opacity:.28} .subpic .wave{fill:none;stroke:#1b62c2;stroke-width:1.5;opacity:.6}
+.subpic .gsx{font:700 9px var(--mono);fill:#2a2205;text-anchor:middle}
+/* the incident board */
+.etrrow{border:1px solid var(--rule);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.etr-h{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.etr-h b{font-size:15px}
+.etr-h span{font-size:12px;color:var(--muted)}
+.etr-v{margin:6px 0 8px;font-size:13px}
+.etr-v b{font:700 15px var(--mono)}
+.etr-st{display:inline-block;font:700 10px var(--body);text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:3px;margin-left:4px;vertical-align:1px}
+.etr-st.ok{background:color-mix(in srgb,var(--ok) 18%,var(--panel));color:var(--ok)}
+.etr-st.risk{background:color-mix(in srgb,var(--warn) 22%,var(--panel));color:var(--warn)}
+.etr-st.miss,.etr-st.none{background:color-mix(in srgb,var(--fault) 15%,var(--panel));color:var(--fault)}
+.etr-st.van{background:color-mix(in srgb,#8236bf 15%,var(--panel));color:#8236bf}
+.etr-btns{display:flex;flex-wrap:wrap;gap:6px}
+.etr-btns .btn{padding:6px 8px;font-size:13px;width:auto;min-width:0}
+.etr-btns .btn small{font-size:10px}
+.etr-ns{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.incs{list-style:none;margin:0;padding:0}
+.inc{display:grid;grid-template-columns:10px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--rule);font-size:13px}
+.inc:first-child{border-top:0}
+.inc-i{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--muted)}
+.inc.fault .inc-i,.inc.pole .inc-i,.inc.theft .inc-i{background:var(--fault)}
+.inc.flood .inc-i{background:#1b62c2} .inc.lv .inc-i,.inc.dev .inc-i{background:var(--warn)} .inc.work .inc-i{background:#2f6fb3} .inc.fest .inc-i{background:#b8327a}
+.inc-t b{font-size:13px}
+.inc-s{margin-top:2px;color:var(--muted)}
+.inc-s.bad{color:var(--fault);font-weight:600} .inc-s.ok{color:var(--ok)}
 .wx-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .wx-name{font:700 20px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase}
 .wlevel{font:700 11px var(--mono);letter-spacing:.08em;padding:2px 7px;border-radius:3px;color:#1d1405;text-transform:uppercase}
@@ -712,6 +786,7 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
       <nav class="tabs" role="tablist" aria-label="Desk panels" id="sideTabs"></nav>
       <div class="tabbody">
         <div class="tabp" data-tab="incident" role="tabpanel"><section id="panel"></section><section id="objSec"></section></div>
+        <div class="tabp" data-tab="board" role="tabpanel" hidden><section id="boardSec"></section></div>
         <div class="tabp" data-tab="teams" role="tabpanel" hidden><section id="crewSec"></section></div>
         <div class="tabp" data-tab="loads" role="tabpanel" hidden><section><h3 id="loadsH">Feeder loading</h3><div id="loads"></div></section></div>
         <div class="tabp" data-tab="news" role="tabpanel" hidden><section id="newsSec"></section></div>
@@ -874,7 +949,11 @@ const SHIFTS = [
 
 // ======================= Constants & helpers =======================
 const AMPS = 0.1;                 // amps per customer at 11 kV (about 2 kW each)
-const WORK = {op:5, visit:2, test:30, repair:150, makesafe:90, maint:180, lvfix:60, rebuild:240, earth:10};
+const WORK = {op:5, visit:2, test:30, repair:150, makesafe:90, maint:180, lvfix:60, rebuild:240, earth:10, clear:60};
+// the kinds of field team: reactive crews take the faults, assessors only look, tree teams clear vegetation, planned teams do maintenance
+const ROLE = {crew:{name:'Crew',group:'Reactive crews',tag:'CR'},assessor:{name:'Assessor',group:'Assessors',tag:'AS'},veg:{name:'Tree team',group:'Vegetation management',tag:'TT'},planned:{name:'Planned team',group:'Planned work',tag:'PW'}};
+// once a tree team has cleared a tree off a line, the line crew's repair is quicker
+const TREE_REPAIR = 60;
 const SPEEDS = [0,1,4,15];        // game minutes per real second
 const STORE = 'openpoint.networks.v1';
 const $ = s=>document.querySelector(s);
@@ -1083,6 +1162,8 @@ function updateOn(){
     if(!S.on[n]&&on&&S.backAt) S.backAt[n]=S.t;
     S.on[n]=on;
   });
+  // the welfare van packs up once its customers are back on
+  (S.vans||[]).forEach(v=>{ if(v.stage==='on'&&S.on[v.node]) vanHome(v,`Power is back at ${N[v.node].name}. Welfare van ${v.id} is packing up and heading home.`); });
 }
 // Time passes: CML accrues for everyone off; an interruption counts toward CI once it reaches 3 minutes.
 function accrue(dt){
@@ -1093,7 +1174,7 @@ function accrue(dt){
     if(S.on[n]) return;
     // most people are asleep between 23:00 and 06:00; the morning brings a burst of calls from those who wake up without power
     const h=hourOf(S.t);
-    const off=S.t-S.offSince[n], rate=(off<30?0.006:off<180?0.0012:0.002)*(h>=23||h<6?0.35:h>=6&&h<8.5&&off>60?1.8:1), c=N[n].cust*rate*dt, m=Math.floor(S.t);
+    const off=S.t-S.offSince[n], rate=(off<30?0.006:off<180?0.0012:0.002)*(h>=23||h<6?0.35:h>=6&&h<8.5&&off>60?1.8:1)*callDamp(n), c=N[n].cust*rate*dt, m=Math.floor(S.t);
     S.calls[m]=(S.calls[m]||0)+c; S.callsTotal+=c; S.callArea[areaOf(n)]=(S.callArea[areaOf(n)]||0)+c;
   });
   S.t+=dt;
@@ -1111,7 +1192,13 @@ function accrue(dt){
       if(cr.job||cr.queue.length){ cr.worked=(cr.worked||0)+dt; if(ot) S.cost.overtime+=dt; else S.cost.crew+=dt; }
     });
     (S.gens||[]).forEach(g=>{ if(g.stage==='on') S.cost.generators=(S.cost.generators||0)+GEN.hourly*dt/60; });
+    (S.vans||[]).forEach(v=>{ if(v.stage==='on') S.cost.van=(S.cost.van||0)+VAN.hourly*dt/60; });
   }
+}
+// customers who know when power is due back ring less; a welfare van on the street cuts calls further
+function callDamp(n){
+  if((S.vans||[]).some(v=>v.stage==='on'&&v.node===n)) return 0.3;
+  const e=S.etr&&S.etr[areaOf(n)]; return e&&!e.missed?0.6:1;
 }
 function callsRecent(){
   let s=0; for(const k in S.calls){ if(+k>S.t-15) s+=S.calls[k]; else if(+k<S.t-60) delete S.calls[k]; }
@@ -1220,6 +1307,8 @@ function answerMedia(id,hours){
   if(hours){
     m.answered='etr'; m.etr=S.t+hours*60;
     m.nodes=RMUS.filter(n=>!S.on[n]&&areaOf(n)===m.area);
+    // what you tell the press becomes the area's restoration time
+    if(S.etr) S.etr[m.area]={t:m.etr,set:S.t,missed:false,updates:S.etr[m.area]?(S.etr[m.area].updates||0)+1:0};
     schedule({kind:'etr',t:m.etr,id});
     news(m.outlet,`Megawatt Electricity: power back in ${m.area} within ${plural(hours,'hour')}`,2);
     log(`You told ${m.outlet} that ${m.area} will be back on by ${fmtT(m.etr)}.`);
@@ -1229,6 +1318,64 @@ function answerMedia(id,hours){
     log(`You gave ${m.outlet} a holding statement about ${m.area}.`);
   }
   dirty=true; render();
+}
+
+// ---------- Estimated restoration times ----------
+// One ETR per area, shared with customers and the press. Meeting it lifts public confidence; missing it costs.
+function setEtr(area,t){
+  if(!canOrder()||!S.etr) return;
+  t=Math.ceil(t/15)*15; if(t<=S.t) t=Math.ceil((S.t+15)/15)*15;
+  const old=S.etr[area];
+  pushUndo(`set the restoration time for ${area}`);
+  S.etr[area]={t,set:S.t,missed:false,updates:old?(old.updates||0)+1:0};
+  log(old?`Restoration time for ${area} updated to ${fmtT(t)}${old.missed?' after the last one was missed':''}. Customers have been told.`
+    :`Restoration time for ${area} set: power back by ${fmtT(t)}. Customers have been told by text and on the website.`);
+  dirty=true; render();
+}
+// how long a fault will take to put right, from where the work has got to
+function repairEst(f){
+  const c=CBL[f.cable], dmg=f.damage?DAMAGE[f.damage].mins:WORK.repair;
+  for(const cr of S.crews){
+    const j=cr.job;
+    if(j&&j.cable===f.cable&&j.type==='repair'){ if(j.stage==='work') return j.tDone; if(j.stage==='travel') return j.tArrive+jobMins(j,cr); return S.t+jobMins(j,cr)+30; }
+  }
+  const known=S.tested[f.cable]==='fault'||f.found;
+  return S.t+(known?60:120)+(f.damage==='tree'&&!S.cleared[f.cable]?WORK.clear:0)+dmg+(docsOn()?30:0)+(c.oh&&windAt(S.t)>=WIND_LIMIT?Math.max(0,windOK(S.t)-S.t):0);
+}
+// a sensible restoration time for an area: switching if the network can reach it, otherwise the repair
+function suggestEtr(area){
+  const ns=RMUS.filter(n=>!S.on[n]&&areaOf(n)===area); if(!ns.length) return S.t+30;
+  const bad=S.faults.filter(f=>f.active&&!f.transient), badSet=new Set(bad.map(f=>f.cable));
+  const adj={}; Object.keys(N).forEach(k=>adj[k]=[]);
+  CABLES.forEach(c=>{ if(badSet.has(c.id)) return; adj[c.a].push(c.b); adj[c.b].push(c.a); });
+  const reach=new Set(), q=[...PRIMS];
+  while(q.length){ const n=q.shift(); adj[n].forEach(m=>{ if(!reach.has(m)&&N[m].kind!=='primary'&&!locked(m)){ reach.add(m); q.push(m); } }); }
+  let t=S.t+45;
+  ns.forEach(n=>{
+    if(S.theft[n]){ const j=S.crews.map(cr=>cr.job).find(j=>j&&j.type==='makesafe'&&j.node===n); t=Math.max(t,(j?(j.stage==='work'?j.tDone:j.tArrive+WORK.makesafe):S.t+40+WORK.makesafe)+15); return; }
+    if(S.flooded[n]){ t=Math.max(t,(S.flood&&S.flood.until||S.t)+(S.flooded[n]==='damaged'?WORK.rebuild+60:30)); return; }
+    if(S.lvFault[n]){ t=Math.max(t,S.t+40+WORK.lvfix); return; }
+    if(!reach.has(n)) bad.forEach(f=>{ t=Math.max(t,repairEst(f)+20); });
+  });
+  return Math.ceil(t/30)*30;
+}
+function checkEtrs(){
+  if(!S.etr) return;
+  const oa=offByArea();
+  Object.keys(S.etr).forEach(a=>{
+    const e=S.etr[a];
+    if(!oa[a]){
+      // a cautious ETR beaten by hours earns nothing extra
+      if(!e.missed){ const early=e.t-S.t>180; if(!early) rep(2); log(`Power back in ${a} by ${fmtT(e.t)}, as promised.`,'good'); S.etrMet=(S.etrMet||0)+1; }
+      delete S.etr[a]; dirty=true; return;
+    }
+    if(!e.missed&&S.t>e.t){
+      e.missed=true; S.etrMissed=(S.etrMissed||0)+1;
+      news(null,`${a} customers let down as promised restoration time passes`,-4);
+      log(`Restoration time missed for ${a}: customers were told ${fmtT(e.t)}. Give them a new time in the Incidents tab.`,'bad');
+      toast(`Restoration time missed for ${a}. Give customers a new time.`); dirty=true;
+    }
+  });
 }
 
 // ---------- Events ----------
@@ -1253,6 +1400,7 @@ function nextEvent(){
     return r;
   });
   (S.gens||[]).forEach(g=>{ const t=g.stage==='travel'||g.stage==='return'?g.tArrive:g.stage==='setup'?g.tOn:null; if(t!=null) consider(t,()=>genEvent(g)); });
+  (S.vans||[]).forEach(v=>{ if(v.stage==='travel'||v.stage==='return') consider(v.tArrive,()=>vanEvent(v)); });
   return best;
 }
 function advance(dt){
@@ -1263,7 +1411,7 @@ function advance(dt){
     accrue(ev.t-S.t); ev.fn(); afterChange();
     if(S.paused) break;
   }
-  const before=S.news.length; newsCheck(); if(S.news.length!==before) dirty=true;
+  const before=S.news.length; newsCheck(); checkEtrs(); if(S.news.length!==before) dirty=true;
   // demand rises towards the evening peak: a feeder carrying a back-feed can creep over its rating
   const sol=solve();
   if(CBIDS.some(id=>S.sw[id]&&cbLoad(sol,id)>rat(id)+0.01)){
@@ -1457,6 +1605,7 @@ function jobText(j){
   const c=j.cable?CBL[j.cable]:null;
   if(j.type==='op'){ const [cid,e]=j.sw.split(':'); return `${j.close?'Close':'Open'} switch to ${N[CBL[cid][other(e)]].name}`; }
   if(j.type==='visit') return 'Read FPI';
+  if(j.type==='clear') return `Clear trees from line to ${N[c.a===j.node?c.b:c.a].name}`;
   if(j.type==='earth'){ const [cid,e]=j.esw.split(':'); return `${j.on?'Apply':'Remove'} earth on cable to ${N[CBL[cid][other(e)]].name}`; }
   if(j.type==='makesafe') return 'Make safe after theft';
   if(j.type==='lvfix') return 'Fix low-voltage fault';
@@ -1468,7 +1617,19 @@ function jobText(j){
   return `Repair ${c.oh?'line':'cable'} to ${far}`;
 }
 // assessors drive light vans and only look; crews do the switching and the repairs
-const canDo = (cr,type)=>cr.role!=='assessor'||type==='visit'||type==='patrol';
+function canDo(cr,type){
+  if(cr.role==='assessor') return type==='visit'||type==='patrol';
+  if(cr.role==='veg') return type==='clear';
+  if(cr.role==='planned') return ['maint','earth','op','test','repair'].includes(type);
+  // reactive crews do maintenance only if no planned team is on shift, and clear trees (slowly) only if no tree team is
+  if(type==='maint') return !S.crews.some(c=>c.role==='planned');
+  if(type==='clear') return !S.crews.some(c=>c.role==='veg');
+  return true;
+}
+// colour class for a team's badge and van
+const roleCls = cr=>({assessor:' as',veg:' vg',planned:' pw'})[cr.role]||'';
+// the team you'd normally send for each job, so "Fastest" doesn't pull a planned team off its maintenance for a fault
+const roleFits = (cr,type)=>cr.role==='planned'?type==='maint'||type==='earth':true;
 // vans drive a little slower in the dark
 const ttc = (cr,p,q)=>Math.round(tt(p,q)*(cr.role==='assessor'?0.75:1)*(nightWork(S.t)?1.15:1)*(S.snow?1.6:1));   // snow and ice slow everyone down
 function lineLen(cid){ const p=CBL[cid].mp||[N[CBL[cid].a].m,N[CBL[cid].b].m]; let L=0; for(let i=0;i<p.length-1;i++) L+=dist(p[i],p[i+1]); return L; }
@@ -1476,7 +1637,9 @@ function lineLen(cid){ const p=CBL[cid].mp||[N[CBL[cid].a].m,N[CBL[cid].b].m]; l
 function jobMins(j,cr){
   const night=nightWork(S.t);
   if(j.type==='patrol') return Math.round((15+lineLen(j.cable)/18)*(cr&&cr.role==='assessor'?0.7:1)*(night?1.5:1)*(S.snow?1.3:1));
-  if(j.type==='repair'){ const f=faultOn(j.cable); return Math.round((f&&f.damage?DAMAGE[f.damage].mins:WORK.repair)*(night?1.25:1)*(S.snow?1.2:1)); }
+  if(j.type==='repair'){ const f=faultOn(j.cable), m=f&&f.damage==='tree'&&S.cleared&&S.cleared[j.cable]?TREE_REPAIR:f&&f.damage?DAMAGE[f.damage].mins:WORK.repair; return Math.round(m*(night?1.25:1)*(S.snow?1.2:1)); }
+  // a line crew clearing trees takes half as long again as a proper tree team
+  if(j.type==='clear') return Math.round(WORK.clear*(cr&&cr.role!=='veg'?1.5:1)*(night?1.3:1)*(S.snow?1.2:1));
   if(j.type==='maint'&&j.mins) return Math.round(j.mins*(S.snow?1.2:1));
   return WORK[j.type];
 }
@@ -1501,15 +1664,16 @@ function crewEvent(i){
       S.fpi[j.node].known=true;
       log(`${cr.id} at ${N[j.node].name}. FPI ${S.fpi[j.node].trip?'TRIPPED':'not tripped'}.`,S.fpi[j.node].trip?'warn':'');
     }
-    if((j.type==='test'||j.type==='repair'||j.type==='maint')&&solve().cab[j.cable]){
-      log(`${cr.id} cannot ${j.type} ${cableName(CBL[j.cable])}: the cable is live.`,'warn');
+    if(['test','repair','maint','clear'].includes(j.type)&&solve().cab[j.cable]){
+      log(`${cr.id} cannot ${j.type==='clear'?'clear trees from':j.type} ${cableName(CBL[j.cable])}: it is live.`,'warn');
       cr.job=null; startNext(i); return;
     }
-    // with safety documents, repair and maintenance wait on site until the control room issues a permit
-    if(docsOn()&&needsPermit(j.type)&&!(permitOn(j.cable)&&permitOn(j.cable).state==='issued')){
-      j.stage='wait';
-      log(`${cr.id} on site at ${N[j.node].name}, waiting for a permit to work on ${cableName(CBL[j.cable])}.`,'warn');
-      toast(`${cr.id} is waiting for a permit to work.`);
+    // some work has to wait on site: for the tree team to clear the line, or for a permit to work
+    const why=workBlock(j);
+    if(why){
+      j.stage='wait'; j.waitFor=why;
+      log(`${cr.id} on site at ${N[j.node].name}, waiting ${why==='veg'?'for the tree team to clear':'for a permit to work on'} ${cableName(CBL[j.cable])}.`,'warn');
+      toast(`${cr.id} is waiting ${why==='veg'?'for the tree team':'for a permit to work'}.`);
       return;
     }
     startWork(cr,j);
@@ -1518,6 +1682,16 @@ function crewEvent(i){
   cr.job=null;
   finishJob(i,cr,j);
   startNext(i);
+}
+// what a crew on site is still waiting for before it can start: 'veg', 'permit' or null
+function workBlock(j){
+  if(j.type==='repair'){ const f=faultOn(j.cable); if(f&&f.damage==='tree'&&!S.cleared[j.cable]) return 'veg'; }
+  if(docsOn()&&needsPermit(j.type)&&!(permitOn(j.cable)&&permitOn(j.cable).state==='issued')) return 'permit';
+  return null;
+}
+// something a waiting crew needed has happened: start them, or note what they're waiting for now
+function wakeWaiting(cid){
+  S.crews.forEach(cr=>{ const j=cr.job; if(!j||j.stage!=='wait'||j.cable!==cid) return; const w=workBlock(j); if(w) j.waitFor=w; else startWork(cr,j); });
 }
 function startWork(cr,j){
   let start=S.t;
@@ -1536,6 +1710,7 @@ function startWork(cr,j){
   if(j.type==='lvfix') log(`${cr.id} fixing the low-voltage fault at ${N[j.node].name} (about 1 hour).`);
   if(j.type==='rebuild') log(`${cr.id} rebuilding the flooded switchgear at ${N[j.node].name} (about 4 hours).`);
   if(j.type==='earth') log(`${cr.id} ${j.on?'proving dead and earthing':'removing the earth'} at ${N[j.node].name}.`);
+  if(j.type==='clear') log(`${cr.id} cutting back the trees on ${cableName(CBL[j.cable])} (about ${fmtH(mins)}).`);
 }
 // the crew hands the permit back for cancelling once the job is done
 function clearPermit(cr,cid){
@@ -1545,6 +1720,11 @@ function clearPermit(cr,cid){
 function finishJob(i,cr,j){
   if(j.type==='op') applyOp(j.sw,j.close,cr.id);
   else if(j.type==='earth') applyEarth(cr,j.esw,j.on);
+  else if(j.type==='clear'){
+    S.cleared[j.cable]=true; if(S.cost) S.cost.materials+=300;
+    log(`${cr.id} has cleared the trees from ${cableName(CBL[j.cable])}. A line crew can now repair it (about ${fmtH(TREE_REPAIR)}).`,'good');
+    wakeWaiting(j.cable);
+  }
   else if(j.type==='test'){
     const f=faultOn(j.cable);
     if(S.dev&&!S.dev.fixed&&S.dev.cable===j.cable&&!f){ S.tested[j.cable]='fault'; log(`Test on ${cableName(CBL[j.cable])}: the insulation is breaking down. This is the cable behind the flickering lights. Repair it before it fails.`,'warn'); }
@@ -1596,7 +1776,9 @@ function crewEta(i,node,type,cable){
 function chooseCrew(node,type,cable){
   if(S.dispatch!=='auto'&&S.crews[S.dispatch]&&canDo(S.crews[S.dispatch],type)) return S.dispatch;
   let best=-1, bt=Infinity;
-  S.crews.forEach((cr,i)=>{ if(!canDo(cr,type)) return; const e=crewEta(i,node,type,cable); if(e<bt){bt=e;best=i;} });
+  // the usual team for the job first; anyone else who can do it only if nobody usual is on shift
+  const able=S.crews.map((cr,i)=>i).filter(i=>canDo(S.crews[i],type)), usual=able.filter(i=>roleFits(S.crews[i],type));
+  (usual.length?usual:able).forEach(i=>{ const e=crewEta(i,node,type,cable); if(e<bt){bt=e;best=i;} });
   return best<0?0:best;
 }
 function pendingFor(sid){
@@ -1706,6 +1888,60 @@ function genStatus(g){
   if(g.stage==='on') return `Running at ${N[g.node].name} since ${fmtT(g.since)}`;
   return `Returning to the depot · back ${fmtT(g.tArrive)}`;
 }
+// ---------- Customer welfare van ----------
+// Hot drinks, food, phone charging and checks on vulnerable households, for a substation facing a long power cut.
+const VAN={cost:600,hourly:120,minOff:45};
+const vanAt = n=>(S.vans||[]).find(v=>v.node===n&&(v.stage==='travel'||v.stage==='on'));
+const vanFree = ()=>(S.vans||[]).find(v=>v.stage==='home');
+const vanTime = (p,q)=>Math.round(tt(p,q)*(nightWork(S.t)?1.15:1)*(S.snow?1.6:1));
+// why the van can't go here, or null if it can
+function vanBlock(n){
+  if(S.on[n]) return 'customers here are on supply';
+  if(vanAt(n)) return 'the van is already there or on its way';
+  const e=S.etr&&S.etr[areaOf(n)], long=S.t-S.offSince[n]>=VAN.minOff||(e&&e.t-S.t>=180);
+  if(!long) return `it is for long power cuts (off for ${VAN.minOff} minutes, or a restoration time 3 hours or more away)`;
+  if(!vanFree()) return 'the welfare van is already out';
+  return null;
+}
+function sendVan(n){
+  if(!canOrder()||vanBlock(n)) return;
+  pushUndo(`send the welfare van to ${N[n].name}`);
+  const v=vanFree(), from=vanPos(v).slice(), d=vanTime(from,N[n].m);
+  Object.assign(v,{node:n,stage:'travel',from,to:N[n].m.slice(),t1:S.t,tArrive:S.t+d,path:d>0?routePath(from,N[n].m).map(p=>[+p[0].toFixed(1),+p[1].toFixed(1)]):null});
+  S.cost.van=(S.cost.van||0)+VAN.cost;
+  log(`Welfare van ${v.id} heading to ${N[n].name} (£${VAN.cost} plus £${VAN.hourly} an hour). It arrives about ${fmtT(v.tArrive)}.`);
+  afterChange(); render();
+}
+function vanHome(v,msg){
+  const from=vanPos(v).slice(), to=NET.depot.slice(), d=vanTime(from,to);
+  if(msg) log(msg,v.stage==='on'?'good':'');
+  Object.assign(v,{stage:'return',from,to,t1:S.t,tArrive:S.t+d,path:d>0?routePath(from,to).map(p=>[+p[0].toFixed(1),+p[1].toFixed(1)]):null});
+  dirty=true;
+}
+function vanEvent(v){
+  if(v.stage==='travel'){
+    if(S.on[v.node]){ vanHome(v,`Welfare van ${v.id} reached ${N[v.node].name}, but the power is already back. Heading home.`); return; }
+    v.stage='on'; v.since=S.t; S.welfare[v.node]=true; rep(2);
+    log(`Welfare van ${v.id} set up at ${N[v.node].name}: hot drinks, food and phone charging, and checks on ${psrCount(v.node)} vulnerable households.`,'good');
+    news(null,`Hot drinks and phone charging for ${N[v.node].name} residents as the power cut goes on`,2); sfx('chime');
+  } else if(v.stage==='return'){ v.stage='home'; v.node=null; v.path=null; log(`Welfare van ${v.id} is back at the depot.`); }
+  dirty=true;
+}
+function vanPos(v){
+  if((v.stage==='travel'||v.stage==='return')&&v.tArrive>v.t1){
+    const k=Math.max(0,Math.min(1,(S.t-v.t1)/(v.tArrive-v.t1)));
+    return v.path&&v.path.length>1?pointAlong(v.path,k):[v.from[0]+(v.to[0]-v.from[0])*k,v.from[1]+(v.to[1]-v.from[1])*k];
+  }
+  if(v.stage==='return') return v.to;
+  if(v.stage==='home'||!v.node) return NET.depot;
+  return N[v.node].m;
+}
+function vanStatus(v){
+  if(v.stage==='home') return 'At the depot';
+  if(v.stage==='travel') return `Driving to ${N[v.node].name} · arrives ${fmtT(v.tArrive)}`;
+  if(v.stage==='on') return `Serving customers at ${N[v.node].name} since ${fmtT(v.since)}`;
+  return `Returning to the depot · back ${fmtT(v.tArrive)}`;
+}
 function orderMakeSafe(n){ if(!canOrder()||safeBusy(n)) return; pushUndo('make '+N[n].name+' safe'); dispatch({type:'makesafe',node:n}); afterChange(); render(); }
 function nearEnd(cid,i){
   const c=CBL[cid], ends=[c.a,c.b].filter(x=>N[x].kind!=='primary');
@@ -1764,7 +2000,7 @@ function issuePermit(cid){
   const p=S.permits[cid]={no:'PTW '+String(S.permitSeq).padStart(3,'0'),t:S.t,state:'issued'};
   log(`Permit to work ${p.no} issued for ${cableName(CBL[cid])}: isolated and earthed at both ends.`,'good'); sfx('click');
   // a crew already waiting on site starts straight away
-  S.crews.forEach(cr=>{ const j=cr.job; if(j&&j.stage==='wait'&&j.cable===cid) startWork(cr,j); });
+  wakeWaiting(cid);
   afterChange(); render();
 }
 function cancelPermit(cid){
@@ -1879,18 +2115,22 @@ function newIncident(def,scen,crews,shift=null,assessors=0,ctx=null){
   const t=career?(ctx.night?19*60:7*60):start!=null?start:shift&&shift.id==='s2'?22*60+Math.floor(rand()*90):(ctx&&ctx.night?21*60+rint(0,120):7*60+Math.floor(rand()*12*60));
   const storm=scen==='storm'||scen==='bigstorm';
   const depots=[NET.depot,...(NET.depot2?[NET.depot2]:[])];
-  const unit=(role,i)=>{ const d=depots[i%depots.length]; return {id:(role==='crew'?'Crew ':'Assessor ')+(i+1),tag:(role==='crew'?'CR':'AS')+(i+1),role,pos:d.slice(),at:'depot',job:null,queue:[],worked:0}; };
+  const unit=(role,i)=>{ const d=depots[i%depots.length]; return {id:ROLE[role].name+' '+(i+1),tag:ROLE[role].tag+(i+1),role,pos:d.slice(),at:'depot',job:null,queue:[],worked:0}; };
   crews+=upg.crews||0; assessors+=upg.assessors||0;
+  // a tree team is always on call; a planned team works the maintenance and other teams' work requests
+  const vegTeams=1, plannedTeams=scen==='planned'||(ctx&&ctx.type==='career')?1:0;
   S={def,scen,t,t0:t,paused:true,speed:1,sw:normalSw(),faults:[],pending:[],fpi:{},on:{},offSince:{},counted:{},theft:{},lvOut:{},
      ci:0,cml:0,affected:0,ops:0,faultTrips:0,overloads:0,safety:0,shift:shift?shift.id:null,brief:shift?shift.brief:(ctx&&ctx.brief||''),
-     crews:[...Array.from({length:crews},(_,i)=>unit('crew',i)),...Array.from({length:assessors},(_,i)=>unit('assessor',i))],
+     crews:[...Array.from({length:crews},(_,i)=>unit('crew',i)),...Array.from({length:assessors},(_,i)=>unit('assessor',i)),
+       ...Array.from({length:vegTeams},(_,i)=>unit('veg',i)),...Array.from({length:plannedTeams},(_,i)=>unit('planned',i))],
+     vans:[{id:'W1',stage:'home'}], etr:{}, cleared:{},
      calls:{},callsTotal:0,callArea:{},media:[],mediaSeq:0,news:[],newsFlags:{},areaHit:{},rep:70,
      weather:storm?{storm:true,name:shift&&shift.stormName||ctx&&ctx.stormName||STORM_NAMES[Math.floor(rand()*STORM_NAMES.length)],
        base:22,peak:scen==='bigstorm'?rint(80,92):rint(68,82),tp:t+rint(90,150),width:rint(100,140)}:{storm:false,calm:rint(8,19)},
      control:[],log:[],tested:{},sel:null,phase:scen==='planned'?'planned':'restore',modal:null,dispatch:'auto',headline:'',stormUntil:null,restored:null,closedAt:null,
      diff:ctx&&ctx.diff||UI.settings.difficulty, everOff:{}, backAt:{}, maxOff:{}, hist:[], frames:[], hintsL3:0, undos:0,
      flooded:{}, lvFault:{}, rtuDown:{}, rtuFail:null, bkStart:{}, welfare:{}, heat:scen==='heatwave', festival:null, planned:null, pole:null, dev:null, flood:null,
-     cost:{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0,generators:0}, gens:[], upg, ctx:ctx?{type:ctx.type,label:ctx.label,date:ctx.date,week:ctx.week,day:ctx.day}:null,
+     cost:{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0,generators:0,van:0}, gens:[], upg, ctx:ctx?{type:ctx.type,label:ctx.label,date:ctx.date,week:ctx.week,day:ctx.day}:null,
      season:ctx&&ctx.season||null,
      // earths and permits to work (the guided training shift leaves them out)
      docs:UI.settings.docs!==false&&!(shift&&shift.id==='s0'), earths:{}, permits:{}, permitSeq:0,
@@ -3006,8 +3246,10 @@ function renderSvg(edit){
       let bi=0, crewBadges='';
       if(!edit) S.crews.forEach(cr=>{
         const on=cr.at===id, en=!on&&cr.job&&cr.job.node===id&&cr.job.stage==='travel';
-        if(on||en){ crewBadges+=`<g class="crew${en?' enroute':''}${cr.role==='assessor'?' as':''}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${cr.tag}</text></g>`; bi++; }
+        if(on||en){ crewBadges+=`<g class="crew${en?' enroute':''}${roleCls(cr)}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${cr.tag}</text></g>`; bi++; }
       });
+      const wv=!edit&&vanAt(id);
+      if(wv){ crewBadges+=`<g class="crew${wv.stage==='travel'?' enroute':''} wvb" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${wv.id}</text></g>`; bi++; }
       const gg=!edit&&genAt(id);
       if(gg){ crewBadges+=`<g class="genbadge${gg.stage==='travel'?' enroute':''}" transform="translate(${-8-bi*30},-31)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${gg.stage==='on'?'⚡':''}${gg.id}</text></g>`; bi++; }
       h+=`<g class="node" data-k="node" data-id="${id}" transform="translate(${n.s[0]},${n.s[1]})" tabindex="0" role="button" aria-label="${n.name}">
@@ -3062,15 +3304,23 @@ function renderSvg(edit){
   // crews on the map, with the route ahead and arrival time for anyone driving
   if(!edit&&!isS){
     const offs=crewOffsets();
-    S.crews.forEach(cr=>{ const j=cr.job; if(j&&j.stage==='travel'&&j.path&&j.path.length>1) h+=`<polyline class="route${cr.role==='assessor'?' as':''}" points="${j.path.map(p=>p.join(',')).join(' ')}"/>`; });
+    S.crews.forEach(cr=>{ const j=cr.job; if(j&&j.stage==='travel'&&j.path&&j.path.length>1) h+=`<polyline class="route${roleCls(cr)}" points="${j.path.map(p=>p.join(',')).join(' ')}"/>`; });
     S.crews.forEach((cr,i)=>{ const j=cr.job, eta=j&&j.stage==='travel'?`<text class="eta" y="-12">${fmtT(j.tArrive)}</text>`:'';
-      h+=`<g id="crew-${i}" class="van${cr.role==='assessor'?' as':''}" transform="translate(${offs[i][0]},${offs[i][1]})" pointer-events="none"><path class="body" d="M-17,-8 h21 v14 h-21z M5,-4 h6 l5,5 v5 h-11z"/><circle class="wheel" cx="-10" cy="7" r="3"/><circle class="wheel" cx="9" cy="7" r="3"/><text x="-6.5" y="2">${cr.tag}</text>${eta}${workIcon(cr)}</g>`; });
+      h+=`<g id="crew-${i}" class="van${roleCls(cr)}" transform="translate(${offs[i][0]},${offs[i][1]})" pointer-events="none"><path class="body" d="M-17,-8 h21 v14 h-21z M5,-4 h6 l5,5 v5 h-11z"/><circle class="wheel" cx="-10" cy="7" r="3"/><circle class="wheel" cx="9" cy="7" r="3"/><text x="-6.5" y="2">${cr.tag}</text>${eta}${workIcon(cr)}</g>`; });
     // mobile generators: the unit parked by its substation, and the lorry on the road
     (S.gens||[]).forEach((g,i)=>{
       if(g.stage==='home') return;
       if(g.stage==='travel'&&g.path&&g.path.length>1) h+=`<polyline class="route gen" points="${g.path.map(p=>p.join(',')).join(' ')}"/>`;
       if(g.stage==='on'||g.stage==='setup'){ const [x,y]=N[g.node].m; h+=`<g class="genunit" transform="translate(${x-34},${y-14})" pointer-events="none"><path d="M13,2 Q24,8 31,13" fill="none" stroke="#2a2a2a" stroke-width="1.4" stroke-dasharray="${g.stage==='on'?'':'2 2'}"/><rect x="-13" y="-8" width="26" height="15" rx="2" fill="#f2c230" stroke="#6a5208" stroke-width="1"/><rect x="-10" y="-5" width="7" height="9" fill="#6a5208" opacity=".35"/><path d="M4,-5 L1,0 L4,0 L1,5" fill="none" stroke="#2a2205" stroke-width="1.4"/>${g.stage==='on'?'<circle class="fan" cx="9" cy="-11" r="2.5" fill="#cfcfcf" opacity=".8"/>':''}</g>`; }
       else { const p=genSpread(i); h+=`<g id="gen-${i}" class="genlorry" transform="translate(${p[0].toFixed(1)},${p[1].toFixed(1)})" pointer-events="none"><path d="M-19,-7 h23 v13 h-23z M4,-4 h6 l5,5 v5 h-11z" fill="#f2c230" stroke="#6a5208" stroke-width="1"/><circle cx="-11" cy="7" r="3" fill="#2a2a2a"/><circle cx="9" cy="7" r="3" fill="#2a2a2a"/><text x="-7.5" y="2" text-anchor="middle" style="font:700 8px var(--mono);fill:#2a2205">${g.id}</text>${g.stage==='travel'?`<text class="eta" y="-12">${fmtT(g.tArrive)}</text>`:''}</g>`; }
+    });
+    // the welfare van: parked with an awning by its substation, or on the road
+    const vanG=(id,stage)=>`<g${id?` id="${id}"`:''} class="wvan" pointer-events="none"><path d="M-17,-8 h21 v14 h-21z M4,-4 h6 l5,5 v5 h-11z" fill="#8236bf" stroke="#fff" stroke-width="1"/><circle cx="-10" cy="7" r="3" fill="#2a2a2a"/><circle cx="9" cy="7" r="3" fill="#2a2a2a"/><path d="M-9,-4 h4 v-2 h2 v2 h4 v2 h-4 v2 h-2 v-2 h-4z" fill="#fff"/>${stage==='on'?'<path d="M-19,-8 L-27,-1 M-17,-8 h-12 l-4,6 h16z" fill="#e9d8f7" stroke="#8236bf" stroke-width=".8"/>':''}</g>`;
+    (S.vans||[]).forEach((v,i)=>{
+      if(v.stage==='home') return;
+      if(v.stage==='travel'&&v.path&&v.path.length>1) h+=`<polyline class="route wv" points="${v.path.map(p=>p.join(',')).join(' ')}"/>`;
+      const p=vanPos(v), off=v.stage==='on'?[30,16]:[0,0];
+      h+=`<g id="wvan-${i}" transform="translate(${(p[0]+off[0]).toFixed(1)},${(p[1]+off[1]).toFixed(1)})">${vanG(null,v.stage)}${v.stage==='travel'?`<text class="eta" y="-12">${fmtT(v.tArrive)}</text>`:''}</g>`;
     });
     RMUS.forEach(n=>{ if(S.flooded[n]&&!(S.flooded[n]==='damaged'&&S.flood&&S.flood.state==='receded')) { const [x,y]=N[n].m; h+=`<g class="flooded-water" pointer-events="none"><ellipse cx="${x}" cy="${y+4}" rx="52" ry="26"/><path d="M${x-34} ${y+8}q6-5 12 0t12 0t12 0M${x-8} ${y+20}q6-5 12 0t12 0t12 0M${x-30} ${y-8}q6-5 12 0t12 0" fill="none" stroke="#dff1ff" stroke-width="2" stroke-linecap="round"/></g>`; } });
     h+=moverLayer('air')+weatherFx();
@@ -3168,7 +3418,7 @@ function taskBoxes(){
   return h;
 }
 // crews standing by for a permit, and the paperwork still to finish before normal running
-const waitingCrews = ()=>S.crews.filter(cr=>cr.job&&cr.job.stage==='wait');
+const waitingCrews = ()=>S.crews.filter(cr=>cr.job&&cr.job.stage==='wait'&&cr.job.waitFor!=='veg');
 function docsTodo(){
   if(!docsOn()) return '';
   const cl=cid=>`<button class="linkbtn" data-act="selc" data-c="${cid}">${cableName(CBL[cid])}</button>`;
@@ -3243,8 +3493,80 @@ function nodeExtras(n){
     if(!why) h+=`<button class="btn wide gen" data-act="gen" data-n="${n}" ${canOrder()?'':'disabled'}>Hire a mobile generator<small>£${fmtN(GEN.hire)} + £${GEN.hourly}/h · on supply about ${fmtT(S.t+genEta(n)+GEN.setup)}</small></button>`;
     else h+=`<p class="note">Mobile generator: not possible here, ${why}.</p>`;
   }
+  // the customer welfare van, for long power cuts
+  const v=vanAt(n);
+  if(v) h+=`<div class="vanbox"><b>Welfare van ${v.id}</b>${vanStatus(v)}${v.stage==='on'?'<br><span class="muted">Fewer calls from here, and vulnerable customers are being checked on. It heads home when the power is back.</span>':''}
+    <button class="btn alt" data-act="van-home" data-id="${v.id}" style="display:block;margin-top:8px" ${canOrder()?'':'disabled'}>Recall the van</button></div>`;
+  else if(!S.on[n]){
+    const why=vanBlock(n);
+    if(!why) h+=`<button class="btn wide van" data-act="van" data-n="${n}" ${canOrder()?'':'disabled'}>Send the welfare van<small>£${VAN.cost} + £${VAN.hourly}/h · arrives about ${fmtT(S.t+vanTime(vanPos(vanFree()),N[n].m))}</small></button>`;
+    else h+=`<p class="note">Welfare van: not yet, ${why}.</p>`;
+  }
   if(!S.on[n]&&!S.welfare[n]) h+=`<button class="btn wide alt" data-act="welfare" data-n="${n}" ${canOrder()?'':'disabled'}>Arrange welfare visits<small>${psrCount(n)} vulnerable customers · £800</small></button>`;
   return h;
+}
+// ---------- Substation picture ----------
+// A single-line drawing of the selected substation in its live state. Its switches work like the buttons below: hover to preview, click to operate.
+function subSwitch(sid,x,y,site){
+  const closed=S.sw[sid], pend=pendingFor(sid), inter=docsOn()&&!closed&&earthed(sid);
+  const can=canOrder()&&!pend&&!locked(site)&&!inter;
+  const tip=pend?`queued for ${pend==='control'?'the control room':pend}`:locked(site)?'locked out':inter?'interlocked with its earth':`click to ${closed?'open':'close'} · ${costText(sid)}`;
+  return `<g class="ssw ${closed?'c':'o'}${can?' act':''}" transform="translate(${x},${y})" ${can?`data-act="op" data-sw="${sid}" data-close="${closed?0:1}" role="button" aria-label="${closed?'Open':'Close'} the ${switchLabel(sid)}"`:''}>
+    <title>${switchLabel(sid)}: ${closed?'closed':'open'}, ${tip}</title><rect class="hit" x="-17" y="-17" width="34" height="34"/>
+    ${pend?'<circle class="pend" r="13"/>':''}<rect class="blade" x="-7" y="-7" width="14" height="14" rx="1.5"/>
+    ${NOPS.has(sid)?`<text class="nop" x="12" y="4">${UI.settings.plain?'SPARE':'NOP'}</text>`:''}
+    ${docsOn()&&earthed(sid)?'<path class="earth" d="M-14,-2 v6 M-19,4 h10 M-17.5,7 h7 M-16,10 h4"/>':''}</g>`;
+}
+function substationSvg(id){
+  const n=N[id], sol=solve(), ways=INC[id], k=ways.length, W=320, cw=W/k, xs=ways.map((_,i)=>cw*(i+0.5));
+  const short=s=>s.length>17?s.slice(0,16)+'…':s;
+  const cabCol=c=>{ const lv=sol.cab[c.id], bad=S.tested[c.id]==='fault'&&faultOn(c.id); return {col:lv?col(lv):bad?'var(--fault)':'var(--dead)',dash:bad&&!lv?' stroke-dasharray="5 4"':''}; };
+  let g='';
+  if(n.kind==='primary'){
+    // 33 kV supply in at the top, the transformer, the 11 kV busbar, then a breaker for each feeder
+    g+=`<text class="sl" x="${W/2}" y="10">33 kV grid supply</text><line class="ln" x1="${W/2}" y1="14" x2="${W/2}" y2="26" style="stroke:var(--ink)"/>
+      <circle class="tx" cx="${W/2}" cy="35" r="9"/><circle class="tx" cx="${W/2}" cy="47" r="9"/><text class="sm l" x="${W/2+16}" y="45">33 / 11 kV</text>
+      <line class="ln" x1="${W/2}" y1="56" x2="${W/2}" y2="70" style="stroke:var(--ink)"/><rect class="bus" x="${xs[0]-22}" y="70" width="${xs[k-1]-xs[0]+44}" height="6" style="fill:var(--ink)"/>`;
+    ways.forEach(({c,end},i)=>{ const sid=c.id+':'+end, x=xs[i], cc=cabCol(c), cb=CB[sid], a=cb&&S.sw[sid]?Math.round(cbLoad(sol,sid)):0;
+      g+=`<line class="ln" x1="${x}" y1="76" x2="${x}" y2="88" style="stroke:var(--ink)"/>${subSwitch(sid,x,100,id)}
+        <line class="ln" x1="${x}" y1="112" x2="${x}" y2="146" style="stroke:${cc.col}"${cc.dash}/>
+        <text class="nm" x="${x}" y="160">${cb?`${cb.name} ${short(cb.feeder)}`:'To '+short(N[c[other(end)]].name)}</text>
+        ${cb?`<text class="sm${a>rat(sid)*0.9?' hot':''}" x="${x}" y="173">${S.sw[sid]?`${a} / ${rat(sid)} A`:'breaker open'}</text>`:''}`; });
+    return `<div class="subpic"><svg viewBox="0 0 ${W} 182" role="img" aria-label="${n.name} single-line diagram">${g}</svg></div>`;
+  }
+  const fed=sol.feed[id]!=null, busCol=fed?col(sol.feed[id]):'var(--dead)', on=!!S.on[id], cx=W/2, f=S.fpi[id];
+  // each cable comes in at the top through its switch
+  ways.forEach(({c,end},i)=>{ const sid=c.id+':'+end, x=xs[i], cc=cabCol(c);
+    g+=`<text class="nm" x="${x}" y="11">To ${short(N[c[other(end)]].name)}</text>
+      <line class="ln" x1="${x}" y1="18" x2="${x}" y2="44" style="stroke:${cc.col}"${cc.dash}/>${subSwitch(sid,x,56,id)}
+      <line class="ln" x1="${x}" y1="68" x2="${x}" y2="88" style="stroke:${busCol}"/>`; });
+  g+=`<rect class="bus" x="${Math.min(xs[0],cx)-24}" y="88" width="${Math.max(xs[k-1],cx)-Math.min(xs[0],cx)+48}" height="6" rx="1" style="fill:${busCol}"/>`;
+  // the fault passage indicator hangs off the busbar
+  const fx=Math.min(xs[0],cx)-24;
+  g+=`<g class="fpic" transform="translate(${fx+4},86)"><line x1="0" y1="0" x2="0" y2="-16"/>${!f.known?'<text x="4" y="-6">?</text>':`<path class="${f.trip?'trip':'clr'}" d="M0,-16 l11,4 l-11,4z"/>`}<title>Fault flag: ${!f.known?'not read yet':f.trip?'tripped':'not tripped'}</title></g>`;
+  // remote control unit
+  if(n.remote){ const dn=S.rtuDown&&S.rtuDown[id]; g+=`<g class="rtu${dn?' down':''}" transform="translate(${W-14},98)"><path d="M0,14 V0 M-5,-4 a7,7 0 0 1 10,0 M-8,-8 a12,12 0 0 1 16,0"/>${dn?'<path class="x" d="M-6,2 l12,10 M6,2 l-12,10"/>':''}<title>Remote control ${dn?'not responding':'working'}</title></g>`; }
+  // down through the fuse switch to the transformer, then the low-voltage board and the street
+  const lvBad=S.lvFault[id]||S.theft[id], gen=genAt(id), genOn=gen&&gen.stage==='on';
+  g+=`<line class="ln" x1="${cx}" y1="94" x2="${cx}" y2="106" style="stroke:${busCol}"/><rect class="fuse" x="${cx-5}" y="106" width="10" height="9"/>
+    <line class="ln" x1="${cx}" y1="115" x2="${cx}" y2="119" style="stroke:${busCol}"/><circle class="tx" cx="${cx}" cy="128" r="9"/><circle class="tx" cx="${cx}" cy="140" r="9"/>
+    <text class="sm l" x="${cx+16}" y="137">11 kV / 400 V</text>
+    <line class="ln" x1="${cx}" y1="149" x2="${cx}" y2="158" style="stroke:${fed?busCol:'var(--dead)'}"/><rect class="lvb" x="${cx-34}" y="158" width="68" height="7" rx="1"/>
+    <line class="ln" x1="${cx}" y1="165" x2="${cx}" y2="174" style="stroke:${on?'var(--ok)':'var(--dead)'}"/>`;
+  if(lvBad) g+=`<path class="xmark" d="M${cx-6},163 l12,12 M${cx+6},163 l-12,12"/>`;
+  // the houses it supplies: lights on or off
+  const hx=[-60,-30,0,30,60];
+  hx.forEach(dx=>{ const x=cx+dx; g+=`<g transform="translate(${x},186)"><path class="hs-r" d="M-9,0 L0,-8 L9,0Z"/><rect class="hs-w" x="-7" y="0" width="14" height="11"/><rect class="${on?'hs-lit':'hs-dark'}" x="-3" y="3" width="6" height="5"/></g>`; });
+  g+=`<text class="sm${on?'':' hot'}" x="${cx}" y="212">${fmtN(n.cust)} customers · ${on?'on supply':'off supply'}</text>`;
+  if(genOn) g+=`<g transform="translate(${cx+92},178)"><rect x="-16" y="-9" width="32" height="18" rx="2" fill="#f2c230" stroke="#6a5208"/><text x="0" y="4" class="gsx">${gen.id}</text><title>Mobile generator running</title></g><line class="ln" x1="${cx+76}" y1="178" x2="${cx+34}" y2="162" style="stroke:#d9a514;stroke-dasharray:3 2"/>`;
+  if(vanAt(id)&&vanAt(id).stage==='on') g+=`<g transform="translate(${cx-100},180)"><path d="M-14,-7 h18 v12 h-18z M4,-3 h5 l4,4 v4 h-9z" fill="#8236bf"/><circle cx="-8" cy="6" r="2.5" fill="#2a2a2a"/><circle cx="7" cy="6" r="2.5" fill="#2a2a2a"/><title>Welfare van on site</title></g>`;
+  // what's wrong here
+  const note=S.theft[id]?'Copper stolen: site unsafe':S.flooded[id]?(S.flooded[id]==='damaged'?'Wrecked by flood water':'Under flood water'):S.lvFault[id]?'Street (low-voltage) fault':null;
+  if(S.flooded[id]) g+=`<rect class="water" x="0" y="150" width="${W}" height="70"/><path class="wave" d="M10,160 q8,-5 16,0 t16,0 t16,0 M${W-70},170 q8,-5 16,0 t16,0 t16,0"/>`;
+  if(note) g+=`<text class="warnt" x="${W-6}" y="${S.flooded[id]?152:118}" text-anchor="end">${note}</text>`;
+  const crews=S.crews.filter(cr=>cr.at===id&&!(cr.job&&cr.job.stage==='travel'));
+  crews.forEach((cr,i)=>{ g+=`<g class="crew${roleCls(cr)}" transform="translate(${16+i*32},118)"><rect x="-14" y="-8" width="28" height="15" rx="3"/><text y="3">${cr.tag}</text><title>${cr.id} on site</title></g>`; });
+  return `<div class="subpic"><svg viewBox="0 0 ${W} 220" role="img" aria-label="${n.name} single-line diagram">${g}</svg></div>`;
 }
 // earths at each end of a cable, and its permit to work
 function docsSection(cid){
@@ -3271,13 +3593,14 @@ function renderPanel(){
     const n=N[sel.id];
     h=`<button class="linkbtn" data-act="desel">← Incident overview</button>`;
     if(n.kind==='primary'){
-      h+=`<h2 style="margin-top:8px">${n.name}</h2><p class="sub">33/11 kV primary substation</p><div style="margin-top:10px">`+
+      h+=`<h2 style="margin-top:8px">${n.name}</h2><p class="sub">33/11 kV primary substation</p>${substationSvg(sel.id)}<div style="margin-top:10px">`+
         INC[sel.id].map(({c,end})=>swRow(c.id+':'+end,true)).join('')+`</div>`;
     } else {
       const lv=sol.feed[sel.id], f=S.fpi[sel.id];
       const fpiTxt=!f.known?'Not read yet. Send a crew.':f.trip?'<span class="trip">Tripped</span>':'Not tripped';
       h+=`<div class="ph" style="margin-top:8px"><span class="code">${n.code||'–'}</span><div><h2>${n.name}</h2><p class="sub">${n.remote?'Remote-controlled ring main unit':'Manual ring main unit (crew needed)'}</p></div></div>
         ${lv&&!S.lvOut[sel.id]?`<span class="chip" style="--c:var(${CB[lv].color})">On supply · ${CB[lv].name}</span>`:lv?`<span class="chip" style="--c:var(--fault)">11 kV live · customers off</span>`:`<span class="chip" style="--c:var(--fault)">Off supply</span>`}
+        ${substationSvg(sel.id)}
         ${S.theft[sel.id]?`<div class="alertbox"><b>Copper theft.</b> Earth bonds and low-voltage cables have been stolen. Customers here stay off even with the network live, and the switchgear is locked out until a crew makes the site safe.</div>
           <button class="btn wide" data-act="makesafe" data-n="${sel.id}" ${!canOrder()||safeBusy(sel.id)?'disabled':''}>Make safe and re-joint<small>${safeBusy(sel.id)?'crew already assigned':(()=>{const i=chooseCrew(sel.id,'makesafe');return `${S.crews[i].id} · ~${Math.round(crewEta(i,sel.id,'makesafe'))} min`;})()}</small></button>`:''}
         ${nodeExtras(sel.id)}
@@ -3294,7 +3617,8 @@ function renderPanel(){
       }
     }
   } else {
-    const c=CBL[sel.id], lv=sol.cab[sel.id], t=S.tested[sel.id], busy=cableBusy(sel.id);
+    // the tree team clearing a line doesn't stop you sending the line crew to wait for it
+    const c=CBL[sel.id], lv=sol.cab[sel.id], t=S.tested[sel.id], busy=S.crews.some(cr=>[cr.job,...cr.queue].some(j=>j&&j.cable===sel.id&&j.type!=='clear'));
     const ends=[c.a,c.b].filter(x=>N[x].kind!=='primary'), look=c.oh?'patrol':'test';
     const est=type=>{ const i=chooseCrew(ends[0],type,sel.id), ne=nearEnd(sel.id,i); return `${S.crews[i].id} · ~${Math.round(crewEta(i,ne,type,sel.id))} min`; };
     const f=faultOn(sel.id), dmg=t==='fault'&&f&&f.damage?DAMAGE[f.damage]:null, g=windAt(S.t);
@@ -3304,6 +3628,12 @@ function renderPanel(){
       <dl class="facts"><dt>Condition</dt><dd>${dmg?`<span class="trip">Damaged: ${dmg.label}</span> · repair about ${fmtH(dmg.mins)}`:t==='fault'?'<span class="trip">Faulty</span>':t==='healthy'?(c.oh?'Patrolled, no damage':'Tested healthy'):t==='repaired'?'Repaired':c.oh?'Not patrolled':'Not tested'}</dd></dl>
       ${c.oh&&t==='fault'&&g>=WIND_LIMIT?`<p class="restrict">Gusts of ${g} mph: no climbing. A crew sent now waits on site until the wind drops below ${WIND_LIMIT} mph (about ${fmtT(windOK(S.t))}).</p>`:''}
       <h3 style="margin-top:14px">End switches</h3>`+['a','b'].map(e=>swRow(c.id+':'+e,false)).join('')+docsSection(sel.id);
+    // a tree on the line: the tree team has to cut it back before the line crew can repair
+    if(t==='fault'&&f&&f.damage==='tree'&&!S.cleared[sel.id]){
+      const vb=S.crews.some(cr=>[cr.job,...cr.queue].some(j=>j&&j.type==='clear'&&j.cable===sel.id));
+      h+=`<p class="restrict">A tree is on the line. The tree team must cut it back before a line crew can repair it.</p>
+        <button class="btn wide veg" data-act="clear" data-c="${sel.id}" ${!canOrder()||lv||vb?'disabled':''}>Clear trees from the line<small>${lv?'make it dead first':vb?'tree team already assigned':est('clear')}</small></button>`;
+    }
     if(t==='fault') h+=`<button class="btn wide" data-act="repair" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Repair ${c.oh?'line':'cable'}<small>${lv?'make it dead first':busy?'crew already assigned':est('repair')}</small></button>`;
     else if(t!=='repaired'&&c.oh) h+=`<button class="btn wide" data-act="patrol" data-c="${sel.id}" ${!canOrder()||busy?'disabled':''}>Patrol line for damage<small>${busy?'already assigned':est('patrol')}</small></button>`;
     else if(t!=='repaired') h+=`<button class="btn wide" data-act="test" data-c="${sel.id}" ${!canOrder()||lv||busy?'disabled':''}>Test cable<small>${lv?'make it dead first':busy?'crew already assigned':est('test')}</small></button>`;
@@ -3326,19 +3656,77 @@ function renderPanel(){
 function crewStatus(cr){
   const j=cr.job;
   if(j&&j.stage==='work'&&j.held&&S.t<j.held) return `At ${N[j.node].name}, waiting for the wind to drop · starts about ${fmtT(j.held)}`;
-  if(j&&j.stage==='wait') return `At ${N[j.node].name}, waiting for a permit to work`;
+  if(j&&j.stage==='wait') return `At ${N[j.node].name}, waiting ${j.waitFor==='veg'?'for the tree team to clear the line':'for a permit to work'}`;
   if(j) return j.stage==='travel'?`Driving to ${N[j.node].name} · arrives ${fmtT(j.tArrive)}`:`${jobText(j)} at ${N[j.node].name} · done ${fmtT(j.tDone)}`;
   if(cr.restUntil&&S.t<cr.restUntil) return `Resting after a long shift · back at ${fmtT(cr.restUntil)}`;
   if(cr.at==='depot') return 'At the depot';
   if(cr.at) return `Standing by at ${N[cr.at].name}`;
   return 'Waiting on the road';
 }
+// ---------- The incident board ----------
+const DMG_TITLE={tree:'Tree on the line',conductor:'Conductor down',pole:'Broken pole',cable:'Cable fault',digin:'Digger strike'};
+// everything that is live on the network right now: faults, damaged sites, deadlines and work
+function incidentItems(){
+  const out=[], sol=solve();
+  const cab=cid=>`<button class="linkbtn" data-act="selc" data-c="${cid}">${cableName(CBL[cid])}</button>`;
+  const nd=n=>`<button class="linkbtn" data-act="seln" data-n="${n}">${N[n].name}</button>`;
+  const jobOn=(cid,type)=>{ for(const cr of S.crews){ const j=cr.job; if(j&&j.cable===cid&&j.type===type) return {cr,j}; } return null; };
+  const queued=(cid,type)=>S.crews.some(cr=>cr.queue.some(j=>j.cable===cid&&j.type===type));
+  S.faults.forEach(f=>{
+    if(!f.active||f.repaired||(f.transient&&f.trips>0)) return;
+    const known=S.tested[f.cable]==='fault'||f.found, live=!!sol.cab[f.cable], rp=jobOn(f.cable,'repair'), cl=jobOn(f.cable,'clear');
+    let st, cls='';
+    if(!known) st=live?'Not yet found':'Isolated · not yet located';
+    else if(rp&&rp.j.stage==='work') { st=`${rp.cr.id} repairing · done about ${fmtT(rp.j.tDone)}`; cls='ok'; }
+    else if(rp&&rp.j.stage==='wait') st=`${rp.cr.id} on site, waiting ${rp.j.waitFor==='veg'?'for the tree team':'for a permit'}`;
+    else if(cl&&cl.j.stage==='work') st=`${cl.cr.id} clearing trees · done about ${fmtT(cl.j.tDone)}`;
+    else if(rp||cl||queued(f.cable,'repair')||queued(f.cable,'clear')) st='Team on the way';
+    else if(live) { st='Found, still live'; cls='bad'; }
+    else st=f.damage==='tree'&&!S.cleared[f.cable]?'Isolated · needs the tree team':'Isolated · waiting for a repair crew';
+    out.push({k:'fault',title:known&&f.damage?DMG_TITLE[f.damage]:'Fault',where:cab(f.cable),st,cls,since:f.t});
+  });
+  RMUS.forEach(n=>{
+    if(S.theft[n]) out.push({k:'theft',title:'Copper theft',where:nd(n),st:safeBusy(n)?'Crew making it safe':'Locked out · send a crew',cls:safeBusy(n)?'':'bad'});
+    if(S.flooded[n]) out.push({k:'flood',title:S.flooded[n]==='damaged'?'Flood damage':'Flooded',where:nd(n),st:S.flooded[n]==='damaged'?(nodeJobBusy(n,'rebuild')?'Crew rebuilding':'Rebuild once the water goes'):`Under water until about ${fmtT(S.flood&&S.flood.until||S.t)}`});
+    if(S.lvFault[n]) out.push({k:'lv',title:'Street fault',where:nd(n),st:nodeJobBusy(n,'lvfix')?'Crew on it':'Send a crew'});
+  });
+  if(S.flood&&S.flood.state==='warned') out.push({k:'flood',title:'Flood warning',where:nd(S.flood.node),st:`Water due about ${fmtT(S.flood.at)}`,cls:'bad'});
+  if(S.pole&&!S.pole.done) out.push({k:'pole',title:'Car hit a pole',where:cab(S.pole.cable),st:`Police deadline ${fmtT(S.pole.deadline)}`,cls:'bad'});
+  if(S.dev&&!S.dev.fixed&&!S.dev.failed) out.push({k:'dev',title:'Flickering lights',where:nd(S.dev.node),st:S.tested[S.dev.cable]==='fault'?'Failing cable found':'Find the failing cable'});
+  if(S.festival&&S.t<S.festival.to) out.push({k:'fest',title:'Festival',where:nd(S.festival.node),st:`${fmtT(S.festival.from)}–${fmtT(S.festival.to)} · adds ${S.festival.amps} A`});
+  const workSt=(cid,done)=>{ if(done) return 'Finished · return to normal'; const m=jobOn(cid,'maint'); return m?(m.j.stage==='work'?`${m.cr.id} working · done about ${fmtT(m.j.tDone)}`:m.j.stage==='wait'?`${m.cr.id} waiting for a permit`:'Team on the way'):sol.cab[cid]?'Switch it out':'Switched out · hand it over'; };
+  const p=S.planned; if(p&&S.phase!=='closed') out.push({k:'work',title:'Planned maintenance',where:cab(p.cable),st:workSt(p.cable,p.state==='done'),sub:`Window ${fmtT(p.from)}–${fmtT(p.to)}`});
+  (S.works||[]).forEach(w=>{ if(w.state==='prep'||(w.state==='done'&&S.t-w.doneAt<60)) out.push({k:'work',title:WORK_KINDS[w.kind].label,where:cab(w.cable),st:workSt(w.cable,w.state==='done'),sub:`Window ${fmtT(w.from)}–${fmtT(w.to)}`}); });
+  return out;
+}
+function renderBoard(){
+  const el=$('#boardSec'); if(!el) return;
+  const oa=offByArea(), areas=Object.keys(oa).sort((a,b)=>oa[b]-oa[a]), lock=!canOrder();
+  let h=`<h3>Customers off · restoration times</h3>`;
+  if(!areas.length) h+=`<p class="note">Everyone is on supply.</p>`;
+  areas.forEach(a=>{
+    const ns=RMUS.filter(n=>!S.on[n]&&areaOf(n)===a), since=Math.min(...ns.map(n=>S.offSince[n])), e=S.etr[a], sug=suggestEtr(a);
+    const st=!e?'<span class="etr-st none">No time given</span>':e.missed?'<span class="etr-st miss">Missed</span>':sug>e.t?'<span class="etr-st risk">At risk</span>':'<span class="etr-st ok">On track</span>';
+    h+=`<div class="etrrow"><div class="etr-h"><b>${a}</b><span>${fmtN(oa[a])} off · since ${fmtT(since)} (${fmtH(S.t-since)})</span></div>
+      <div class="etr-v">ETR <b>${e?fmtT(e.t):'–'}</b> ${st}${ns.some(n=>vanAt(n))?' <span class="etr-st van">Welfare van</span>':''}</div>
+      <div class="etr-btns"><button class="btn small" data-act="etr-sug" data-a="${a}" ${lock?'disabled':''}>Set ${fmtT(sug)}<small>suggested</small></button>${[[60,'+1h'],[120,'+2h'],[240,'+4h'],[480,'+8h']].map(([m,l])=>`<button class="btn alt small" data-act="etr" data-a="${a}" data-m="${m}" ${lock?'disabled':''}>${l}</button>`).join('')}</div>
+      <p class="etr-ns">${ns.map(n=>`<button class="linkbtn" data-act="seln" data-n="${n}">${N[n].name}</button>`).join(', ')}</p></div>`;
+  });
+  const items=incidentItems();
+  h+=`<h3 style="margin-top:16px">Faults and work (${items.length})</h3>`;
+  h+=items.length?`<ul class="incs">${items.map(x=>`<li class="inc ${x.k}"><span class="inc-i" aria-hidden="true"></span><div><div class="inc-t"><b>${x.title}</b>${x.since!=null?` <span class="muted">since ${fmtT(x.since)}</span>`:''}</div><div>${x.where}${x.sub?` <span class="muted">· ${x.sub}</span>`:''}</div><div class="inc-s ${x.cls||''}">${x.st}</div></div></li>`).join('')}</ul>`:'<p class="note">Nothing outstanding.</p>';
+  if(S.etrMet||S.etrMissed) h+=`<p class="muted" style="margin:10px 0 0">Restoration times this shift: ${S.etrMet||0} met, ${S.etrMissed||0} missed.</p>`;
+  el.innerHTML=h;
+}
 // ---------- Side panel tabs ----------
-const TABS=[['incident','Incident'],['teams','Teams'],['loads','Loading'],['news','News'],['weather','Weather'],['log','Log']];
+const TABS=[['incident','Overview'],['board','Incidents'],['teams','Teams'],['loads','Loading'],['news','News'],['weather','Weather'],['log','Log']];
 // what each tab shows on its badge: a count, or a dot, coloured by how urgent it is
 function tabBadges(){
   const b={}, sol=solve();
   if(UI.why&&UI.tab!=='incident') b.incident={dot:true,cls:'hot'};
+  // areas off with no restoration time given, or one that has been missed
+  const oa=offByArea(), noEtr=Object.keys(oa).filter(a=>!S.etr||!S.etr[a]).length, missed=Object.keys(S.etr||{}).filter(a=>S.etr[a].missed).length;
+  if(missed) b.board={n:missed,cls:'hot'}; else if(noEtr) b.board={n:noEtr,cls:'warn'};
   const wait=S.crews.filter(cr=>cr.job&&cr.job.stage==='wait').length;
   if(wait) b.teams={n:wait,cls:'warn'};
   if(CBIDS.some(id=>S.sw[id]&&cbLoad(sol,id)>rat(id)*0.9)) b.loads={dot:true,cls:'hot'};
@@ -3377,16 +3765,22 @@ function renderSide(){
       <div class="barl"><i style="width:${pct}%;background:var(${pct>90?'--fault':b.color})"></i></div></div>`;
   }).join('');
   const seg=S.crews.length>1?`<div class="seg small" role="group" aria-label="Dispatch">${[['auto','Fastest'],...S.crews.map((c,i)=>[i,c.tag])].map(([v,l])=>`<button data-act="dispatch" data-v="${v}" aria-pressed="${S.dispatch===v}">${l}</button>`).join('')}</div>
-    <p class="muted" style="margin:6px 0 0">Field jobs go to ${S.dispatch==='auto'?'whoever can finish first':S.crews[S.dispatch].id}.${S.crews.some(c=>c.role==='assessor')?' Assessors (AS) can only patrol lines and read indicators.':''}</p>`:'';
-  $('#crewSec').innerHTML=`<h3>Field teams</h3>${seg}<ul class="crews">${S.crews.map((cr,i)=>`<li><div class="cr-h"><span class="badge${cr.role==='assessor'?' as':''}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
+    <p class="muted" style="margin:6px 0 0">Field jobs go to ${S.dispatch==='auto'?'the quickest team that normally does that job':S.crews[S.dispatch].id}.</p>`:'';
+  const ROLE_NOTE={crew:'Switching, testing, repairs and site jobs.',assessor:'Patrol lines and read fault flags only.',veg:'Cut trees back off lines so a crew can repair them.',planned:'Maintenance and work requests. Can switch, earth, test and repair if you send them.'};
+  const crewLi=(cr,i)=>`<li><div class="cr-h"><span class="badge${roleCls(cr)}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
     <div class="fatigue" title="Hours worked this shift: crews must rest after 12"><i style="width:${Math.min(100,(cr.worked||0)/720*100)}%;background:var(${(cr.worked||0)>600?'--fault':(cr.worked||0)>420?'--warn':'--ok'})"></i></div>
-    ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`).join('')}</ul>
+    ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`;
+  const groups=Object.keys(ROLE).map(r=>{ const list=S.crews.map((cr,i)=>[cr,i]).filter(([cr])=>cr.role===r); if(!list.length) return '';
+    return `<h3 style="margin-top:14px">${ROLE[r].group}</h3><p class="muted rolenote">${ROLE_NOTE[r]}</p><ul class="crews">${list.map(([cr,i])=>crewLi(cr,i)).join('')}</ul>`; }).join('');
+  $('#crewSec').innerHTML=`<h3>Dispatch</h3>${seg}${groups}
     ${S.control.length?`<p class="muted" style="margin:10px 0 0">Control room: ${plural(S.control.length,'remote operation')} queued.</p>`:''}
+    <h3 style="margin-top:14px">Customer welfare</h3><ul class="crews">${(S.vans||[]).map(v=>`<li><div class="cr-h"><span class="badge wv">${v.id}</span><span>${vanStatus(v)}</span>${v.stage==='travel'||v.stage==='on'?`<button class="x" data-act="van-home" data-id="${v.id}" aria-label="Recall the van" title="Recall the van">×</button>`:''}</div></li>`).join('')}</ul>
+    <p class="muted" style="margin:6px 0 0">Hot drinks, food, phone charging and checks on vulnerable customers. Select a substation that has been off for a while to send it (£${VAN.cost} + £${VAN.hourly}/h).</p>
     <h3 style="margin-top:14px">Mobile generators</h3><ul class="crews">${Array.from({length:GEN.fleet},(_,k)=>{ const g=(S.gens||[]).find(x=>x.id==='G'+(k+1)); return `<li><div class="cr-h"><span class="badge gn">G${k+1}</span><span>${g?genStatus(g):'At the generator depot'}</span></div></li>`; }).join('')}</ul>
     <p class="muted" style="margin:6px 0 0">Select a substation that is off to hire one (£${fmtN(GEN.hire)} + £${GEN.hourly}/h, up to ${GEN.cap} customers).</p>
     ${S.phase!=='closed'&&!UI.replay?`<button class="btn wide alt" data-act="contractor" style="margin-top:10px" ${canOrder()?'':'disabled'}>Call in a contractor crew<small>£1,500 · starts at the depot</small></button>`:''}`;
   $('#log').innerHTML=S.log.map(l=>`<li class="${l.kind}"><time>${fmtT(l.t)}</time><span>${l.text}</span></li>`).join('');
-  renderWeather(); renderNews();
+  renderWeather(); renderNews(); renderBoard();
   $('#objSec').innerHTML=objectivesHtml(); $('#objSec').hidden=!(S.objectives||[]).length;
   renderTabs();
   decorateAll();
@@ -3452,7 +3846,8 @@ function lightUpdate(){
   showPhase();
   if(UI.view==='m') setSky(false);
   if(UI.view==='m'){ const offs=crewOffsets(); offs.forEach((p,i)=>{ const g=document.getElementById('crew-'+i); if(g) g.setAttribute('transform',`translate(${p[0]},${p[1]})`); });
-    (S.gens||[]).forEach((g,i)=>{ const el=document.getElementById('gen-'+i); if(el){ const p=genSpread(i); el.setAttribute('transform',`translate(${p[0].toFixed(1)},${p[1].toFixed(1)})`); } }); }
+    (S.gens||[]).forEach((g,i)=>{ const el=document.getElementById('gen-'+i); if(el){ const p=genSpread(i); el.setAttribute('transform',`translate(${p[0].toFixed(1)},${p[1].toFixed(1)})`); } });
+    (S.vans||[]).forEach((v,i)=>{ const el=document.getElementById('wvan-'+i); if(el&&(v.stage==='travel'||v.stage==='return')){ const p=vanPos(v); el.setAttribute('transform',`translate(${p[0].toFixed(1)},${p[1].toFixed(1)})`); } }); }
 }
 
 // ---------- Overlays ----------
@@ -4017,7 +4412,7 @@ function decorate(root){
     frag.appendChild(document.createTextNode(s.slice(last))); n.parentNode.replaceChild(frag,n);
   });
 }
-function decorateAll(){ ['#panel','#objSec','#loadsH','#crewSec','#log','#newsSec','#wxSec','#legend','.bar .stats','#overlay','#coach'].forEach(s=>document.querySelectorAll(s).forEach(decorate)); }
+function decorateAll(){ ['#panel','#boardSec','#objSec','#loadsH','#crewSec','#log','#newsSec','#wxSec','#legend','.bar .stats','#overlay','#coach'].forEach(s=>document.querySelectorAll(s).forEach(decorate)); }
 
 // ---------- Switch previews ----------
 function previewOp(sid,close){
@@ -4198,6 +4593,10 @@ function hintPlan(){
     focus:{nodes:[nodeOfSw(pair.a),nodeOfSw(pair.b)],cables:[pair.a.split(':')[0],pair.b.split(':')[0]]},
     move:{text:`First open the ${switchLabel(pair.a)}, then close the ${switchLabel(pair.b)} (about ${fmtN(pair.net)} more customers back).`,sw:pair.a,close:false}
   };
+  // keep customers informed: a restoration time for every area that's been off a while, and a fresh one when it's missed
+  const oaH=offByArea(), etrA=Object.keys(oaH).sort((a,b)=>oaH[b]-oaH[a]).find(a=>{ const e=S.etr&&S.etr[a]; if(e) return e.missed; return RMUS.some(n=>!S.on[n]&&areaOf(n)===a&&S.t-S.offSince[n]>=15); });
+  if(etrA) return {nudge:S.etr[etrA]?`The restoration time for ${etrA} has passed. Give customers a new one.`:`${fmtN(oaH[etrA])} customers in ${etrA} don't know when their power is coming back. Give them a restoration time: they ring less, and meeting it builds confidence.`,
+    focus:{nodes:RMUS.filter(n=>!S.on[n]&&areaOf(n)===etrA),cables:[]},move:{text:`Set the restoration time for ${etrA} to ${fmtT(suggestEtr(etrA))}.`,kind:'etr',id:etrA}};
   // street faults and flood rebuilds come once the switching has got everyone it can back on
   const lvN=RMUS.find(n=>S.lvFault[n]&&!S.crews.some(cr=>(cr.job&&cr.job.type==='lvfix'&&cr.job.node===n)||cr.queue.some(j=>j.type==='lvfix'&&j.node===n)));
   if(lvN) return {nudge:'One substation\'s customers are off but the 11 kV network is fine there. That is a street (low-voltage) fault.',focus:{nodes:[lvN],cables:[]},move:{text:`Send a crew to fix the low-voltage fault at ${N[lvN].name}.`,kind:'lvfix',id:lvN}};
@@ -4212,6 +4611,7 @@ function hintPlan(){
     const c=CBL[f.cable], known=S.tested[f.cable]==='fault', live=solve().cab[f.cable];
     if(live) continue;
     if(!known) return {nudge:'The damaged section is cut off. Now find exactly where the fault is.',focus:{nodes:ends(c),cables:[c.id]},move:{text:`${c.oh?'Patrol':'Test'} the ${cableName(c)} ${c.oh?'line':'cable'}.`,kind:c.oh?'patrol':'test',id:c.id}};
+    if(f.damage==='tree'&&!S.cleared[c.id]) return {nudge:'A tree is on the line. The tree team has to cut it back before a line crew can repair it.',focus:{nodes:ends(c),cables:[c.id]},move:{text:`Send the tree team to clear the ${cableName(c)} line.`,kind:'clear',id:c.id}};
     const d=docsStep(c.id);
     if(d&&d.wait) return docsWait(c.id);
     if(d) return {nudge:`The damage is found and cut off. ${docsNudge}`,focus:{nodes:ends(c),cables:[c.id]},move:d};
@@ -4238,6 +4638,9 @@ function hintPlan(){
       return (docsOn()&&CABLES.some(c=>s1.cab[c.id]&&cableEarthed(c.id)))||S.crews.some(cr=>{ const j=cr.job; return j&&j.cable&&j.stage!=='travel'&&['maint','repair','test'].includes(j.type)&&s1.cab[j.cable]; }); };
     const sid=ab.find(s=>sw[s])||ab.find(s=>!unsafe(s)); if(sid) return {nudge:'Some switches are still out of their normal position. A short break may be unavoidable between different main substations.',focus:{nodes:[nodeOfSw(sid)],cables:[]},move:{text:`${sw[sid]?'Open':'Close'} the ${switchLabel(sid)}.`,sw:sid,close:!sw[sid]}};
   }
+  // customers facing a long wait: the welfare van looks after the biggest group
+  const vn=(S.vans||[]).some(v=>v.stage==='home')&&RMUS.filter(n=>!S.on[n]&&S.t-S.offSince[n]>=90&&!vanBlock(n)).sort((a,b)=>N[b].cust-N[a].cust)[0];
+  if(vn) return {nudge:`${N[vn].name} has been off for ${fmtH(S.t-S.offSince[vn])}. The welfare van can look after those customers while they wait.`,focus:{nodes:[vn],cables:[]},move:{text:`Send the welfare van to ${N[vn].name}.`,kind:'van',id:vn}};
   // 7. customers who will be off for a long time: a mobile generator can carry them until the repair is done
   const gn=RMUS.filter(n=>!S.on[n]&&S.t-S.offSince[n]>=20&&!genBlock(n)).sort((a,b)=>N[b].cust-N[a].cust)[0];
   if(gn) return {nudge:`${N[gn].name} has been off a while and nothing more can be switched. A mobile generator could get those customers back on until the repair is finished.`,focus:{nodes:[gn],cables:[]},move:{text:`Hire a mobile generator for ${N[gn].name} (£${fmtN(GEN.hire)} + £${GEN.hourly} an hour).`,kind:'gen',id:gn}};
@@ -4258,6 +4661,8 @@ function doHintMove(){
   else if(m.kind==='gen') hireGenerator(m.id);
   else if(m.kind==='earth'||m.kind==='unearth') orderEarth(m.id,m.kind==='earth');
   else if(m.kind==='permit') issuePermit(m.id);
+  else if(m.kind==='etr') setEtr(m.id,suggestEtr(m.id));
+  else if(m.kind==='van') sendVan(m.id);
   else if(m.kind==='permitx') cancelPermit(m.id);
   else orderCable(m.id,m.kind);
 }
@@ -4504,7 +4909,7 @@ function startDaily(){
 function shiftMoney(){
   const c=S.cost||{crew:0,overtime:0,contractors:0,welfare:0,materials:0,damage:0};
   const items=[['Crew time',Math.round(c.crew/60*120)],['Overtime (before 07:00 and after 17:00)',Math.round(c.overtime/60*210)],['Contractors',c.contractors],
-    ['Welfare visits',c.welfare],['Work requests stood down',c.wasted||0],['Planned work completed (credit)',-(S.worksDone||0)*WORK_CREDIT],['Mobile generator hire',Math.round(c.generators||0)],['Materials',c.materials],['Flood damage',c.damage],
+    ['Welfare visits',c.welfare],['Welfare van',Math.round(c.van||0)],['Work requests stood down',c.wasted||0],['Planned work completed (credit)',-(S.worksDone||0)*WORK_CREDIT],['Mobile generator hire',Math.round(c.generators||0)],['Materials',c.materials],['Flood damage',c.damage],
     ['Regulator penalty: customer minutes lost',Math.round(S.cml*0.025)],['Regulator penalty: interruptions',Math.round(S.ci)]];
   const spent=items.reduce((a,i)=>a+i[1],0), budget=SHIFT_BUDGET[S.scen]||15000;
   return {items,spent,budget,result:budget-spent};
@@ -4863,6 +5268,11 @@ document.addEventListener('click',e=>{
     case 'visit': orderVisit(b.dataset.n); break;
     case 'test': orderCable(b.dataset.c,'test'); break;
     case 'repair': orderCable(b.dataset.c,'repair'); break;
+    case 'clear': orderCable(b.dataset.c,'clear'); break;
+    case 'van': sendVan(b.dataset.n); break;
+    case 'van-home': { const v=(S.vans||[]).find(x=>x.id===b.dataset.id); if(v&&canOrder()){ pushUndo('send the welfare van home'); vanHome(v,`Welfare van ${v.id} recalled to the depot.`); afterChange(); render(); } break; }
+    case 'etr': setEtr(b.dataset.a,S.t+(+b.dataset.m)); break;
+    case 'etr-sug': setEtr(b.dataset.a,suggestEtr(b.dataset.a)); break;
     case 'earth': orderEarth(b.dataset.sw,b.dataset.on==='1'); break;
     case 'permit': issuePermit(b.dataset.c); break;
     case 'permit-x': cancelPermit(b.dataset.c); break;
@@ -5027,7 +5437,7 @@ function tick(){
 }
 
 // ======================= Boot =======================
-const SAVE_VERSION=9;
+const SAVE_VERSION=10;
 function start(data){
   // only resume a game saved by this version; older saves have a different shape
   if(data&&data.v===SAVE_VERSION&&data.S&&data.S.def){ S=data.S; Object.assign(UI,data.UI||{}); E=data.E||null; if(E) E.drag=null;
