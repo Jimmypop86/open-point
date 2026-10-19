@@ -721,6 +721,136 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
 .flooded-water{fill:#4f8fc0;opacity:.55;pointer-events:none;animation:floodpulse 3s ease-in-out infinite}
 @keyframes floodpulse{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+body.calm *{transition:none!important;animation:none!important}
+
+/* compact header while a shift is running: one slim row */
+body.compact .bar{padding:7px 14px;gap:8px 18px}
+body.compact .brand h1{font-size:20px}
+body.compact .brand svg{width:24px;height:24px}
+body.compact .brand p.byline{display:none}
+body.compact .brand p{font-size:11px;margin:0}
+body.compact .stat label{font-size:9px;letter-spacing:.07em}
+body.compact .stat b{font-size:17px}
+body.compact .stats{gap:4px 18px}
+body.compact .seg button{padding:4px 9px;font-size:13px}
+body.compact .ghost{padding:5px 10px;font-size:13px}
+body.compact .app{gap:10px}
+
+/* alarm list */
+.alarmbar{position:relative;display:flex;align-items:center;gap:10px;background:var(--desk);color:var(--desk-ink);border-radius:6px;padding:6px 10px;font-size:13px;min-height:38px;
+  border-left:5px solid var(--desk-muted)}
+.alarmbar[hidden]{display:none}
+.alarmbar.hot{border-left-color:var(--desk-alarm)}
+.alarmbar.warn{border-left-color:var(--warn)}
+.alarmbar .al-n{font:700 11px var(--mono);border-radius:3px;padding:2px 6px;background:var(--desk-rule);white-space:nowrap}
+.alarmbar.hot .al-n{background:var(--desk-alarm);color:#fff;animation:alblink 1s steps(2) infinite}
+@keyframes alblink{50%{opacity:.45}}
+.alarmbar .al-last{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;background:none;border:0;color:inherit;text-align:left;padding:2px 0}
+.alarmbar .al-last time{font-family:var(--mono);color:var(--desk-muted);margin-right:8px}
+.alarmbar .al-b{border:1px solid var(--desk-rule);background:transparent;color:var(--desk-ink);border-radius:4px;padding:3px 9px;font:600 12px var(--body);cursor:pointer;white-space:nowrap}
+.alarmbar .al-b:hover{border-color:var(--accent)}
+.al-list{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:25;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:6px;box-shadow:0 14px 40px rgba(0,0,0,.25);max-height:min(60vh,420px);overflow:auto;padding:4px 0;margin:0;list-style:none}
+.al-list li{display:grid;grid-template-columns:46px 1fr auto;gap:8px;align-items:start;padding:6px 12px;border-top:1px solid var(--rule)}
+.al-list li:first-child{border-top:0}
+.al-list li time{font:12px var(--mono);color:var(--muted);padding-top:2px}
+.al-list li.bad{border-left:4px solid var(--fault)} .al-list li.warn{border-left:4px solid var(--warn)}
+.al-list li.new span{font-weight:700}
+.al-list li.new.bad span{animation:alblink 1.2s steps(2) 3}
+.al-list .al-acts{display:flex;gap:4px}
+.al-list .al-acts button{border:1px solid var(--rule);background:var(--panel);border-radius:4px;padding:2px 7px;font:600 11px var(--body);cursor:pointer;color:var(--ink)}
+.al-list .al-acts button:hover{border-color:var(--accent)}
+.al-list .al-empty{display:block;color:var(--muted);padding:10px 12px}
+
+/* what's-next timeline under the diagram */
+.timeline{position:relative;height:46px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);overflow:hidden;font-size:11px}
+.timeline .tl-now{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent)}
+.timeline .tl-tick{position:absolute;top:0;bottom:0;border-left:1px dashed var(--rule)}
+.timeline .tl-tick span{position:absolute;top:2px;left:3px;font:10px var(--mono);color:var(--muted);white-space:nowrap}
+.timeline .tl-m{position:absolute;top:18px;width:12px;height:12px;margin-left:-6px;border-radius:50%;border:2px solid var(--panel);cursor:pointer;padding:0;background:var(--muted);box-shadow:0 0 0 1px var(--rule)}
+.timeline .tl-m.crew{background:var(--warn)} .timeline .tl-m.done{background:var(--ok)} .timeline .tl-m.ctl{background:var(--accent)}
+.timeline .tl-m.gen{background:#f2c230} .timeline .tl-m.van{background:#8236bf} .timeline .tl-m.wx{background:#1b62c2} .timeline .tl-m.peak{background:#b8327a}
+.timeline .tl-m.work{background:#2f6fb3}
+.timeline .tl-m.dl{border-radius:2px;transform:rotate(45deg);background:var(--fault);width:13px;height:13px;margin-left:-6.5px}
+.timeline .tl-m.dl.soon{animation:alblink 1s steps(2) infinite}
+.timeline .tl-m:hover,.timeline .tl-m:focus-visible{box-shadow:0 0 0 3px var(--accent)}
+.timeline .tl-empty{position:absolute;left:12px;top:22px;color:var(--muted)}
+.timeline .tl-ap{position:absolute;right:6px;top:3px;display:flex;align-items:center;gap:4px;font:600 10px var(--body);color:var(--muted);background:var(--panel);padding:0 4px;cursor:pointer}
+.timeline .tl-ap input{margin:0}
+
+/* right-click (or long-press) menu */
+.ctxmenu{position:fixed;z-index:45;min-width:220px;max-width:300px;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:8px;box-shadow:0 16px 44px rgba(0,0,0,.28);padding:5px;display:flex;flex-direction:column}
+.ctxmenu[hidden]{display:none}
+.ctxmenu .cm-h{font:700 11px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 9px 4px}
+.ctxmenu button{display:block;width:100%;text-align:left;border:0;background:none;border-radius:5px;padding:7px 9px;font:600 13px var(--body);cursor:pointer;color:var(--ink)}
+.ctxmenu button small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.ctxmenu button:hover,.ctxmenu button:focus-visible{background:color-mix(in srgb,var(--accent) 14%,var(--panel));outline:none}
+.ctxmenu button:disabled{opacity:.45;cursor:not-allowed;background:none}
+.ctxmenu hr{border:0;border-top:1px solid var(--rule);margin:4px 0}
+/* hovering a team or an incident lights up where it is */
+.hl-ring{fill:none;stroke:var(--accent);stroke-width:4;opacity:.85;pointer-events:none}
+.hl-line{fill:none;stroke:var(--accent);stroke-width:12;stroke-opacity:.35;stroke-linecap:round;pointer-events:none}
+
+/* first-time tips */
+.tipcard{position:absolute;left:12px;bottom:12px;width:min(330px,calc(100% - 70px));background:var(--paper);color:var(--paper-ink);border-radius:8px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:6;font-size:14px;border-top:4px solid var(--accent)}
+.tipcard[hidden]{display:none}
+.tipcard b{display:block;font:700 15px var(--display);letter-spacing:.03em;text-transform:uppercase;margin-bottom:3px}
+.tipcard p{margin:0 0 8px}
+.tipcard .btnrow{margin-top:6px}
+.tipcard .linkbtn{color:var(--paper-ink);opacity:.75}
+
+/* minimap when zoomed in */
+.minimap{position:absolute;left:12px;bottom:12px;width:170px;height:auto;background:var(--panel);border:1px solid var(--rule);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.15);z-index:3;cursor:pointer}
+.minimap[hidden]{display:none}
+.minimap .mm-c{fill:none;stroke-width:5;stroke-linecap:round}
+.minimap .mm-v{fill:color-mix(in srgb,var(--accent) 14%,transparent);stroke:var(--accent);stroke-width:8}
+.tipcard:not([hidden])~.minimap,.minimap.up{bottom:auto;top:56px}
+
+/* legend show/hide */
+.legtog{border:1px solid var(--rule);background:var(--panel);border-radius:4px;padding:1px 8px;font:600 12px var(--body);color:var(--muted);cursor:pointer}
+.legend.closed span:not(.legkeep){display:none}
+
+/* a brief highlight when the panel changes */
+/* (not called "flash": that class is the storm's lightning, which is see-through) */
+.tabbody.glow{animation:panelflash .7s ease-out}
+@keyframes panelflash{0%{box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--accent) 70%,transparent)}100%{box-shadow:inset 0 0 0 3px transparent}}
+
+/* toasts sit low on the board, clear of the search box */
+#toast{top:auto;bottom:52px}
+
+/* title screen and pause menu */
+.mbox.title{max-width:520px;text-align:center;padding:34px 30px 24px;background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--accent) 16%,var(--panel)),var(--panel) 70%)}
+.mbox.title .logo{width:84px;height:84px;margin:0 auto 10px;display:block}
+.mbox.title h2{font-size:58px;letter-spacing:.06em;margin:0}
+.mbox.title .tagline{margin:6px 0 22px;color:var(--muted)}
+.menu-btns{display:flex;flex-direction:column;gap:8px;max-width:300px;margin:0 auto}
+.menu-btns .btn{text-align:center;padding:11px 14px;font-size:15px}
+.mbox.pause{max-width:360px;text-align:center}
+.mbox.pause h2{margin-bottom:14px}
+.keyhint{font:11px var(--mono);color:var(--muted);margin-top:14px}
+
+/* phones: the panel becomes a bottom sheet you drag up and down */
+.sheet-handle{display:none}
+@media (max-width:760px){
+  #playSide{position:fixed;left:0;right:0;bottom:0;top:auto;height:var(--sheet,46vh);max-height:none;z-index:15;border-radius:14px 14px 0 0;
+    box-shadow:0 -8px 30px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column;border-bottom:0}
+  #playSide .tabbody{overflow-y:auto}
+  #playSide .tabs{position:static}
+  .sheet-handle{display:flex;justify-content:center;padding:8px 0 4px;cursor:grab;touch-action:none;flex:none}
+  .sheet-handle span{width:44px;height:5px;border-radius:3px;background:var(--rule)}
+  body.mode-play{padding-bottom:calc(var(--sheet,46vh) + 16px)}
+  /* the compact header on a phone: clock, customers off and minutes lost, then one scrolling row of buttons */
+  body.compact .bar{gap:6px 12px;padding:6px 10px}
+  body.compact .brand{display:none}
+  body.compact .stats{display:flex;flex-wrap:nowrap;gap:12px;width:100%}
+  body.compact .stat:nth-child(3),body.compact .stat:nth-child(5){display:none}
+  body.compact .stat b{font-size:15px}
+  body.compact .controls{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:none;padding-bottom:2px}
+  body.compact .controls::-webkit-scrollbar{display:none}
+  body.compact .controls>*{flex:none}
+  .alarmbar .al-b:not([data-act="al-toggle"]){display:none}
+  .minimap{width:120px}
+  .timeline{height:40px}
+}
 </style>
 
 <div class="app">
@@ -757,8 +887,11 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
       </div>
       <button id="newBtn" class="ghost play-only" data-act="home">Control room</button>
       <button class="ghost" data-act="settings" title="Settings">Settings</button>
+      <button class="ghost play-only" data-act="pause-menu" title="Menu (Esc)" aria-label="Menu">☰</button>
     </div>
   </header>
+  <!-- the alarm list: newest alarm, how many are unacknowledged, and a drop-down of the rest -->
+  <div id="alarmBar" class="alarmbar play-only" role="region" aria-label="Alarms" hidden></div>
 
   <main class="layout">
     <section class="board">
@@ -778,11 +911,15 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
         <div id="toast" hidden></div>
         <div id="replayBar" class="replaybar" hidden></div>
         <div id="wxChip" class="wxchip play-only" hidden></div>
+        <svg id="minimap" class="minimap" hidden aria-label="Overview map: click to move the view"></svg>
+        <div id="tipCard" class="tipcard play-only" role="status" hidden></div>
       </div>
+      <div id="timeline" class="timeline play-only" aria-label="What's coming up"></div>
       <div class="legend" id="legend"></div>
     </section>
 
     <aside class="side play-only" id="playSide">
+      <div class="sheet-handle" id="sheetHandle" role="button" tabindex="0" aria-label="Drag to resize the panel"><span></span></div>
       <nav class="tabs" role="tablist" aria-label="Desk panels" id="sideTabs"></nav>
       <div class="tabbody">
         <div class="tabp" data-tab="incident" role="tabpanel"><section id="panel"></section><section id="objSec"></section></div>
@@ -799,6 +936,7 @@ table.acct tr.good td{color:var(--ok)} table.acct tr.bad td{color:var(--fault)}
 </div>
 <div id="overlay" hidden></div>
 <div id="tip" class="tip" role="tooltip" hidden></div>
+<div id="ctxMenu" class="ctxmenu" role="menu" hidden></div>
 
 <!-- optional hand-drawn art pack; the game draws its own art if this file is missing. See art/ART-GUIDE.md -->
 <script src="art/art.js"></script>
@@ -1012,7 +1150,7 @@ let S=null, E=null, dirty=false;
 const UI={view:'s',mode:'play',overlay:null,setup:{net:'b:megawatt',scen:'single',crews:2},msg:'',letter:false,
   settings:loadSettings(), undo:[], why:null, hint:null, pulse:null, vb:{}, tut:null};
 function loadSettings(){
-  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false,docs:true};
+  const def={plain:false,difficulty:'engineer',sound:true,big:false,cbsafe:false,docs:true,motion:'auto',header:'compact',autoPause:true,tips:true,legend:true};
   try{ return Object.assign(def,JSON.parse(localStorage.getItem('openpoint.settings')||'{}')); }catch(e){ return def; }
 }
 function saveSettings(){ try{ localStorage.setItem('openpoint.settings',JSON.stringify(UI.settings)); }catch(e){} }
@@ -1083,7 +1221,7 @@ function feedersOf(sol,cid){
 const offCount = ()=>RMUS.reduce((s,n)=>s+(S.on[n]?0:N[n].cust),0);
 const crewOnSite = n=>S.crews.some(cr=>cr.at===n);
 const faultOn = cid=>S.faults.find(f=>f.cable===cid&&f.active);
-function log(text,kind=''){ S.log.unshift({t:S.t,text,kind}); if(S.log.length>120) S.log.pop(); S.logN=(S.logN||0)+1; }
+function log(text,kind=''){ S.log.unshift({t:S.t,text,kind}); if(S.log.length>120) S.log.pop(); S.logN=(S.logN||0)+1; if(kind==='bad'||kind==='warn') raiseAlarm(text,kind); }
 
 // Protection: trip every breaker feeding an energised fault, then any breaker over its rating.
 function protect(natural){
@@ -3326,11 +3464,15 @@ function renderSvg(edit){
     h+=moverLayer('air')+weatherFx();
   }
   svg.innerHTML=h;
+  if(!edit&&UI.hlNow) showHl(UI.hlNow);
   if(!isS) try{ moveMovers(); }catch(e){}
   decorateSvg();
 }
 function renderLegend(){
-  const f=CBIDS.map((id,k)=>{ const dash=UI.settings.cbsafe?CB_DASH[k%CB_DASH.length]:''; return `<span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(${CB[id].color})${dash?';stroke-dasharray:'+dash:''}" stroke-width="4"/></svg>${CB[id].name} ${CB[id].feeder}</span>`; }).join('');
+  const open=UI.settings.legend!==false;
+  $('#legend').classList.toggle('closed',!open);
+  const tog=`<span class="legkeep"><button class="legtog" data-act="legend-toggle" aria-expanded="${open}">${open?'Hide key ▴':'Show key ▾'}</button></span>`;
+  const f=tog+CBIDS.map((id,k)=>{ const dash=UI.settings.cbsafe?CB_DASH[k%CB_DASH.length]:''; return `<span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(${CB[id].color})${dash?';stroke-dasharray:'+dash:''}" stroke-width="4"/></svg>${CB[id].name} ${CB[id].feeder}</span>`; }).join('');
   $('#legend').innerHTML=f+`
     <span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(--dead)" stroke-width="4" stroke-dasharray="5 4"/></svg>Dead</span>
     ${CABLES.some(c=>c.oh)?'<span><svg viewBox="0 0 26 14"><line x1="1" y1="7" x2="25" y2="7" style="stroke:var(--muted)" stroke-width="3"/><circle cx="8" cy="7" r="2.6" style="fill:var(--ink)"/><circle cx="18" cy="7" r="2.6" style="fill:var(--ink)"/></svg>Overhead line</span>':''}
@@ -3707,14 +3849,15 @@ function renderBoard(){
   areas.forEach(a=>{
     const ns=RMUS.filter(n=>!S.on[n]&&areaOf(n)===a), since=Math.min(...ns.map(n=>S.offSince[n])), e=S.etr[a], sug=suggestEtr(a);
     const st=!e?'<span class="etr-st none">No time given</span>':e.missed?'<span class="etr-st miss">Missed</span>':sug>e.t?'<span class="etr-st risk">At risk</span>':'<span class="etr-st ok">On track</span>';
-    h+=`<div class="etrrow"><div class="etr-h"><b>${a}</b><span>${fmtN(oa[a])} off · since ${fmtT(since)} (${fmtH(S.t-since)})</span></div>
+    h+=`<div class="etrrow" data-hl="area:${a}"><div class="etr-h"><b>${a}</b><span>${fmtN(oa[a])} off · since ${fmtT(since)} (${fmtH(S.t-since)})</span></div>
       <div class="etr-v">ETR <b>${e?fmtT(e.t):'–'}</b> ${st}${ns.some(n=>vanAt(n))?' <span class="etr-st van">Welfare van</span>':''}</div>
       <div class="etr-btns"><button class="btn small" data-act="etr-sug" data-a="${a}" ${lock?'disabled':''}>Set ${fmtT(sug)}<small>suggested</small></button>${[[60,'+1h'],[120,'+2h'],[240,'+4h'],[480,'+8h']].map(([m,l])=>`<button class="btn alt small" data-act="etr" data-a="${a}" data-m="${m}" ${lock?'disabled':''}>${l}</button>`).join('')}</div>
       <p class="etr-ns">${ns.map(n=>`<button class="linkbtn" data-act="seln" data-n="${n}">${N[n].name}</button>`).join(', ')}</p></div>`;
   });
   const items=incidentItems();
   h+=`<h3 style="margin-top:16px">Faults and work (${items.length})</h3>`;
-  h+=items.length?`<ul class="incs">${items.map(x=>`<li class="inc ${x.k}"><span class="inc-i" aria-hidden="true"></span><div><div class="inc-t"><b>${x.title}</b>${x.since!=null?` <span class="muted">since ${fmtT(x.since)}</span>`:''}</div><div>${x.where}${x.sub?` <span class="muted">· ${x.sub}</span>`:''}</div><div class="inc-s ${x.cls||''}">${x.st}</div></div></li>`).join('')}</ul>`:'<p class="note">Nothing outstanding.</p>';
+  const hlOf=x=>{ const c=x.where.match(/data-c="([^"]+)"/), n=x.where.match(/data-n="([^"]+)"/); return c?'cable:'+c[1]:n?'node:'+n[1]:''; };
+  h+=items.length?`<ul class="incs">${items.map(x=>`<li class="inc ${x.k}" data-hl="${hlOf(x)}"><span class="inc-i" aria-hidden="true"></span><div><div class="inc-t"><b>${x.title}</b>${x.since!=null?` <span class="muted">since ${fmtT(x.since)}</span>`:''}</div><div>${x.where}${x.sub?` <span class="muted">· ${x.sub}</span>`:''}</div><div class="inc-s ${x.cls||''}">${x.st}</div></div></li>`).join('')}</ul>`:'<p class="note">Nothing outstanding.</p>';
   if(S.etrMet||S.etrMissed) h+=`<p class="muted" style="margin:10px 0 0">Restoration times this shift: ${S.etrMet||0} met, ${S.etrMissed||0} missed.</p>`;
   el.innerHTML=h;
 }
@@ -3740,8 +3883,12 @@ function tabBadges(){
 }
 function renderTabs(){
   // picking something on the diagram, or asking for a hint, brings the incident tab forward
-  if(S.sel!==UI.lastSel){ UI.lastSel=S.sel; if(S.sel) UI.tab='incident'; }
-  if(UI.hint&&UI.hint!==UI.lastHint){ UI.lastHint=UI.hint; UI.tab='incident'; }
+  let flash=false;
+  if(S.sel!==UI.lastSel){ UI.lastSel=S.sel; if(S.sel){ UI.tab='incident'; flash=true; } }
+  if(UI.hint&&UI.hint!==UI.lastHint){ UI.lastHint=UI.hint; UI.tab='incident'; flash=true; }
+  // on a phone, a new selection pulls the bottom sheet up if it's tucked away
+  if(flash&&isSheet()&&(UI.sheet||0)<innerHeight*0.3) setSheet(innerHeight*0.46,true);
+  if(flash) flashPanel();
   if(UI.tab==='log') UI.logSeen=S.logN||0;
   const bd=tabBadges();
   $('#sideTabs').innerHTML=TABS.map(([k,l])=>{ const x=bd[k];
@@ -3750,8 +3897,11 @@ function renderTabs(){
 }
 function showTab(k){
   if(!TABS.some(t=>t[0]===k)) return;
-  UI.tab=k; renderTabs(); $('#playSide .tabbody').scrollTop=0;
+  UI.tab=k; renderTabs(); $('#playSide .tabbody').scrollTop=0; flashPanel();
+  if(isSheet()&&(UI.sheet||0)<innerHeight*0.3) setSheet(innerHeight*0.46,true);
 }
+// a brief glow round the panel so you notice it has changed
+function flashPanel(){ const b=$('#playSide .tabbody'); if(!b) return; b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); }
 function renderSide(){
   const sol=solve();
   if(!UI.tab) UI.tab='incident';
@@ -3767,7 +3917,7 @@ function renderSide(){
   const seg=S.crews.length>1?`<div class="seg small" role="group" aria-label="Dispatch">${[['auto','Fastest'],...S.crews.map((c,i)=>[i,c.tag])].map(([v,l])=>`<button data-act="dispatch" data-v="${v}" aria-pressed="${S.dispatch===v}">${l}</button>`).join('')}</div>
     <p class="muted" style="margin:6px 0 0">Field jobs go to ${S.dispatch==='auto'?'the quickest team that normally does that job':S.crews[S.dispatch].id}.</p>`:'';
   const ROLE_NOTE={crew:'Switching, testing, repairs and site jobs.',assessor:'Patrol lines and read fault flags only.',veg:'Cut trees back off lines so a crew can repair them.',planned:'Maintenance and work requests. Can switch, earth, test and repair if you send them.'};
-  const crewLi=(cr,i)=>`<li><div class="cr-h"><span class="badge${roleCls(cr)}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
+  const crewLi=(cr,i)=>`<li data-hl="crew:${i}"><div class="cr-h"><span class="badge${roleCls(cr)}${cr.contractor?' ct':''}">${cr.tag}</span><span>${crewStatus(cr)}</span>${cr.job?`<button class="x" data-act="cancel" data-crew="${i}" data-q="-1" aria-label="Stop current job" title="Stop current job">×</button>`:''}</div>
     <div class="fatigue" title="Hours worked this shift: crews must rest after 12"><i style="width:${Math.min(100,(cr.worked||0)/720*100)}%;background:var(${(cr.worked||0)>600?'--fault':(cr.worked||0)>420?'--warn':'--ok'})"></i></div>
     ${cr.queue.length?`<ol class="q">${cr.queue.map((j,k)=>`<li><span>Then: ${jobText(j)} at ${N[j.node].name}</span><button class="x" data-act="cancel" data-crew="${i}" data-q="${k}" aria-label="Remove job">×</button></li>`).join('')}</ol>`:''}</li>`;
   const groups=Object.keys(ROLE).map(r=>{ const list=S.crews.map((cr,i)=>[cr,i]).filter(([cr])=>cr.role===r); if(!list.length) return '';
@@ -3839,6 +3989,8 @@ function renderStats(){
 }
 function lightUpdate(){
   updateWxChip();
+  // the timeline and tips move on with the clock, a game minute at a time
+  const m=Math.floor(S.t); if(UI.lastMin!==m){ UI.lastMin=m; renderTimeline(); checkTips(); }
   $('#clock').textContent=fmtT(S.t);
   $('#cml').textContent=fmtN(S.cml);
   $('#ci').textContent=fmtN(S.ci);
@@ -3904,7 +4056,7 @@ function renderOverlay(){
   if(!UI.overlay&&S&&S.modal&&UI.mode==='play'&&!UI.replay) UI.overlay='milestone';
   if(!UI.overlay&&S&&S.pressPopup&&UI.mode==='play'&&!UI.replay&&S.phase!=='closed') UI.overlay='press';
   if(UI.overlay==='press'&&!(S&&S.pressPopup&&S.media.some(m=>m.id===S.pressPopup&&!m.answered))){ if(S) S.pressPopup=null; UI.overlay=null; }
-  if(!UI.overlay){ ov.hidden=true; ov.innerHTML=''; return; }
+  document.body.classList.toggle('compact',UI.mode==='play'&&!UI.overlay&&UI.settings.header!=='full');
   if(!UI.overlay){ ov.hidden=true; ov.innerHTML=''; return; }
   let h='';
   if(UI.overlay==='home'){
@@ -3975,6 +4127,21 @@ function renderOverlay(){
         ${debriefHtml(fin)}
         <div class="mbtns">${S.ctx&&S.ctx.type==='career'?'<button class="btn" data-act="career-start">Next career shift</button><button class="btn alt" data-act="home">Control room</button>':'<button class="btn" data-act="home">Back to the control room</button>'}${S.frames&&S.frames.length>1?'<button class="btn alt" data-act="replay">Watch the replay</button>':''}<button class="btn alt" data-act="m-view">View the network</button></div></div>`;
     }
+  } else if(UI.overlay==='title'){
+    const live=S&&S.phase!=='closed'&&S.ops>0;
+    h=`<div class="mbox title" role="dialog" aria-labelledby="ovt">
+      <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" style="fill:var(--desk)"/><path d="M6 22h7l9-9m0 9h6" style="stroke:var(--desk-ink)" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="13" cy="22" r="2.6" style="fill:var(--f1)"/></svg>
+      <h2 id="ovt">Open Point</h2><p class="tagline">Keep the lights on across Megawatt Island.</p>
+      <div class="menu-btns">${live?'<button class="btn" data-act="title-continue">Continue shift</button>':''}<button class="btn${live?' alt':''}" data-act="title-play">${live?'Control room':'Play'}</button>
+        <button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="fullscreen">${document.fullscreenElement?'Leave full screen':'Full screen'}</button>
+        ${canQuit()?'<button class="btn alt" data-act="quit">Quit</button>':''}</div>
+      <p class="copyright">An electricity fault management game by James Procter · © 2026 James Procter. All rights reserved.</p></div>`;
+  } else if(UI.overlay==='pause'){
+    h=`<div class="mbox pause" role="dialog" aria-labelledby="ovt"><p class="eyebrow">Clock stopped</p><h2 id="ovt">Paused</h2>
+      <div class="menu-btns"><button class="btn" data-act="pause-resume">Resume</button><button class="btn alt" data-act="home">Control room</button>
+        <button class="btn alt" data-act="settings">Settings</button><button class="btn alt" data-act="fullscreen">${document.fullscreenElement?'Leave full screen':'Full screen'}</button>
+        <button class="btn alt" data-act="title">Title screen</button>${canQuit()?'<button class="btn alt" data-act="quit">Quit</button>':''}</div>
+      <p class="keyhint">Esc resume · F full screen</p></div>`;
   } else if(UI.overlay==='settings'){
     const st=UI.settings, seg=(key,opts)=>`<div class="seg" role="group">${opts.map(([v,l])=>`<button data-act="set" data-k="${key}" data-v="${v}" aria-pressed="${String(st[key])===String(v)}">${l}</button>`).join('')}</div>`;
     h=`<div class="mbox wide" role="dialog" aria-labelledby="ovt"><h2 id="ovt">Settings</h2>
@@ -3988,6 +4155,11 @@ function renderOverlay(){
       <div class="fld"><span>Sound</span>${seg('sound',[[true,'On'],[false,'Off']])}</div>
       <div class="fld"><span>Text size</span>${seg('big',[[false,'Normal'],[true,'Large']])}</div>
       <div class="fld"><span>Circuit colours</span>${seg('cbsafe',[[false,'Standard'],[true,'Colour-blind friendly']])}</div>
+      <div class="fld"><span>Motion</span>${seg('motion',[['auto','Follow my device'],['full','Full'],['reduced','Reduced']])}</div>
+      <div class="fld"><span>Header during a shift</span>${seg('header',[['compact','Compact'],['full','Full']])}</div>
+      <div class="fld"><span>Pause before deadlines</span>${seg('autoPause',[[true,'On'],[false,'Off']])}</div>
+      <div class="fld"><span>Tips for new features</span>${seg('tips',[[true,'On'],[false,'Off']])} <button class="btn alt" data-act="tips-reset" style="margin-top:6px">Show all tips again</button></div>
+      <div class="fld"><span>Display</span><button class="btn alt" data-act="fullscreen">${document.fullscreenElement?'Leave full screen':'Full screen'} (F)</button></div>
       <div class="fld"><span>Keyboard shortcuts</span><div class="keys">
         <span><span class="kbd">Space</span></span><span>Pause or run the clock</span>
         <span><span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span></span><span>Clock speed 1×, 4×, 15×</span>
@@ -3996,7 +4168,10 @@ function renderOverlay(){
         <span><span class="kbd">U</span></span><span>Undo the last order</span>
         <span><span class="kbd">+</span> <span class="kbd">−</span> <span class="kbd">0</span></span><span>Zoom in, out, show everything (or scroll, drag and pinch)</span>
         <span><span class="kbd">/</span></span><span>Find a substation</span>
-        <span><span class="kbd">Esc</span></span><span>Close a window, deselect, or dismiss a hint</span></div></div>
+        <span><span class="kbd">Esc</span></span><span>Close a window, deselect, dismiss a hint, or open the pause menu</span>
+        <span><span class="kbd">Shift</span> + <span class="kbd">1</span>–<span class="kbd">7</span></span><span>Side panel tabs: Overview, Incidents, Teams, Loading, News, Weather, Log</span>
+        <span><span class="kbd">F</span></span><span>Full screen</span>
+        <span>Right-click</span><span>Orders for a switch, cable or substation (press and hold on a touch screen)</span></div></div>
       <div class="mbtns"><button class="btn" data-act="ov-close">Done</button><button class="btn alt" data-act="tut-start">Replay the training shift</button></div>
       <p class="copyright">Open Point, an electricity fault management game by James Procter. © 2026 James Procter. All rights reserved. The game's code, graphics and design may not be copied or reused without permission.</p></div>`;
   } else if(UI.overlay==='export'){
@@ -4054,7 +4229,9 @@ function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; cle
 
 let FINDNET=null;
 function render(){
-  document.body.className='mode-'+UI.mode+(UI.settings.big?' big':'')+(UI.settings.cbsafe?' cbsafe':'');
+  // the header slims down while a shift is on screen; reduced motion follows the setting or the system
+  const calm=UI.settings.motion==='reduced'||(UI.settings.motion!=='full'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  document.body.className='mode-'+UI.mode+(UI.settings.big?' big':'')+(UI.settings.cbsafe?' cbsafe':'')+(UI.mode==='play'&&!UI.overlay&&UI.settings.header!=='full'?' compact':'')+(calm?' calm':'');
   // keep the substation search list in step with the network on screen
   if(FINDNET!==(UI.mode==='edit'&&E?E.def:S&&S.def)){ FINDNET=UI.mode==='edit'&&E?E.def:S.def; const nn=FINDNET.nodes; $('#findList').innerHTML=Object.keys(nn).map(k=>`<option value="${nn[k].name}">${nn[k].code||''}</option>`).join(''); }
   $('#vS').setAttribute('aria-pressed',UI.view==='s'); $('#vM').setAttribute('aria-pressed',UI.view==='m');
@@ -4071,6 +4248,9 @@ function render(){
     renderSvg(true); renderTools(); renderEditSide(); $('#replayBar').hidden=true;
   }
   renderLegend(); renderOverlay(); renderCoach(); decorate($('#legend')); decorate(document.querySelector('.bar .stats'));
+  renderAlarms(); renderTimeline(); renderMinimap(); checkTips();
+  // the header may have changed size now the overlay has come or gone
+  document.body.classList.toggle('compact',UI.mode==='play'&&!UI.overlay&&UI.settings.header!=='full');
   dirty=false;
 }
 
@@ -4328,9 +4508,14 @@ function noise(ac,t0,dur,vol,freq){
   const s=ac.createBufferSource(), f=ac.createBiquadFilter(), g=ac.createGain(); s.buffer=b; f.type='lowpass'; f.frequency.value=freq; g.gain.value=vol;
   s.connect(f).connect(g).connect(ac.destination); s.start(t0);
 }
+// an alarm makes its own sound only if the event that raised it hasn't just made one
+function alarmSound(kind){ if(performance.now()-(UI.lastSfx||0)<600) return; sfx(kind==='bad'?'alarmHi':'alarmLo'); }
 function sfx(kind){
+  UI.lastSfx=performance.now();
   const ac=audio(); if(!ac) return; const t=ac.currentTime;
   try{
+    if(kind==='alarmHi'){ [0,.18].forEach(d=>tone(ac,988,t+d,.12,'triangle',.07)); return; }
+    if(kind==='alarmLo'){ tone(ac,587,t,.22,'sine',.06); return; }
     if(kind==='trip'){ noise(ac,t,.3,.6,700); tone(ac,62,t,.4,'sine',.4); }
     else if(kind==='click'){ noise(ac,t,.06,.3,2600); }
     else if(kind==='alarm'){ [0,.34,.68].forEach(d=>{ tone(ac,880,t+d,.15,'square',.05); tone(ac,660,t+d+.17,.15,'square',.05); }); }
@@ -4803,6 +4988,7 @@ function setVB(vb){
   const x=Math.max(-mx,Math.min(W-w+mx,vb[0])), y=Math.max(-my,Math.min(H-h+my,vb[1]));
   UI.vb[UI.view]=w>=W-0.5&&Math.abs(x)<0.5&&Math.abs(y)<0.5?null:[x,y,w,h];
   $('#svg').setAttribute('viewBox',(UI.vb[UI.view]||fullVB()).map(v=>+v.toFixed(1)).join(' '));
+  renderMinimap();
 }
 function clientToSvg(cx,cy){ const svg=$('#svg'), p=svg.createSVGPoint(); p.x=cx; p.y=cy; const r=p.matrixTransform(svg.getScreenCTM().inverse()); return [r.x,r.y]; }
 function zoomAt(f,cx,cy){
@@ -5184,8 +5370,30 @@ function previewTarget(t){
 }
 document.addEventListener('mouseover',e=>{
   const p=previewTarget(e.target); if(p) showPreview(p[0],p[1]); else if(!e.target.closest('#prev')) hidePreview();
-  const tm=e.target.closest&&e.target.closest('.term'); showTip(tm);
+  const tm=e.target.closest&&e.target.closest('.term,.tl-m'); showTip(tm);
+  // hovering a team, an incident or an area in the side panel lights it up on the diagram
+  const hl=e.target.closest&&e.target.closest('[data-hl]'); const spec=hl?hl.dataset.hl:null;
+  if(spec!==UI.hlNow){ UI.hlNow=spec; showHl(spec); }
 });
+document.addEventListener('fullscreenchange',()=>renderOverlay());
+// right-click for orders, or press and hold on a touch screen
+$('#svg').addEventListener('contextmenu',e=>{ if(openCtx(e.target,e.clientX,e.clientY)) e.preventDefault(); });
+let pressTimer=null;
+$('#svg').addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch') return;
+  const x=e.clientX, y=e.clientY, t=e.target;
+  clearTimeout(pressTimer);
+  pressTimer=setTimeout(()=>{ if(!UI.panMoved&&openCtx(t,x,y)){ UI.panMoved=true; UI.pan=null; } },550);
+});
+['pointerup','pointercancel','pointermove'].forEach(ev=>$('#svg').addEventListener(ev,e=>{ if(ev!=='pointermove'||UI.panMoved) clearTimeout(pressTimer); }));
+// the bottom sheet on phones: drag the handle, or tap it to open and close
+(()=>{
+  const h=$('#sheetHandle'); let drag=null;
+  h.addEventListener('pointerdown',e=>{ if(!isSheet()) return; drag={y:e.clientY,h:UI.sheet||Math.round(innerHeight*0.46),moved:false}; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove',e=>{ if(!drag) return; const dy=drag.y-e.clientY; if(Math.abs(dy)>4) drag.moved=true; if(drag.moved) setSheet(drag.h+dy,false); });
+  h.addEventListener('pointerup',()=>{ if(!drag) return; if(!drag.moved) setSheet((UI.sheet||innerHeight*0.46)<innerHeight*0.3?innerHeight*0.46:74,true); else setSheet(UI.sheet,true); drag=null; });
+  h.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setSheet((UI.sheet||innerHeight*0.46)<innerHeight*0.3?innerHeight*0.46:74,true); } });
+})();
 document.addEventListener('focusin',e=>{ const p=previewTarget(e.target); if(p) showPreview(p[0],p[1]); });
 document.addEventListener('focusout',()=>hidePreview());
 function showTip(el){
@@ -5226,12 +5434,22 @@ document.addEventListener('keydown',e=>{
   if(e.target.closest('input,select,textarea')) return;
   const k=e.key, typing=e.ctrlKey||e.metaKey||e.altKey;
   if(k==='Escape'){
-    if(UI.overlay&&UI.overlay!=='home'&&UI.overlay!=='milestone'){ UI.overlay=null; render(); }
+    const cm=$('#ctxMenu');
+    if(cm&&!cm.hidden) hideCtx();
+    else if(UI.alarmOpen){ UI.alarmOpen=false; renderAlarms(); }
+    else if(UI.overlay==='pause') resumeFromPause();
+    else if(UI.overlay==='title') {}
+    else if(UI.overlay&&UI.overlay!=='home'&&UI.overlay!=='milestone'){ UI.overlay=null; render(); }
     else if(UI.hint){ UI.hint=null; render(); }
     else if(UI.mode==='play'&&S&&S.sel){ S.sel=null; render(); }
+    // nothing left to close: Esc brings up the pause menu
+    else if(!UI.overlay&&UI.mode==='play'&&S) openPause();
     hidePreview(); return;
   }
+  if((k==='f'||k==='F')&&!e.ctrlKey&&!e.metaKey&&!e.altKey){ toggleFullscreen(); return; }
   if(UI.overlay) return;
+  // Shift + 1–7 jumps to a side panel tab
+  if(e.shiftKey&&/^Digit[1-7]$/.test(e.code)&&UI.mode==='play'){ const t=TABS[+e.code.slice(5)-1]; if(t){ e.preventDefault(); showTab(t[0]); } return; }
   if((e.ctrlKey||e.metaKey)&&k.toLowerCase()==='z'&&UI.mode==='play'){ e.preventDefault(); doUndo(); return; }
   if(typing) return;
   if(k===' '&&UI.mode==='play'&&!e.target.closest('button,[data-k]')){ e.preventDefault(); setSpeed(0); return; }
@@ -5261,9 +5479,32 @@ document.addEventListener('click',e=>{
   const mb=e.target.closest('[data-mode]');
   if(mb){ UI.vb={}; hidePreview(); if(mb.dataset.mode==='edit'&&UI.mode!=='edit') startEditor(); else if(mb.dataset.mode==='play'&&UI.mode!=='play'){ UI.mode='play'; render(); } return; }
   const tb=e.target.closest('#sideTabs [data-tab]'); if(tb){ showTab(tb.dataset.tab); return; }
+  // a click anywhere else closes the right-click menu and the alarm list
+  const inMenu=e.target.closest('#ctxMenu'); if(!inMenu) hideCtx();
+  if(UI.alarmOpen&&!e.target.closest('#alarmBar')){ UI.alarmOpen=false; renderAlarms(); }
+  if(e.target.closest('#minimap')){ minimapJump(e); return; }
   const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
   const a=b.dataset.act;
+  if(inMenu) hideCtx();
   switch(a){
+    case 'al-toggle': UI.alarmOpen=!UI.alarmOpen; renderAlarms(); return;
+    case 'al-ack': ackAlarm(+b.dataset.id); return;
+    case 'al-ackall': ackAlarm(null); return;
+    case 'al-go': goAlarm(+b.dataset.id); return;
+    case 'tl-go': { const it=(UI.tlItems||[])[+b.dataset.i]; if(it&&it.ref){ S.sel=it.ref.k==='cable'?{k:'cable',id:it.ref.id}:{k:'node',id:it.ref.id,sw:it.ref.sw}; focusNode(it.ref.k==='cable'?CBL[it.ref.id].a:it.ref.id); render(); } else if(it) toast(`${fmtT(it.t)} · ${it.label}`); return; }
+    case 'autopause': UI.settings.autoPause=b.checked; saveSettings(); return;
+    case 'tip-ok': if(UI.tipNow) markTip(UI.tipNow); UI.tipNow=null; checkTips(); return;
+    case 'tip-show': if(UI.tipNow) markTip(UI.tipNow); UI.tipNow=null; showTab(b.dataset.tab); checkTips(); return;
+    case 'tip-off': UI.settings.tips=false; saveSettings(); checkTips(); toast('Tips turned off. You can turn them back on in Settings.'); return;
+    case 'tips-reset': try{ localStorage.removeItem('openpoint.tips'); }catch(err){} UI.settings.tips=true; saveSettings(); toast('Tips will show again.'); renderOverlay(); return;
+    case 'legend-toggle': UI.settings.legend=UI.settings.legend===false; saveSettings(); renderLegend(); return;
+    case 'fullscreen': toggleFullscreen(); return;
+    case 'pause-menu': openPause(); return;
+    case 'pause-resume': resumeFromPause(); return;
+    case 'title': UI.overlay='title'; if(S) S.paused=true; render(); return;
+    case 'title-play': { let read=false; try{ read=localStorage.getItem('openpoint.letterRead')==='1'; }catch(err){} UI.overlay='home'; UI.letter=!read; render(); return; }
+    case 'title-continue': UI.overlay=null; render(); return;
+    case 'quit': if(canQuit()) window.close(); return;
     case 'op': orderOp(b.dataset.sw,b.dataset.close==='1'); break;
     case 'visit': orderVisit(b.dataset.n); break;
     case 'test': orderCable(b.dataset.c,'test'); break;
@@ -5295,7 +5536,7 @@ document.addEventListener('click',e=>{
     case 'hint-do': doHintMove(); break;
     case 'undo': doUndo(); break;
     case 'why-x': UI.why=null; render(); break;
-    case 'settings': UI.overlay='settings'; if(S) S.paused=true; renderOverlay(); renderStats(); break;
+    case 'settings': UI.settingsFrom=UI.overlay==='title'||UI.overlay==='pause'?UI.overlay:null; UI.overlay='settings'; if(S) S.paused=true; renderOverlay(); renderStats(); break;
     case 'set': {
       const key=b.dataset.k, raw=b.dataset.v, v=raw==='true'?true:raw==='false'?false:raw;
       UI.settings[key]=v; saveSettings();
@@ -5314,7 +5555,7 @@ document.addEventListener('click',e=>{
       newIncident(resolveNet(UI.setup.net),UI.setup.scen,UI.setup.crews,null,UI.setup.assessors||0);
       UI.overlay=null; UI.mode='play'; render(); break;
     }
-    case 'ov-close': UI.overlay=null; UI.msg=''; render(); break;
+    case 'ov-close': UI.overlay=UI.overlay==='settings'&&UI.settingsFrom?UI.settingsFrom:null; UI.settingsFrom=null; UI.msg=''; render(); break;
     case 'm-continue': S.modal=null; UI.overlay=null; S.paused=false; render(); break;
     case 'm-view': S.modal=null; UI.overlay=null; render(); break;
     case 'tool': E.tool=b.dataset.v; E.pend=null; renderTools(); renderSvg(true); break;
@@ -5425,6 +5666,7 @@ function tick(){
     }
     if(UI.mode==='play'&&S&&!S.paused&&S.phase!=='closed'&&!UI.overlay){
       advance(dtReal*SPEEDS[S.speed]);
+      checkAutoPause();
       sideTimer+=dtReal;
       if(dirty) render();
       else{
@@ -5435,6 +5677,210 @@ function tick(){
     }
   }catch(err){ console.error('Open Point tick failed',err); }
 }
+
+// ======================= Desk furniture =======================
+// ---------- Alarm list ----------
+// Every warning and bad event in the log becomes an alarm to acknowledge, linked to the switch, cable or substation it's about.
+function alarmRef(text){
+  for(const c of CABLES) if(text.includes(cableName(c))) return {k:'cable',id:c.id};
+  const m=text.match(/\bCB ([A-Z]\d+)/); if(m){ const cb=CBIDS.find(id=>CB[id].name===m[1]); if(cb) return {k:'node',id:CB[cb].prim,sw:cb}; }
+  const ns=Object.keys(N).sort((a,b)=>N[b].name.length-N[a].name.length);
+  for(const n of ns) if(text.includes(N[n].name)) return {k:'node',id:n};
+  return null;
+}
+function raiseAlarm(text,kind){
+  if(!S) return;
+  S.alarms=S.alarms||[]; S.alarmSeq=(S.alarmSeq||0)+1;
+  S.alarms.unshift({id:S.alarmSeq,t:S.t,text,kind,ref:alarmRef(text),ack:false});
+  if(S.alarms.length>80) S.alarms.pop();
+  alarmSound(kind); dirty=true;
+}
+const unacked = ()=>(S&&S.alarms||[]).filter(a=>!a.ack);
+function ackAlarm(id){ (S.alarms||[]).forEach(a=>{ if(id==null||a.id===id) a.ack=true; }); renderAlarms(); }
+function goAlarm(id){
+  const a=(S.alarms||[]).find(x=>x.id===id); if(!a) return;
+  a.ack=true; UI.alarmOpen=false;
+  if(a.ref){ S.sel=a.ref.k==='cable'?{k:'cable',id:a.ref.id}:{k:'node',id:a.ref.id,sw:a.ref.sw}; focusNode(a.ref.k==='cable'?CBL[a.ref.id].a:a.ref.id); }
+  render();
+}
+function renderAlarms(){
+  const el=$('#alarmBar'); if(!el) return;
+  if(UI.mode!=='play'||!S){ el.hidden=true; return; }
+  const all=S.alarms||[], un=all.filter(a=>!a.ack), last=un[0]||all[0];
+  el.hidden=false;
+  el.className='alarmbar play-only'+(un.some(a=>a.kind==='bad')?' hot':un.length?' warn':'');
+  el.innerHTML=`<span class="al-n" title="Unacknowledged alarms">${un.length?`${un.length} new`:'No new alarms'}</span>
+    ${last?`<button class="al-last" data-act="al-go" data-id="${last.id}" title="Show where this is"><time>${fmtT(last.t)}</time>${last.text}</button>`:'<span class="al-last" style="color:var(--desk-muted)">Alarms appear here as they happen.</span>'}
+    ${un.length?`<button class="al-b" data-act="al-ackall">Acknowledge all</button>`:''}
+    <button class="al-b" data-act="al-toggle" aria-expanded="${!!UI.alarmOpen}">${UI.alarmOpen?'Close ▴':`All (${all.length}) ▾`}</button>
+    ${UI.alarmOpen?`<ul class="al-list">${all.length?all.slice(0,40).map(a=>`<li class="${a.kind}${a.ack?'':' new'}"><time>${fmtT(a.t)}</time><span>${a.text}</span>
+      <span class="al-acts">${a.ref?`<button data-act="al-go" data-id="${a.id}">Show</button>`:''}${a.ack?'':`<button data-act="al-ack" data-id="${a.id}">Ack</button>`}</span></li>`).join(''):'<li><span class="al-empty">No alarms yet this shift.</span></li>'}</ul>`:''}`;
+}
+// ---------- What's coming up ----------
+const TL_SPAN=240;   // game minutes shown ahead
+function upcoming(){
+  const out=[], add=(t,k,label,ref,dl)=>{ if(t!=null&&t>S.t-0.5&&t<=S.t+TL_SPAN) out.push({t,k,label,ref,dl:!!dl,key:k+':'+label}); };
+  S.crews.forEach(cr=>{ const j=cr.job; if(!j) { if(cr.restUntil&&cr.queue.length) add(cr.restUntil,'crew',`${cr.id} back from rest`,null); return; }
+    if(j.stage==='travel') add(j.tArrive,'crew',`${cr.id} arrives at ${N[j.node].name}`,{k:'node',id:j.node});
+    else if(j.stage==='work') add(j.tDone,'done',`${cr.id}: ${jobText(j).toLowerCase()} done`,j.cable?{k:'cable',id:j.cable}:{k:'node',id:j.node}); });
+  S.control.forEach(o=>add(o.tDone,'ctl',`Remote: ${o.close?'close':'open'} ${switchLabel(o.sw)}`,{k:'node',id:nodeOfSw(o.sw),sw:o.sw}));
+  (S.gens||[]).forEach(g=>{ if(g.stage==='travel') add(g.tArrive,'gen',`Generator ${g.id} reaches ${N[g.node].name}`,{k:'node',id:g.node}); if(g.stage==='setup') add(g.tOn,'gen',`Generator ${g.id} on at ${N[g.node].name}`,{k:'node',id:g.node}); });
+  (S.vans||[]).forEach(v=>{ if(v.stage==='travel') add(v.tArrive,'van',`Welfare van reaches ${N[v.node].name}`,{k:'node',id:v.node}); });
+  Object.keys(S.etr||{}).forEach(a=>{ const e=S.etr[a]; if(!e.missed){ const n=RMUS.find(x=>!S.on[x]&&areaOf(x)===a); add(e.t,'etr',`Restoration time for ${a}`,n?{k:'node',id:n}:null,true); } });
+  S.media.forEach(m=>{ if(!m.answered) add(m.deadline,'press',`Reply to ${m.outlet}`,null,true); });
+  if(S.pole&&!S.pole.done) add(S.pole.deadline,'pole','Police deadline: switch off the pole',{k:'cable',id:S.pole.cable},true);
+  if(S.flood&&S.flood.state==='warned') add(S.flood.at,'flood',`Flood water reaches ${N[S.flood.node].name}`,{k:'node',id:S.flood.node},true);
+  if(S.weather&&S.weather.storm){ if(windAt(S.t)>=WIND_LIMIT) add(windOK(S.t),'wx',`Gusts drop below ${WIND_LIMIT} mph: crews can climb`,null); else if(S.weather.tp>S.t) add(S.weather.tp,'wx',`Storm peak: about ${S.weather.peak} mph`,null); }
+  const day=Math.floor(S.t/1440)*1440; [day+18.5*60,day+1440+18.5*60].forEach(t=>add(t,'peak','Evening demand peak',null));
+  const p=S.planned; if(p&&p.state==='prep'){ add(p.from,'work','Planned work window opens',{k:'cable',id:p.cable}); add(p.to,'work','Planned work must be finished',{k:'cable',id:p.cable},true); }
+  (S.works||[]).forEach(w=>{ if(w.state==='prep'){ add(w.from,'work',`${WORK_KINDS[w.kind].label} can start`,{k:'cable',id:w.cable}); add(w.to,'work',`${WORK_KINDS[w.kind].label} must have started`,{k:'cable',id:w.cable},true); } });
+  if(S.festival){ add(S.festival.from,'peak','Festival starts',{k:'node',id:S.festival.node}); add(S.festival.to,'peak','Festival ends',{k:'node',id:S.festival.node}); }
+  return out.sort((a,b)=>a.t-b.t);
+}
+function renderTimeline(){
+  const el=$('#timeline'); if(!el) return;
+  if(UI.mode!=='play'||!S||S.phase==='closed'||UI.replay){ el.hidden=true; return; }
+  el.hidden=false;
+  // the near future gets most of the room: the scale is stretched for the next hour and squeezed after that
+  const items=upcoming(), x=t=>Math.sqrt(Math.max(0,t-S.t)/TL_SPAN)*100;
+  let h='<span class="tl-now"></span>';
+  [15,30,60,120,180].forEach(m=>{ h+=`<span class="tl-tick" style="left:${x(S.t+m).toFixed(2)}%"><span>${fmtT(S.t+m)}</span></span>`; });
+  // markers that share a moment are nudged apart so each one can be clicked
+  const used=[];
+  items.forEach((it,i)=>{ let px=x(it.t); while(used.some(u=>Math.abs(u-px)<1.6)) px+=1.6; used.push(px);
+    const soon=it.dl&&it.t-S.t<=15;
+    h+=`<button class="tl-m ${it.dl?'dl':''} ${it.k}${soon?' soon':''}" style="left:${Math.min(98.5,px).toFixed(2)}%" data-act="tl-go" data-i="${i}" data-tip="${fmtT(it.t)} · ${it.label}${it.dl?' (deadline)':''}" aria-label="${fmtT(it.t)}: ${it.label}"></button>`; });
+  if(!items.length) h+=`<span class="tl-empty">Nothing scheduled in the next ${TL_SPAN/60} hours.</span>`;
+  h+=`<label class="tl-ap" title="Stop the clock 10 minutes before a deadline"><input type="checkbox" data-act="autopause" ${UI.settings.autoPause!==false?'checked':''}> Pause before deadlines</label>`;
+  el.innerHTML=h; UI.tlItems=items;
+}
+// stop the clock shortly before a deadline, once per deadline
+function checkAutoPause(){
+  if(UI.settings.autoPause===false||!S||S.paused) return;
+  S.apDone=S.apDone||{};
+  const hit=upcoming().find(it=>it.dl&&it.t-S.t<=10&&!S.apDone[it.key]);
+  if(hit){ S.apDone[hit.key]=1; S.paused=true; toast(`${hit.label} at ${fmtT(hit.t)}. Clock paused.`); sfx('alarmLo'); renderStats(); dirty=true; }
+}
+// ---------- Right-click menu ----------
+function ctxItems(k,id){
+  const it=[], lock=!canOrder(), B=(act,label,small,attrs,dis)=>it.push(`<button role="menuitem" data-act="${act}" ${attrs||''} ${lock||dis?'disabled':''}>${label}${small?`<small>${small}</small>`:''}</button>`);
+  let head='';
+  if(k==='sw'){
+    const sid=id, closed=S.sw[sid], pend=pendingFor(sid), inter=docsOn()&&!closed&&earthed(sid);
+    head=switchLabel(sid);
+    B('op',closed?'Open':'Close',pend?'already queued':inter?'interlocked with its earth':costText(sid),`data-sw="${sid}" data-close="${closed?0:1}"`,pend||inter||locked(nodeOfSw(sid)));
+    if(docsOn()&&!closed&&!earthed(sid)&&!earthPending(sid)) B('earth','Apply earth','a crew proves it dead first',`data-sw="${sid}" data-on="1"`,solve().cab[sid.split(':')[0]]);
+    if(docsOn()&&earthed(sid)) B('earth','Remove earth',permitOn(sid.split(':')[0])?'cancel the permit first':'',`data-sw="${sid}" data-on="0"`,!!permitOn(sid.split(':')[0]));
+    it.push('<hr>'); it.push(`<button role="menuitem" data-act="selsw" data-sw="${sid}">Show the substation</button>`);
+  } else if(k==='node'){
+    const n=N[id]; head=n.name;
+    it.push(`<button role="menuitem" data-act="seln" data-n="${id}">Show details</button>`);
+    if(n.kind!=='primary'){
+      if(!n.remote&&!crewOnSite(id)) B('visit','Send a crew to read the fault flag','',`data-n="${id}"`);
+      if(S.theft[id]) B('makesafe','Make safe after theft','',`data-n="${id}"`,safeBusy(id));
+      if(S.lvFault[id]) B('lvfix','Fix the street fault','',`data-n="${id}"`,nodeJobBusy(id,'lvfix'));
+      if(!S.on[id]){
+        if(!vanBlock(id)) B('van','Send the welfare van',`£${VAN.cost} + £${VAN.hourly}/h`,`data-n="${id}"`);
+        if(!genBlock(id)) B('gen','Hire a mobile generator',`£${fmtN(GEN.hire)} + £${GEN.hourly}/h`,`data-n="${id}"`);
+        if(!S.welfare[id]) B('welfare','Arrange welfare visits','£800',`data-n="${id}"`);
+      }
+    }
+  } else if(k==='cable'){
+    const c=CBL[id], lv=solve().cab[id], t=S.tested[id], f=faultOn(id), busy=S.crews.some(cr=>[cr.job,...cr.queue].some(j=>j&&j.cable===id&&j.type!=='clear'));
+    head=cableName(c);
+    it.push(`<button role="menuitem" data-act="selc" data-c="${id}">Show details</button>`);
+    if(t==='fault'&&f&&f.damage==='tree'&&!S.cleared[id]) B('clear','Clear trees from the line',lv?'make it dead first':'',`data-c="${id}"`,lv);
+    if(t==='fault') B('repair',`Repair the ${c.oh?'line':'cable'}`,lv?'make it dead first':busy?'already assigned':'',`data-c="${id}"`,lv||busy);
+    else if(t!=='repaired'&&c.oh) B('patrol','Patrol the line','',`data-c="${id}"`,busy);
+    else if(t!=='repaired') B('test','Test the cable',lv?'make it dead first':'',`data-c="${id}"`,lv||busy);
+    if(docsOn()){ const p=permitOn(id); if(p) B('permit-x',`Cancel ${p.no}`,'',`data-c="${id}"`); else B('permit','Issue permit to work',permitBlock(id)||'',`data-c="${id}"`,!!permitBlock(id)); }
+  }
+  return `<div class="cm-h">${head}</div>`+it.join('');
+}
+function openCtx(target,x,y){
+  if(!S||UI.mode!=='play'||UI.replay) return false;
+  const el=target.closest&&target.closest('#svg [data-k]'); if(!el) return false;
+  const m=$('#ctxMenu'); m.innerHTML=ctxItems(el.dataset.k,el.dataset.id); m.hidden=false;
+  const r=m.getBoundingClientRect(), W=innerWidth, H=innerHeight;
+  m.style.left=Math.max(6,Math.min(x,W-r.width-6))+'px'; m.style.top=Math.max(6,Math.min(y,H-r.height-6))+'px';
+  hidePreview(); const first=m.querySelector('button:not([disabled])'); if(first) first.focus({preventScroll:true});
+  return true;
+}
+function hideCtx(){ const m=$('#ctxMenu'); if(m&&!m.hidden){ m.hidden=true; m.innerHTML=''; } }
+// ---------- Highlights from the side panel ----------
+function showHl(spec){
+  const svg=$('#svg'), old=svg.querySelector('#hlg'); if(old) old.remove();
+  if(!spec||!S) return;
+  const [k,id]=spec.split(':'), P=n=>UI.view==='s'?N[n].s:N[n].m;
+  let g='';
+  const ring=n=>{ if(!N[n]) return; const p=P(n); g+=`<circle class="hl-ring" cx="${p[0]}" cy="${p[1]}" r="${UI.view==='s'?34:20}"/>`; };
+  if(k==='node') ring(id);
+  else if(k==='cable'&&CBL[id]) g+=`<polyline class="hl-line" points="${pts(CBL[id]).map(p=>p.join(',')).join(' ')}"/>`;
+  else if(k==='area') RMUS.filter(n=>!S.on[n]&&areaOf(n)===id).forEach(ring);
+  else if(k==='crew'){ const cr=S.crews[+id]; if(cr){ const j=cr.job; if(j&&j.cable) g+=`<polyline class="hl-line" points="${pts(CBL[j.cable]).map(p=>p.join(',')).join(' ')}"/>`; if(j) ring(j.node); else if(cr.at&&N[cr.at]) ring(cr.at); } }
+  if(g) svg.insertAdjacentHTML('beforeend',`<g id="hlg" pointer-events="none">${g}</g>`);
+}
+// ---------- First-time tips ----------
+const TIPS=[
+  {id:'alarms',when:()=>(S.alarms||[]).length>0,title:'Alarms',text:'Every warning lands in the alarm list under the header. Click one to jump to where it is, and acknowledge it once you have dealt with it.'},
+  {id:'ctx',when:()=>S.ops>=1,title:'Quicker orders',text:'Right-click a switch, cable or substation on the diagram (or press and hold on a touch screen) for its orders, without scrolling the side panel.'},
+  {id:'timeline',when:()=>upcoming().filter(x=>x.k!=='peak').length>=2,title:'What\'s coming up',text:'The bar under the diagram shows the next four hours: crew arrivals, finished jobs and deadlines (red diamonds). Hover a marker for details. The clock pauses before deadlines.'},
+  {id:'etr',when:()=>RMUS.some(n=>!S.on[n]&&S.t-S.offSince[n]>=10&&!(S.etr&&S.etr[areaOf(n)])),title:'Restoration times',text:'Customers are off and don\'t know when power is coming back. Give each area a time in the Incidents tab: they ring less, and meeting it builds confidence.',tab:'board'},
+  {id:'permit',when:()=>waitingCrews().length>0,title:'Permit to work',text:'A crew is waiting for a permit. Select the cable, earth it at both ends, then issue the permit. Afterwards, cancel the permit and remove the earths before switching back on.'},
+  {id:'tree',when:()=>S.faults.some(f=>f.active&&f.damage==='tree'&&(S.tested[f.cable]==='fault'||f.found)),title:'Tree on the line',text:'Send the tree team first: a line crew can\'t repair the line until they have cut the tree back. You can send the line crew at the same time and they will wait.'},
+  {id:'van',when:()=>RMUS.some(n=>!S.on[n]&&S.t-S.offSince[n]>=45),title:'Welfare van',text:'Some customers have been off for a while. Select their substation and send the welfare van: hot drinks, phone charging and checks on vulnerable households.'},
+];
+function seenTips(){ try{ return JSON.parse(localStorage.getItem('openpoint.tips')||'{}'); }catch(e){ return {}; } }
+function markTip(id){ const s=seenTips(); s[id]=1; try{ localStorage.setItem('openpoint.tips',JSON.stringify(s)); }catch(e){} }
+function checkTips(){
+  const el=$('#tipCard'); if(!el) return;
+  const off=UI.settings.tips===false||!S||UI.mode!=='play'||UI.overlay||UI.replay||tutStep()||S.phase==='closed';
+  if(off){ el.hidden=true; $('#minimap').classList.remove('up'); return; }
+  if(UI.tipNow&&!el.hidden) return;
+  const seen=seenTips(), t=TIPS.find(x=>!seen[x.id]&&!(UI.tipSkip||{})[x.id]&&x.when());
+  if(!t){ el.hidden=true; UI.tipNow=null; $('#minimap').classList.remove('up'); return; }
+  UI.tipNow=t.id;
+  el.innerHTML=`<b>${t.title}</b><p>${t.text}</p><div class="btnrow"><button class="btn" data-act="tip-ok">Got it</button>${t.tab?`<button class="btn alt" data-act="tip-show" data-tab="${t.tab}">Show me</button>`:''}<button class="linkbtn" data-act="tip-off">Turn off tips</button></div>`;
+  el.hidden=false; $('#minimap').classList.add('up'); decorate(el);
+}
+// ---------- Minimap ----------
+function renderMinimap(){
+  const mm=$('#minimap'); if(!mm) return;
+  const vb=UI.vb[UI.view];
+  // an <svg> has no .hidden property, so the attribute is set directly
+  if(!vb||UI.mode!=='play'||!S){ mm.setAttribute('hidden',''); return; }
+  const W=NET.w,H=NET.h, sol=solve();
+  mm.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  if(UI.mmKey!==UI.view+'|'+S.t+'|'+JSON.stringify(S.sw)){
+    UI.mmKey=UI.view+'|'+S.t+'|'+JSON.stringify(S.sw);
+    UI.mmBody=(UI.view==='m'?'':`<rect width="${W}" height="${H}" style="fill:var(--panel)"/>`)+CABLES.map(c=>`<polyline class="mm-c" points="${pts(c).map(p=>p.join(',')).join(' ')}" style="stroke:${col(sol.cab[c.id])}"/>`).join('')
+      +RMUS.filter(n=>!S.on[n]).map(n=>{ const p=UI.view==='s'?N[n].s:N[n].m; return `<circle cx="${p[0]}" cy="${p[1]}" r="14" style="fill:var(--fault)"/>`; }).join('');
+    if(UI.view==='m'&&NET.decor&&NET.decor.coast) UI.mmBody=`<rect width="${W}" height="${H}" style="fill:var(--sea)"/><path d="${NET.decor.coast}" style="fill:var(--land)"/>`+UI.mmBody;
+  }
+  mm.innerHTML=UI.mmBody+`<rect class="mm-v" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}"/>`;
+  mm.removeAttribute('hidden');
+}
+function minimapJump(e){
+  const mm=$('#minimap'), r=mm.getBoundingClientRect(), W=NET.w, H=NET.h, vb=UI.vb[UI.view]||fullVB();
+  const x=(e.clientX-r.left)/r.width*W, y=(e.clientY-r.top)/r.height*H;
+  setVB([x-vb[2]/2,y-vb[3]/2,vb[2],vb[3]]);
+}
+// ---------- The phone bottom sheet ----------
+const isSheet = ()=>matchMedia('(max-width:760px)').matches;
+function setSheet(px,snap){
+  const H=innerHeight, min=74, max=Math.round(H*0.9);
+  let v=Math.max(min,Math.min(max,px));
+  if(snap){ const stops=[min,Math.round(H*0.46),Math.round(H*0.88)]; v=stops.reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a); }
+  UI.sheet=v; document.documentElement.style.setProperty('--sheet',v+'px');
+}
+// ---------- Full screen ----------
+function toggleFullscreen(){
+  try{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(e){ toast('Full screen is not available here.'); }
+}
+// the desktop app (Electron) can quit; a web page can't close itself
+const canQuit = ()=>/Electron/i.test(navigator.userAgent);
+function openPause(){ if(!S||UI.mode!=='play') return; UI.pausePrev=S.paused; S.paused=true; UI.overlay='pause'; renderStats(); renderOverlay(); }
+function resumeFromPause(){ UI.overlay=null; if(S&&UI.pausePrev===false) S.paused=false; render(); }
 
 // ======================= Boot =======================
 const SAVE_VERSION=10;
@@ -5448,8 +5894,8 @@ function start(data){
     // first arrival: the first shift sits paused behind the control room screen
     const s1=SHIFTS.find(x=>x.id==='s1');
     newIncident(clone(MEGAWATT),s1.scen,s1.crews,s1);
-    let read=false; try{ read=localStorage.getItem('openpoint.letterRead')==='1'; }catch(e){}
-    UI.overlay='home'; UI.letter=!read;
+    // the title screen comes first; Play leads to Mags's letter or the control room
+    UI.overlay='title';
   }
   if(UI.mode==='edit'&&!E) UI.mode='play';
   useNetwork(UI.mode==='edit'?E.def:S.def);
