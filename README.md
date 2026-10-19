@@ -12,6 +12,9 @@ Open `index.html` in any modern browser. Nothing needs installing.
 - **Isolate** the faulty cable by opening the switches at both ends.
 - **Restore** customers by closing breakers and normally open points to back-feed from neighbouring feeders, without overloading them.
 - **Repair** the damage and return the network to normal running.
+- **Incidents board:** every live fault, damaged site and piece of work in one list, with customers off by area. Give each area an estimated restoration time (ETR) and update it as the job changes. Customers who know when power is coming back ring less, meeting an ETR builds public confidence, and missing one costs it.
+- **Field teams:** reactive crews take the faults, assessors patrol lines and read fault flags, a tree team cuts trees off lines before a crew can repair them, and on planned-work and career shifts a planned team does the maintenance and work requests.
+- **Welfare van:** for long power cuts, send the van with hot drinks, food, phone charging and checks on vulnerable customers. It heads home when the power is back.
 - **Safety documents:** before a crew repairs or maintains a cable, earth it at both ends and issue a permit to work. Afterwards, cancel the permit and remove the earths before switching it back on. Switching power onto an earthed cable causes a flashover. You can turn this off in Settings, and the training shift leaves it out.
 
 Incidents include:
