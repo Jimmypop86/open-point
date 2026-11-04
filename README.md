@@ -104,6 +104,4 @@ Drag the map with the mouse or one finger to move around it, and pinch or scroll
 
 ## Files
 
-- `index.html` is the standalone game.
-- `open-point.html` is the same game without the page header, used to publish it as a Claude artifact.
-- `art/` holds the optional hand-drawn art pack for the Isle of Ohm. See [art/ART-GUIDE.md](art/ART-GUIDE.md).
+- `index.html` is the whole game, in one file.
